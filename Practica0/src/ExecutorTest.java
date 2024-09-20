@@ -15,7 +15,7 @@ public class ExecutorTest {
 
         PacmanController pacMan = new MsPacManRandom();
         GhostController ghosts = new GhostsRandom();
-        // dfd
+        // branch arion
         System.out.println( 
             executor.runGame(pacMan, ghosts, 30) //last parameter defines speed
         );     
