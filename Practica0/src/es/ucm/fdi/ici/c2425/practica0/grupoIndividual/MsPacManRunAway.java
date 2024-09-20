@@ -1,46 +1,45 @@
 package es.ucm.fdi.ici.c2425.practica0.grupoIndividual;
 
 import java.awt.Color;
-import java.util.Random;
 
 import pacman.controllers.PacmanController;
 import pacman.game.Constants.MOVE;
+import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Game;
 import pacman.game.GameView;
 
 public class MsPacManRunAway extends PacmanController {
 
-	private Random rnd = new Random();
-	private MOVE[] allMoves = MOVE.values();
-
 	private Color[] colours = { Color.RED, Color.PINK, Color.CYAN, Color.ORANGE };
-
+	
 	@Override
 	public MOVE getMove(Game game, long timeDue) {
 
 		int mspacman = game.getPacmanCurrentNodeIndex();
-		GHOST nearest = null;
-		int distance = 0;
-		// Show way to ghosts
+		GHOST nearestGhostType = null;
+		int nearestGhost = 0;
+		int nearestDistance = 0;
+
 		for (GHOST ghostType : GHOST.values()) {
 			int ghost = game.getGhostCurrentNodeIndex(ghostType);
-			int ghostDistance = game.getShortestPathDistance(ghost, mspacman, game.getGhostLastMoveMade(ghostType));
-			if (nearest == null || ghostDistance < distance) {
-				nearest = ghostType;
-				ghostDistance = distance;
+			int distance = game.getShortestPathDistance(ghost, mspacman, game.getGhostLastMoveMade(ghostType));
+			if (nearestGhostType == null || distance < nearestDistance) {
+				nearestGhostType = ghostType;
+				nearestGhost = ghost;
+				nearestDistance = distance;
 			}
-
-			if (game.getGhostLairTime(ghostType) <= 0)
-				GameView.addPoints(game, colours[ghostType.ordinal()],
-						game.getShortestPath(ghost, mspacman, game.getGhostLastMoveMade(ghostType)));
 		}
+	
+//		if (game.getGhostLairTime(nearestGhostType) <= 0)
+//			GameView.addPoints(game, colours[nearestGhostType.ordinal()],
+//					game.getShortestPath(nearestGhost, mspacman, game.getGhostLastMoveMade(nearestGhostType)));
 
-		return allMoves[rnd.nextInt(allMoves.length)];
+		return game.getApproximateNextMoveAwayFromTarget(mspacman, nearestGhost, game.getPacmanLastMoveMade(), DM.PATH);
 	}
 
 	public String getName() {
-		return "MsPacManRandom";
+		return "MsPacManRunAway";
 	}
 
 }
