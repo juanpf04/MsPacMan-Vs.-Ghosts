@@ -19,17 +19,18 @@ public class MsPacManRunAway extends PacmanController {
 	@Override
 	public MOVE getMove(Game game, long timeDue) {
 
-		// Show lines to Pills
-//    	int[] activePowerPills = game.getActivePillsIndices();
-//    	
-//    	for(int i = 0; i< activePowerPills.length;i++) {
-//    		GameView.addLines(game, Color.CYAN, game.getPacmanCurrentNodeIndex(), activePowerPills[i]);
-//    	}
-
+		int mspacman = game.getPacmanCurrentNodeIndex();
+		GHOST nearest = null;
+		int distance = 0;
 		// Show way to ghosts
 		for (GHOST ghostType : GHOST.values()) {
 			int ghost = game.getGhostCurrentNodeIndex(ghostType);
-			int mspacman = game.getPacmanCurrentNodeIndex();
+			int ghostDistance = game.getShortestPathDistance(ghost, mspacman, game.getGhostLastMoveMade(ghostType));
+			if (nearest == null || ghostDistance < distance) {
+				nearest = ghostType;
+				ghostDistance = distance;
+			}
+
 			if (game.getGhostLairTime(ghostType) <= 0)
 				GameView.addPoints(game, colours[ghostType.ordinal()],
 						game.getShortestPath(ghost, mspacman, game.getGhostLastMoveMade(ghostType)));
