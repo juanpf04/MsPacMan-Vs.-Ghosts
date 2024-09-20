@@ -21,7 +21,7 @@ public class ExecutorTest {
 
         PacmanController pacMan = null; 
         
-        switch (3) {
+        switch (4) {
 		case 1: 
 			pacMan = new HumanController(new KeyBoardInput());
 			break;
@@ -38,7 +38,7 @@ public class ExecutorTest {
         
         GhostController ghosts = null;
         
-        switch (2) {
+        switch (3) {
 		case 1: 
 			ghosts = new GhostsRandom();
 			break;
@@ -51,7 +51,7 @@ public class ExecutorTest {
 		}
         
         System.out.println( 
-            executor.runGame(pacMan, ghosts, 50) //last parameter defines speed
+            executor.runGame(pacMan, ghosts, 30) //last parameter defines speed
         );     
     }
 	

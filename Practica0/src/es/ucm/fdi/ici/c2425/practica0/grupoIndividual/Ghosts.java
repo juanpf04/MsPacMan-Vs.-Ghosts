@@ -25,6 +25,6 @@ public final class Ghosts extends GhostController {
     }
     
     public String getName() {
-    	return "GhostsRandom";
+    	return "JGhosts";
     }
 }

@@ -39,7 +39,7 @@ public class MsPacMan extends PacmanController {
 	}
 
 	public String getName() {
-		return "MsPacManRandom";
+		return "JPacMan";
 	}
 
 }
