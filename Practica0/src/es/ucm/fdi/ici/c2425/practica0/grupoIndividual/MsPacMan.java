@@ -13,7 +13,7 @@ import pacman.game.GameView;
 public class MsPacMan extends PacmanController {
 
 	private final static Color[] COLOURS = { Color.RED, Color.PINK, Color.CYAN, Color.ORANGE };
-	private final static int LIMIT_DISTANCE = 100;
+	private final static int LIMIT_DISTANCE = 50;
 
 	private int currentNode;
 	private MOVE lastMove;
@@ -29,7 +29,7 @@ public class MsPacMan extends PacmanController {
 			int ghostNode = game.getGhostCurrentNodeIndex(nearestGhost);
 
 			GameView.addPoints(game, COLOURS[nearestGhost.ordinal()],
-					game.getShortestPath(this.currentNode, ghostNode));
+					game.getShortestPath(ghostNode, this.currentNode, game.getGhostLastMoveMade(nearestGhost)));
 
 			return game.getNextMoveAwayFromTarget(this.currentNode, ghostNode, DM.PATH);
 
@@ -40,7 +40,7 @@ public class MsPacMan extends PacmanController {
 		if (nearestGhost != null) {
 			int ghostNode = game.getGhostCurrentNodeIndex(nearestGhost);
 
-			GameView.addPoints(game, Color.BLUE, game.getShortestPath(this.currentNode, ghostNode));
+			GameView.addPoints(game, Color.BLUE, game.getShortestPath(this.currentNode, ghostNode, this.lastMove));
 
 			return game.getNextMoveTowardsTarget(this.currentNode, ghostNode, DM.PATH);
 		}
