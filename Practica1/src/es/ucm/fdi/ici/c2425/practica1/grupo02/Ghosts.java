@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica1.grupoYY;
+package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
 import java.util.EnumMap;
 
