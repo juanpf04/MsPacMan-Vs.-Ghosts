@@ -11,7 +11,7 @@ import pacman.game.Game;
 
 public final class Ghosts extends GhostController {
 
-	private final static int LIMIT_DISTANCE = 50;
+	private final static int LIMIT_DISTANCE = 60;
 
 	private EnumMap<GHOST, MOVE> moves = new EnumMap<GHOST, MOVE>(GHOST.class);
 	private MOVE[] allMoves = MOVE.values();
@@ -28,11 +28,12 @@ public final class Ghosts extends GhostController {
 
 				if (game.isGhostEdible(ghost) || isPacmanCloseToPowerPill(game))
 					this.moves.put(ghost,
-							game.getNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(ghost), mspacman, DM.PATH));
+							game.getNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(ghost), mspacman,
+							game.getGhostLastMoveMade(ghost), DM.EUCLID));
 				else {
 					if (this.rnd.nextFloat() < 0.9)
-						this.moves.put(ghost,
-								game.getNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost), mspacman, DM.PATH));
+						this.moves.put(ghost, game.getNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost),
+								mspacman, game.getGhostLastMoveMade(ghost), DM.EUCLID));
 					else
 						this.moves.put(ghost, this.allMoves[this.rnd.nextInt(this.allMoves.length)]);
 
@@ -44,7 +45,8 @@ public final class Ghosts extends GhostController {
 
 	private boolean isPacmanCloseToPowerPill(Game game) {
 		for (int powerPill : game.getActivePowerPillsIndices()) {
-			if (game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(), powerPill) < LIMIT_DISTANCE)
+			if (game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(), powerPill,
+					game.getPacmanLastMoveMade()) < LIMIT_DISTANCE)
 				return true;
 		}
 

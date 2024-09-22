@@ -31,7 +31,7 @@ public class MsPacMan extends PacmanController {
 			GameView.addPoints(game, COLOURS[nearestGhost.ordinal()],
 					game.getShortestPath(ghostNode, this.currentNode, game.getGhostLastMoveMade(nearestGhost)));
 
-			return game.getNextMoveAwayFromTarget(this.currentNode, ghostNode, DM.PATH);
+			return game.getNextMoveAwayFromTarget(this.currentNode, ghostNode, this.lastMove, DM.EUCLID);
 
 		}
 
@@ -42,14 +42,14 @@ public class MsPacMan extends PacmanController {
 
 			GameView.addPoints(game, Color.BLUE, game.getShortestPath(this.currentNode, ghostNode, this.lastMove));
 
-			return game.getNextMoveTowardsTarget(this.currentNode, ghostNode, DM.PATH);
+			return game.getNextMoveTowardsTarget(this.currentNode, ghostNode, this.lastMove, DM.EUCLID);
 		}
 
 		int nearestPill = this.getNearestPill(game);
 
 		GameView.addLines(game, Color.WHITE, this.currentNode, nearestPill);
 
-		return game.getNextMoveTowardsTarget(this.currentNode, nearestPill, this.lastMove, DM.PATH);
+		return game.getNextMoveTowardsTarget(this.currentNode, nearestPill, this.lastMove, DM.EUCLID);
 	}
 
 	private GHOST getNearestChasingGhost(Game game) {
@@ -66,7 +66,8 @@ public class MsPacMan extends PacmanController {
 
 		for (GHOST ghost : GHOST.values()) {
 			if (game.getGhostLairTime(ghost) <= 0) {
-				int distance = game.getShortestPathDistance(this.currentNode, game.getGhostCurrentNodeIndex(ghost));
+				int distance = game.getShortestPathDistance(this.currentNode, game.getGhostCurrentNodeIndex(ghost),
+						this.lastMove);
 
 				if (filter.test(ghost) && distance < LIMIT_DISTANCE
 						&& (nearestGhost == null || distance < nearestDistance)) {

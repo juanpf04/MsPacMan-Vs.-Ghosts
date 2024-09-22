@@ -21,7 +21,7 @@ public class ExecutorTest {
 
         PacmanController pacMan = null; 
         
-        switch (4) {
+        switch (1) {
 		case 1: 
 			pacMan = new HumanController(new KeyBoardInput());
 			break;
