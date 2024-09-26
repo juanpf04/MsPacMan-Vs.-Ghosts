@@ -18,6 +18,11 @@ public class MsPacMan extends PacmanController {
 	private int currentNode;
 	private MOVE lastMove;
 
+	public MsPacMan() {
+		this.setName("Fantasmikos");
+		this.setTeam("Grupo02");
+	}
+
 	@Override
 	public MOVE getMove(Game game, long timeDue) {
 		this.currentNode = game.getPacmanCurrentNodeIndex();
@@ -94,10 +99,6 @@ public class MsPacMan extends PacmanController {
 		}
 
 		return nearestPill;
-	}
-
-	public String getName() {
-		return "Fantasmikos";
 	}
 
 }

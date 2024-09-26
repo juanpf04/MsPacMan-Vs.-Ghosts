@@ -17,6 +17,11 @@ public final class Ghosts extends GhostController {
 	private MOVE[] allMoves = MOVE.values();
 	private Random rnd = new Random();
 
+	public Ghosts() {
+		this.setName("Fantasmikos");
+		this.setTeam("Grupo02");
+	}
+
 	@Override
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
 		this.moves.clear();
@@ -27,8 +32,7 @@ public final class Ghosts extends GhostController {
 			if (game.doesGhostRequireAction(ghost)) {
 
 				if (game.isGhostEdible(ghost) || isPacmanCloseToPowerPill(game))
-					this.moves.put(ghost,
-							game.getNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(ghost), mspacman,
+					this.moves.put(ghost, game.getNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(ghost), mspacman,
 							game.getGhostLastMoveMade(ghost), DM.EUCLID));
 				else {
 					if (this.rnd.nextFloat() < 0.9)
@@ -53,7 +57,4 @@ public final class Ghosts extends GhostController {
 		return false;
 	}
 
-	public String getName() {
-		return "Fantasmikos";
-	}
 }
