@@ -1,5 +1,6 @@
 package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,6 +11,8 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 import pacman.game.internal.Node;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MsPacMan extends PacmanController{
 
@@ -53,12 +56,17 @@ public class MsPacMan extends PacmanController{
     //Pasar a clase general. Se encarga de iniciar los caminos posibles tras el estudio de los mismos desde el nodo de intersección en el que estamos
     private void initializePaths(Map<MOVE, Variables> caminos, Game game, Map<Integer,GHOST> ghostIndices, int pacmanNode) {
     	
-    	for (Map.Entry<MOVE, int[]> entry : game.getCurrentMaze().graph[pacmanNode].allNeighbouringNodes.entrySet()) 
-    		if(entry.getKey() != game.getPacmanLastMoveMade().opposite()) {
-				int nodes[] = game.getCurrentMaze().graph[pacmanNode].allNeighbouringNodes.get(entry.getKey());
-				Variables camino = studyPath(game, nodes, pacmanNode, ghostIndices);
-				caminos.put(entry.getKey(), camino);
-    		}
+    	EnumMap<MOVE, Integer> movements = game.getCurrentMaze().graph[pacmanNode].allNeighbourhoods.get(game.getPacmanLastMoveMade());
+    	
+    	if(movements != null) {
+	    	for (Map.Entry<MOVE, Integer> entry : movements.entrySet()) {
+	    		
+    			 List<Integer> nodes = path(game, entry.getValue(), entry.getKey());
+    			 Variables camino = studyPath(game, nodes, pacmanNode, ghostIndices);
+    			 caminos.put(entry.getKey(), camino);
+	    		
+	    	}
+    	}
 		
     }
     
@@ -68,7 +76,7 @@ public class MsPacMan extends PacmanController{
     	for(GHOST g: GHOST.values()) {
     		int index = game.getGhostCurrentNodeIndex(g);
     		
-    		if(ghostIndices.get(index) != null) {
+    		if(ghostIndices.get(index) == null) {
     			ghostIndices.put(index, g);
     		}
     	}
@@ -87,17 +95,31 @@ public class MsPacMan extends PacmanController{
     	return nGhosts == 4;
     }
     
-    
+    private List<Integer> path(Game game, int node, MOVE m) {
+    	List<Integer> nodes = new ArrayList<>();
+    	EnumMap<MOVE, Integer> move = game.getCurrentMaze().graph[node].allNeighbourhoods.get(m);
+    	MOVE mv = m;
+    	if(move != null) nodes.add(node);
+    	while(move.containsKey(mv)) {
+    		Integer index = move.get(mv);
+    		nodes.add(index);
+    		
+    		move = game.getCurrentMaze().graph[index].allNeighbourhoods.get(mv);
+    	}
+    	
+    	return nodes;
+    	
+    }
     //Estudiamos el camino
-    private Variables studyPath(Game game, int nodes[], int initialNode,Map<Integer,GHOST> ghostIndices) {
+    private Variables studyPath(Game game, List<Integer> nodes, int initialNode,Map<Integer,GHOST> ghostIndices) {
     	int i = 0;
     	Variables v = new Variables(0,0);
     	
-    	while(i < nodes.length && !game.isJunction(game.getCurrentMaze().graph[nodes[i]].numNeighbouringNodes)) {
-    		Node nodo = game.getCurrentMaze().graph[nodes[i]];
+    	while(i < nodes.size() && !game.isJunction(game.getCurrentMaze().graph[nodes.get(i)].numNeighbouringNodes)) {
+    		Node nodo = game.getCurrentMaze().graph[nodes.get(i)];
     		
     	
-    		if(ghostIndices.containsKey(i) && game.getDistance(initialNode, nodes[i], DM.MANHATTAN) <= RANGE) {
+    		if(ghostIndices.containsKey(i) && game.getDistance(initialNode, nodes.get(i), DM.MANHATTAN) <= RANGE) {
     			v.setNearestGhosts(ghostIndices.get(i));
     		}
     		if(nodo.pillIndex != -1) {
@@ -111,7 +133,7 @@ public class MsPacMan extends PacmanController{
     		i++;
     	}
     	
-    	v.setDistanceFromNearestIndex(game.getDistance(initialNode, nodes[i < nodes.length ? i : i - 1], DM.MANHATTAN));
+    	v.setDistanceFromNearestIndex(game.getDistance(initialNode, nodes.get(i < nodes.size() ? i : i - 1), DM.MANHATTAN));
     	
     	return v;
     }
@@ -149,6 +171,7 @@ public class MsPacMan extends PacmanController{
 			
 			
 			mejor_camino.put(puntos_camino, entry.getKey());
+			puntos_camino = 0;
 		}
     	
     	return mejor_camino.lastEntry().getValue();
