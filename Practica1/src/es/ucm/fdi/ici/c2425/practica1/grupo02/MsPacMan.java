@@ -148,46 +148,35 @@ public class MsPacMan extends PacmanController {
 		return nGhosts == 4;
 	}
 
-	private PathInfo pathJP(int node, MOVE m, List<Integer> nodes,
-			int puntuacion) {
-		Map<Integer, MOVE> sol = new HashMap<>();
-		
-		// Si la lista de nodos esta vacia (primera llamada) la iniciamos
+	private PathInfo pathJP(int node, MOVE m, List<Integer> nodes, int puntuacion) {
+		PathInfo sol = new PathInfo(0, node, -1, null, null);
+
 		if (nodes == null)
 			nodes = new ArrayList<>();
-		
-		// Calculamos el nodo correspondiente al movimiento especificado
+
 		EnumMap<MOVE, Integer> move = game.getCurrentMaze().graph[node].allNeighbourhoods.get(m);
-		
+
 		Integer index = -1;
-		// Recorrer todos los caminos hasta el siguiente nodo de interseccion
 		while (move.containsKey(m) && !game.isJunction(move.get(m))) {
 			index = move.get(m);
-			
-			// Analiza cada nodo del camino y suma la puntuacion
+
 			puntuacion += analyzeNode(node);
-			
-			// A�ade el nodo al array de nodos, para saber el ultimo nodo antes del actual y
-			// calcular el lastMove
+
 			nodes.add(node);
-			
-			// Avanzar nodo
+
 			move = game.getCurrentMaze().graph[index].allNeighbourhoods.get(m);
 		}
-		
-		// Una vez que hemos recorrido todo el camino hasta el nodo de interseccion
-		// sumamos la puntuacion relativa a la distancia del camino
+
 		puntuacion += game.getShortestPathDistance(node, nodes.get(nodes.size() - 1),
 				lastMove(nodes.get(nodes.size() - 1), nodes.get(nodes.size() - 2))) * VALUE_PER_NODE;
-		
-		// A�adir la puntuacoin obtenida en este camino junto al move original del que
-		// proviene
-		sol.put(puntuacion, m);
-		
+
+		sol.points = puntuacion;
+		sol.startMove = m;
+
 		return sol;
 	}
-	private Map<Integer, MOVE> path(int node, MOVE m, List<Integer> nodes,
-			int puntuacion) {
+
+	private Map<Integer, MOVE> path(int node, MOVE m, List<Integer> nodes, int puntuacion) {
 		Map<Integer, MOVE> sol = new HashMap<>();
 
 		// Si la lista de nodos esta vacia (primera llamada) la iniciamos
