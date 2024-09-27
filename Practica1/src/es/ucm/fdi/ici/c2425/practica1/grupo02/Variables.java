@@ -7,6 +7,7 @@ import pacman.game.Constants.GHOST;
 
 public class Variables {
 	
+	private List<Integer> nodes;
 	private List<GHOST> nearestGhosts;
 	private int nPills;
 	private double distanceFromNearestIndex;
@@ -15,6 +16,7 @@ public class Variables {
 	
 	public Variables(int nPills, double distanceFromNearestIndex) {
 		this.nearestGhosts = new ArrayList<>();
+		this.nodes = new ArrayList<>();
 		this.nPills = nPills;
 		this.distanceFromNearestIndex = distanceFromNearestIndex;
 		this.powerPill =false;
@@ -60,5 +62,13 @@ public class Variables {
 	
 	public void setNumberOfGhosts(int n) {
 		this.numberOfGhost = n;
+	}
+	
+	public List<Integer> getNodeList(){
+		return this.nodes;
+	}
+	
+	public void addNodes(List<Integer> nodes) {
+		this.nodes.addAll(this.nodes.size() - 1, nodes);
 	}
 }
