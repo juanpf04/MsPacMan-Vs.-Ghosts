@@ -1,6 +1,5 @@
 package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,7 +10,6 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 import pacman.game.internal.Node;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MsPacMan extends PacmanController {
@@ -31,6 +29,10 @@ public class MsPacMan extends PacmanController {
 		public MOVE startMove;
 		public MOVE endMove;
 
+		public PathInfo() {
+			this(0, -1, -1, null, null);
+		}
+
 		public PathInfo(int points, int startNode, int endNode, MOVE startMove, MOVE endMove) {
 			this.points = points;
 			this.startNode = startNode;
@@ -41,7 +43,8 @@ public class MsPacMan extends PacmanController {
 	}
 
 	private Game game;
-	private int node;
+	private int currentNode;
+	private MOVE lastMove;
 	private Map<Integer, GHOST> ghostIndices;
 
 	public MsPacMan() {
@@ -50,42 +53,45 @@ public class MsPacMan extends PacmanController {
 		ghostIndices = new HashMap<Integer, GHOST>();
 	}
 
+	private void reset(Game game) {
+		this.game = game;
+		this.currentNode = this.game.getPacmanCurrentNodeIndex();
+		this.lastMove = this.game.getPacmanLastMoveMade();
+	}
+
 	@Override
 	public MOVE getMove(Game game, long timeDue) {
 		this.reset(game);
 
-		if (this.game.isJunction(this.node))
+		if (this.doesMsPacManRequireAction())
 			return this.bestMove();
 
 		return MOVE.NEUTRAL;
 	}
 
-	private void reset(Game game) {
-		this.game = game;
-		this.node = this.game.getPacmanCurrentNodeIndex();
-
+	private boolean doesMsPacManRequireAction() {
+		return this.game.getPossibleMoves(this.currentNode, this.lastMove).length > 1;
 	}
 
 	private MOVE bestMove() {
-		return this.bestPath(this.node, this.game.getPacmanLastMoveMade(), 3, null).startMove;
+		return this.bestPath(this.currentNode, this.lastMove, 3, null).startMove; // 1 = profundidad
 	}
 
-	private PathInfo bestPath(int currentNode, MOVE lastMove, int count, Object currentState) {
-		PathInfo bestPath = new PathInfo(0, currentNode, -1, null, null);
+	private PathInfo bestPath(int currentNode, MOVE lastMove, int depth, Object currentState) {
+		PathInfo bestPath = new PathInfo();
 
-		if (count == 0)
+		if (depth == 0)
 			return bestPath;
 
 		MOVE[] possibleMoves = this.game.getPossibleMoves(currentNode, lastMove);
 
-		for (MOVE move : possibleMoves) { // cada Movimiento
+		for (MOVE move : possibleMoves) {
+			PathInfo path = this.getPath(currentNode, move);
 
-			// calcular puntos y nodo siguiente inters y lastMove
-			PathInfo path = this.pathJP(currentNode, lastMove, null, count);
 			// calcular nuevas posiciones fantasmas
 			// calcular nuevas posiciones pills y ppills
 
-			PathInfo bestSecondPath = this.bestPath(0, null, count - 1, null);
+			PathInfo bestSecondPath = this.bestPath(0, null, depth - 1, null);
 
 			int points = path.points + bestSecondPath.points;
 
@@ -99,28 +105,31 @@ public class MsPacMan extends PacmanController {
 		return bestPath;
 	}
 
-	// Pasar a clase general. Se encarga de iniciar los caminos posibles tras el
-	// estudio de los mismos desde el nodo de intersecci�n en el que estamos
-	private TreeMap<Integer, MOVE> initializePaths(List<Integer> nodes, Map<Integer, Variables> nodeMap,
-			int currentNode, int iteracion, MOVE lastMode, int puntuacion, TreeMap<Integer, MOVE> sol) {
+	private PathInfo getPath(int startNode, MOVE startMove) {
+		PathInfo path = new PathInfo(0, startNode, -1, startMove, null);
 
-		EnumMap<MOVE, Integer> movements = game.getCurrentMaze().graph[currentNode].allNeighbourhoods.get(lastMode);
+		int currentNode = startNode;
+		MOVE currentMove = startMove;
 
-		if (iteracion > 3) {
-			return sol;
-		}
+		int endNode = this.game.getNeighbour(startNode, currentMove);
 
-		if (movements != null && iteracion <= 3) {
-			for (Map.Entry<MOVE, Integer> entry : movements.entrySet()) {
+		while (!game.isJunction(endNode)) {
+			path.points += analyzeNode(endNode);
 
-				sol.putAll(path(entry.getValue(), entry.getKey(), nodes, puntuacion));
-
-				initializePaths(nodes, nodeMap, nodes.get(nodes.size() - 1), iteracion + 1,
-						lastMove(nodes.get(nodes.size() - 1), nodes.get(nodes.size() - 2)), puntuacion, sol);
+			currentNode = endNode;
+			endNode = this.game.getNeighbour(currentNode, currentMove);
+			if (endNode == -1) {
+				// solo va a haber un movimiento posible
+				currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
+				endNode = this.game.getNeighbour(currentNode, currentMove);
 			}
 		}
 
-		return sol;
+		path.points += game.getShortestPathDistance(startNode, endNode, startMove) * VALUE_PER_NODE;
+		path.endNode = endNode;
+		path.endMove = this.game.getMoveToMakeToReachDirectNeighbour(currentNode, endNode);
+
+		return path;
 	}
 
 	// Guardamos en un mapa el nodo de cada fantasma.
@@ -146,90 +155,6 @@ public class MsPacMan extends PacmanController {
 		}
 
 		return nGhosts == 4;
-	}
-
-	private PathInfo pathJP(int node, MOVE m, List<Integer> nodes, int puntuacion) {
-		PathInfo sol = new PathInfo(0, node, -1, null, null);
-
-		if (nodes == null)
-			nodes = new ArrayList<>();
-
-		EnumMap<MOVE, Integer> move = game.getCurrentMaze().graph[node].allNeighbourhoods.get(m);
-
-		Integer index = -1;
-		while (move.containsKey(m) && !game.isJunction(move.get(m))) {
-			index = move.get(m);
-
-			puntuacion += analyzeNode(node);
-
-			nodes.add(node);
-
-			move = game.getCurrentMaze().graph[index].allNeighbourhoods.get(m);
-		}
-
-		puntuacion += game.getShortestPathDistance(node, nodes.get(nodes.size() - 1),
-				lastMove(nodes.get(nodes.size() - 1), nodes.get(nodes.size() - 2))) * VALUE_PER_NODE;
-
-		sol.points = puntuacion;
-		sol.startMove = m;
-
-		return sol;
-	}
-
-	private Map<Integer, MOVE> path(int node, MOVE m, List<Integer> nodes, int puntuacion) {
-		Map<Integer, MOVE> sol = new HashMap<>();
-
-		// Si la lista de nodos esta vacia (primera llamada) la iniciamos
-		if (nodes == null)
-			nodes = new ArrayList<>();
-
-		// Calculamos el nodo correspondiente al movimiento especificado
-		EnumMap<MOVE, Integer> move = game.getCurrentMaze().graph[node].allNeighbourhoods.get(m);
-
-		Integer index = -1;
-		// Recorrer todos los caminos hasta el siguiente nodo de interseccion
-		while (move.containsKey(m) && !game.isJunction(move.get(m))) {
-			index = move.get(m);
-
-			// Analiza cada nodo del camino y suma la puntuacion
-			puntuacion += analyzeNode(node);
-
-			// A�ade el nodo al array de nodos, para saber el ultimo nodo antes del actual y
-			// calcular el lastMove
-			nodes.add(node);
-
-			// Avanzar nodo
-			move = game.getCurrentMaze().graph[index].allNeighbourhoods.get(m);
-		}
-
-		// Una vez que hemos recorrido todo el camino hasta el nodo de interseccion
-		// sumamos la puntuacion relativa a la distancia del camino
-		puntuacion += game.getShortestPathDistance(node, nodes.get(nodes.size() - 1),
-				lastMove(nodes.get(nodes.size() - 1), nodes.get(nodes.size() - 2))) * VALUE_PER_NODE;
-
-		// A�adir la puntuacoin obtenida en este camino junto al move original del que
-		// proviene
-		sol.put(puntuacion, m);
-
-		return sol;
-	}
-
-	private MOVE lastMove(int currentIndex, int lastIndex) {
-		int diferencia = currentIndex - lastIndex;
-
-		switch (diferencia) {
-		case 1:
-			return MOVE.RIGHT;
-		case -1:
-			return MOVE.LEFT;
-		default:
-			if (diferencia > 0) {
-				return MOVE.UP;
-			} else if (diferencia < 0) {
-				return MOVE.DOWN;
-			} else
-				return MOVE.NEUTRAL;
-		}
 	}
 
 	private int analyzeNode(int node) {
