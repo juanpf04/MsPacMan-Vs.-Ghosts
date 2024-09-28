@@ -14,6 +14,7 @@ public class MsPacMan extends PacmanController {
 	private static final int VALUE_PATH_GHOST_NOT_EDIBLE = -1500;
 	private static final int VALUE_PATH_GHOST_EDIBLE = +1000;
 	private static final int VALUE_PER_NODE = 20;
+	private static final int DEPTH = 3;
 
 	public class PathInfo {
 		public int points;
@@ -40,19 +41,34 @@ public class MsPacMan extends PacmanController {
 	private int currentNode;
 	private MOVE lastMove;
 	private int currentLevel;
+	private int eatMultiplier;
 
-	// TODO: añadir marcadores de posiciones fantasmas, pills y ppills (el estado
-	// del juego en general)
 	private Set<Integer> ghostsNodes;
+	private Set<Integer> eGhostsNodes;
+	private Set<Integer> pillsNodes;
+	private Set<Integer> ppillsNodes;
+
+	// TODO: implementar marcadores de posiciones fantasmas, pills y ppills
 
 	public MsPacMan() {
 		this.setName("Fantasmikos");
 		this.setTeam("Grupo02");
+
+		// Initialize variables
 		this.game = null;
 		this.currentLevel = -1;
+		this.eatMultiplier = 1;
 		this.ghostsNodes = new HashSet<>();
+		this.eGhostsNodes = new HashSet<>();
+		this.pillsNodes = new HashSet<>();
+		this.ppillsNodes = new HashSet<>();
 	}
 
+	/**
+	 * Updates the game state and variables if needed.
+	 * 
+	 * @param game The game state.
+	 */
 	private void update(Game game) {
 		if (this.game == null)
 			this.game = game;
@@ -60,12 +76,27 @@ public class MsPacMan extends PacmanController {
 		this.currentNode = this.game.getPacmanCurrentNodeIndex();
 		this.lastMove = this.game.getPacmanLastMoveMade();
 
-		// TODO: calcular nodos de fantasmas
+		for (GHOST ghost : GHOST.values()) {
+			if (this.game.getGhostLairTime(ghost) <= 0) {
+				int ghostNode = this.game.getGhostCurrentNodeIndex(ghost);
+
+				if (this.game.isGhostEdible(ghost))
+					this.eGhostsNodes.add(ghostNode);
+				else
+					this.ghostsNodes.add(ghostNode);
+			}
+		}
 
 		if (this.currentLevel != this.game.getCurrentLevel()) {
 			this.currentLevel = this.game.getCurrentLevel();
 
-			// TODO: resetear valores pills y ppills
+			int pills[] = this.game.getActivePillsIndices();
+			for (int pill : pills)
+				this.pillsNodes.add(pill);
+
+			int ppills[] = this.game.getActivePowerPillsIndices();
+			for (int ppill : ppills)
+				this.pillsNodes.add(ppill);
 		}
 	}
 
@@ -85,6 +116,7 @@ public class MsPacMan extends PacmanController {
 	 * @return True if needs to make a decision, false otherwise.
 	 */
 	private boolean doesMsPacManRequireAction() {
+		// Check if MsPacMan is in a junction (has more than one possible move)
 		return this.game.getPossibleMoves(this.currentNode, this.lastMove).length > 1;
 	}
 
@@ -94,7 +126,7 @@ public class MsPacMan extends PacmanController {
 	 * @return The best move for MsPacMan.
 	 */
 	private MOVE bestMove() {
-		return this.bestPath(this.currentNode, this.lastMove, 2, null).startMove; // 1 = profundidad
+		return this.bestPath(this.currentNode, this.lastMove, DEPTH, null).startMove;
 	}
 
 	/**
@@ -142,6 +174,7 @@ public class MsPacMan extends PacmanController {
 	 * 
 	 * @param startNode The start node index.
 	 * @param startMove The start move.
+	 * @param depth     The depth of the search.
 	 * @return The path for MsPacMan.
 	 */
 	private PathInfo getPath(int startNode, MOVE startMove) {
@@ -161,7 +194,8 @@ public class MsPacMan extends PacmanController {
 
 		}
 
-		path.points += game.getShortestPathDistance(startNode, endNode, startMove) * VALUE_PER_NODE; // TODO: revisar
+		// path.points += game.getShortestPathDistance(startNode, endNode, startMove) *
+		// VALUE_PER_NODE; // TODO: revisar
 		path.endNode = endNode;
 		path.endMove = this.game.getMoveToMakeToReachDirectNeighbour(currentNode, endNode);
 
@@ -177,16 +211,15 @@ public class MsPacMan extends PacmanController {
 	private int getNodePoints(int node) { // FIXME: implement
 		int points = 0;
 
-		Node n = game.getCurrentMaze().graph[node];
-
-		if (ghostsNodes.contains(node)) {
+		if (this.ghostsNodes.contains(node))
 			points += VALUE_PATH_GHOST_NOT_EDIBLE;
-		}
-		if (n.pillIndex != -1) {
+		if (this.eGhostsNodes.contains(node))
+			points += ++this.eatMultiplier * Constants.GHOST_EAT_SCORE;
+
+		if (this.pillsNodes.contains(node))
 			points += Constants.PILL;
-		} else if (n.powerPillIndex != -1) {
+		else if (this.ppillsNodes.contains(node))
 			points += Constants.POWER_PILL;
-		}
 
 		return points;
 	}
