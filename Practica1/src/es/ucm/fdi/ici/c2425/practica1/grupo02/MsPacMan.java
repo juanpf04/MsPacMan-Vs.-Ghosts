@@ -69,14 +69,33 @@ public class MsPacMan extends PacmanController {
 		return MOVE.NEUTRAL;
 	}
 
+	/**
+	 * Checks if MsPacMan needs to make a decision.
+	 * 
+	 * @return True if needs to make a decision, false otherwise.
+	 */
 	private boolean doesMsPacManRequireAction() {
 		return this.game.getPossibleMoves(this.currentNode, this.lastMove).length > 1;
 	}
 
+	/**
+	 * Returns the best move for MsPacMan.
+	 * 
+	 * @return The best move for MsPacMan.
+	 */
 	private MOVE bestMove() {
 		return this.bestPath(this.currentNode, this.lastMove, 3, null).startMove; // 1 = profundidad
 	}
 
+	/**
+	 * Returns the best path for MsPacMan.
+	 * 
+	 * @param currentNode  The current node index.
+	 * @param lastMove     The last move.
+	 * @param depth        The depth of the search.
+	 * @param currentState The current state of the game.
+	 * @return The best path for MsPacMan.
+	 */
 	private PathInfo bestPath(int currentNode, MOVE lastMove, int depth, Object currentState) {
 		PathInfo bestPath = new PathInfo();
 
@@ -105,6 +124,13 @@ public class MsPacMan extends PacmanController {
 		return bestPath;
 	}
 
+	/**
+	 * Returns the path for MsPacMan.
+	 * 
+	 * @param startNode The start node index.
+	 * @param startMove The start move.
+	 * @return The path for MsPacMan.
+	 */
 	private PathInfo getPath(int startNode, MOVE startMove) {
 		PathInfo path = new PathInfo(0, startNode, -1, startMove, null);
 
@@ -114,7 +140,7 @@ public class MsPacMan extends PacmanController {
 		int endNode = this.game.getNeighbour(startNode, currentMove);
 
 		while (!game.isJunction(endNode)) {
-			path.points += analyzeNode(endNode);
+			path.points += getNodePoints(endNode);
 
 			currentNode = endNode;
 			endNode = this.game.getNeighbour(currentNode, currentMove);
@@ -132,32 +158,13 @@ public class MsPacMan extends PacmanController {
 		return path;
 	}
 
-	// Guardamos en un mapa el nodo de cada fantasma.
-	private void ghostIndices() {
-
-		for (GHOST g : GHOST.values()) {
-			int index = game.getGhostCurrentNodeIndex(g);
-
-			if (ghostIndices.get(index) == null) {
-				ghostIndices.put(index, g);
-			}
-		}
-	}
-
-	// Comprobar si todos los fantasmas est�n fuera de su guarida
-	private boolean ghostsOutOfHiding() {
-		int nGhosts = 0;
-
-		for (GHOST g : GHOST.values()) {
-			if (game.getGhostCurrentNodeIndex(g) != game.getGhostInitialNodeIndex()) {
-				nGhosts++;
-			}
-		}
-
-		return nGhosts == 4;
-	}
-
-	private int analyzeNode(int node) {
+	/**
+	 * Returns the points of a node.
+	 * 
+	 * @param node The node index.
+	 * @return The points of a node.
+	 */
+	private int getNodePoints(int node) {
 		int puntuacion = 0;
 
 		Node n = game.getCurrentMaze().graph[node];
@@ -172,70 +179,6 @@ public class MsPacMan extends PacmanController {
 		}
 
 		return puntuacion;
-	}
-
-	// Estudiamos el camino
-	private Variables studyPath(List<Integer> nodes, int initialNode) {
-		int i = 0;
-		Variables v = new Variables(0, 0);
-
-		while (i < nodes.size() && !game.isJunction(game.getCurrentMaze().graph[nodes.get(i)].numNeighbouringNodes)) {
-			Node nodo = game.getCurrentMaze().graph[nodes.get(i)];
-
-			if (ghostIndices.containsKey(i) && game.getDistance(initialNode, nodes.get(i), DM.MANHATTAN) <= RANGE) {
-				v.setNearestGhosts(ghostIndices.get(i));
-			}
-			if (nodo.pillIndex != -1) {
-				v.setNumberOfPills(v.getNumberOfPills() + 1);
-			} else if (nodo.powerPillIndex != -1) {
-				v.activatePowerPill(true);
-			}
-
-			i++;
-		}
-
-		v.setDistanceFromNearestIndex(
-				game.getDistance(initialNode, nodes.get(i < nodes.size() ? i : i - 1), DM.MANHATTAN));
-
-		return v;
-	}
-
-	// Evaluamos cual es el camino mas eficiente mediante un sistema de rangos
-	// n�mericos. Dependiendo de las situaciones que se den se suman/restan puntos
-	private MOVE analyzeBestPath(Map<MOVE, Variables> caminos, Game game) {
-		int puntos_camino = 0;
-		TreeMap<Integer, MOVE> mejor_camino = new TreeMap<Integer, MOVE>();
-
-		for (Map.Entry<MOVE, Variables> entry : caminos.entrySet()) {
-			Variables camino = entry.getValue();
-
-			if (camino.getNumberOfGhosts() > 0) {
-				for (GHOST g : camino.getNearestGhosts()) {
-					if (!game.isGhostEdible(g))
-						puntos_camino += VALUE_PATH_GHOST_NOT_EDIBLE;
-					else
-						puntos_camino += VALUE_PATH_GHOST_EDIBLE;
-				}
-			}
-
-			if (camino.powerPill() && camino.getNumberOfGhosts() > 0) {
-				puntos_camino += POWER_PILL_VALUE;
-
-				if (ghostsOutOfHiding()) {
-					puntos_camino += ALL_GHOSTS_OUTSIDE;
-				}
-			} else if (camino.powerPill()) {
-				puntos_camino += POWER_PILL_VALUE * -100;
-			}
-
-			puntos_camino += camino.getDistanceFromNearestIndex() * VALUE_PER_NODE;
-			puntos_camino += camino.getNumberOfPills() * PILL_VALUE;
-
-			mejor_camino.put(puntos_camino, entry.getKey());
-			puntos_camino = 0;
-		}
-
-		return mejor_camino.lastEntry().getValue();
 	}
 
 }
