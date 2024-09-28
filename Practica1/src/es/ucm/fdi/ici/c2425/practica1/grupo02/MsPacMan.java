@@ -1,26 +1,19 @@
 package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import pacman.controllers.PacmanController;
-import pacman.game.Constants.DM;
-import pacman.game.Constants.GHOST;
-import pacman.game.Constants.MOVE;
+import pacman.game.Constants.*;
+import pacman.game.Constants;
 import pacman.game.Game;
 import pacman.game.internal.Node;
-import java.util.List;
 
 public class MsPacMan extends PacmanController {
 
-	private static final int RANGE = 200;
-	private static final int PILL_VALUE = 10;
 	private static final int VALUE_PATH_GHOST_NOT_EDIBLE = -1500;
 	private static final int VALUE_PATH_GHOST_EDIBLE = +1000;
 	private static final int VALUE_PER_NODE = 20;
-	private static final int POWER_PILL_VALUE = 30;
-	private static final int ALL_GHOSTS_OUTSIDE = 500;
 
 	public class PathInfo {
 		public int points;
@@ -43,25 +36,42 @@ public class MsPacMan extends PacmanController {
 	}
 
 	private Game game;
+
 	private int currentNode;
 	private MOVE lastMove;
-	private Map<Integer, GHOST> ghostIndices;
+	private int currentLevel;
+
+	// TODO: añadir marcadores de posiciones fantasmas, pills y ppills (el estado
+	// del juego en general)
+	private Set<Integer> ghostsNodes;
 
 	public MsPacMan() {
 		this.setName("Fantasmikos");
 		this.setTeam("Grupo02");
-		ghostIndices = new HashMap<Integer, GHOST>();
+		this.game = null;
+		this.currentLevel = -1;
+		this.ghostsNodes = new HashSet<>();
 	}
 
-	private void reset(Game game) {
-		this.game = game;
+	private void update(Game game) {
+		if (this.game == null)
+			this.game = game;
+
 		this.currentNode = this.game.getPacmanCurrentNodeIndex();
 		this.lastMove = this.game.getPacmanLastMoveMade();
+
+		// TODO: calcular nodos de fantasmas
+
+		if (this.currentLevel != this.game.getCurrentLevel()) {
+			this.currentLevel = this.game.getCurrentLevel();
+
+			// TODO: resetear valores pills y ppills
+		}
 	}
 
 	@Override
 	public MOVE getMove(Game game, long timeDue) {
-		this.reset(game);
+		this.update(game);
 
 		if (this.doesMsPacManRequireAction())
 			return this.bestMove();
@@ -84,7 +94,7 @@ public class MsPacMan extends PacmanController {
 	 * @return The best move for MsPacMan.
 	 */
 	private MOVE bestMove() {
-		return this.bestPath(this.currentNode, this.lastMove, 3, null).startMove; // 1 = profundidad
+		return this.bestPath(this.currentNode, this.lastMove, 2, null).startMove; // 1 = profundidad
 	}
 
 	/**
@@ -107,10 +117,13 @@ public class MsPacMan extends PacmanController {
 		for (MOVE move : possibleMoves) {
 			PathInfo path = this.getPath(currentNode, move);
 
-			// calcular nuevas posiciones fantasmas
-			// calcular nuevas posiciones pills y ppills
+			// TODO: marcar nuevas posiciones fantasmas
+			// TODO: marcar nuevas posiciones pills y ppills
 
 			PathInfo bestSecondPath = this.bestPath(0, null, depth - 1, null);
+
+			// TODO: desmarcar nuevas posiciones fantasmas
+			// TODO: desmarcar nuevas posiciones pills y ppills
 
 			int points = path.points + bestSecondPath.points;
 
@@ -143,15 +156,12 @@ public class MsPacMan extends PacmanController {
 			path.points += getNodePoints(endNode);
 
 			currentNode = endNode;
+			currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
 			endNode = this.game.getNeighbour(currentNode, currentMove);
-			if (endNode == -1) {
-				// solo va a haber un movimiento posible
-				currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
-				endNode = this.game.getNeighbour(currentNode, currentMove);
-			}
+
 		}
 
-		path.points += game.getShortestPathDistance(startNode, endNode, startMove) * VALUE_PER_NODE;
+		path.points += game.getShortestPathDistance(startNode, endNode, startMove) * VALUE_PER_NODE; // TODO: revisar
 		path.endNode = endNode;
 		path.endMove = this.game.getMoveToMakeToReachDirectNeighbour(currentNode, endNode);
 
@@ -164,21 +174,21 @@ public class MsPacMan extends PacmanController {
 	 * @param node The node index.
 	 * @return The points of a node.
 	 */
-	private int getNodePoints(int node) {
-		int puntuacion = 0;
+	private int getNodePoints(int node) { // FIXME: implement
+		int points = 0;
 
 		Node n = game.getCurrentMaze().graph[node];
 
-		if (ghostIndices.containsKey(node)) {
-			puntuacion += VALUE_PATH_GHOST_NOT_EDIBLE;
+		if (ghostsNodes.contains(node)) {
+			points += VALUE_PATH_GHOST_NOT_EDIBLE;
 		}
 		if (n.pillIndex != -1) {
-			puntuacion += PILL_VALUE;
+			points += Constants.PILL;
 		} else if (n.powerPillIndex != -1) {
-			puntuacion += POWER_PILL_VALUE;
+			points += Constants.POWER_PILL;
 		}
 
-		return puntuacion;
+		return points;
 	}
 
 }
