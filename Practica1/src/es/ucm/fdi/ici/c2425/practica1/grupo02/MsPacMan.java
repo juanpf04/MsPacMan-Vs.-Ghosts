@@ -7,7 +7,7 @@ import pacman.controllers.PacmanController;
 import pacman.game.Constants.*;
 import pacman.game.Constants;
 import pacman.game.Game;
-import pacman.game.internal.Node;
+
 
 public class MsPacMan extends PacmanController {
 
@@ -45,8 +45,8 @@ public class MsPacMan extends PacmanController {
 
 	private Set<Integer> ghostsNodes;
 	private Set<Integer> eGhostsNodes;
-	private Set<Integer> pillsNodes;
-	private Set<Integer> ppillsNodes;
+	private boolean[] pillsNodes;
+	private boolean[] ppillsNodes;
 
 	// TODO: implementar marcadores de posiciones fantasmas, pills y ppills
 
@@ -60,8 +60,8 @@ public class MsPacMan extends PacmanController {
 		this.eatMultiplier = 1;
 		this.ghostsNodes = new HashSet<>();
 		this.eGhostsNodes = new HashSet<>();
-		this.pillsNodes = new HashSet<>();
-		this.ppillsNodes = new HashSet<>();
+		this.pillsNodes = new boolean[1293]; //Pongo 1293 porque es el numero maximo de nodos del laberinto
+		this.ppillsNodes = new boolean[1293];
 	}
 
 	/**
@@ -92,11 +92,11 @@ public class MsPacMan extends PacmanController {
 
 			int pills[] = this.game.getActivePillsIndices();
 			for (int pill : pills)
-				this.pillsNodes.add(pill);
+				this.pillsNodes[pill] = true;
 
 			int ppills[] = this.game.getActivePowerPillsIndices();
 			for (int ppill : ppills)
-				this.pillsNodes.add(ppill);
+				this.pillsNodes[ppill] = true;
 		}
 	}
 
@@ -146,16 +146,18 @@ public class MsPacMan extends PacmanController {
 
 		MOVE[] possibleMoves = this.game.getPossibleMoves(currentNode, lastMove);
 
+		//MARCO
+		boolean[] pillsCopy = this.pillsNodes.clone();
+        boolean[] powerPillsCopy = this.ppillsNodes.clone();
+		
 		for (MOVE move : possibleMoves) {
 			PathInfo path = this.getPath(currentNode, move);
 
-			// TODO: marcar nuevas posiciones fantasmas
-			// TODO: marcar nuevas posiciones pills y ppills
+			PathInfo bestSecondPath = this.bestPath(path.endNode, path.endMove, depth - 1, null);
 
-			PathInfo bestSecondPath = this.bestPath(0, null, depth - 1, null);
-
-			// TODO: desmarcar nuevas posiciones fantasmas
-			// TODO: desmarcar nuevas posiciones pills y ppills
+			//DESMARCO
+			this.pillsNodes = pillsCopy.clone();
+			this.ppillsNodes = powerPillsCopy.clone();
 
 			int points = path.points + bestSecondPath.points;
 
@@ -194,8 +196,7 @@ public class MsPacMan extends PacmanController {
 
 		}
 
-		// path.points += game.getShortestPathDistance(startNode, endNode, startMove) *
-		// VALUE_PER_NODE; // TODO: revisar
+		path.points += game.getShortestPathDistance(startNode, endNode, currentMove) * VALUE_PER_NODE; // TODO: revisar
 		path.endNode = endNode;
 		path.endMove = this.game.getMoveToMakeToReachDirectNeighbour(currentNode, endNode);
 
@@ -209,6 +210,7 @@ public class MsPacMan extends PacmanController {
 	 * @return The points of a node.
 	 */
 	private int getNodePoints(int node) { // FIXME: implement
+
 		int points = 0;
 
 		if (this.ghostsNodes.contains(node))
@@ -216,10 +218,14 @@ public class MsPacMan extends PacmanController {
 		if (this.eGhostsNodes.contains(node))
 			points += ++this.eatMultiplier * Constants.GHOST_EAT_SCORE;
 
-		if (this.pillsNodes.contains(node))
+		if (node != -1 && this.pillsNodes[node]) {
 			points += Constants.PILL;
-		else if (this.ppillsNodes.contains(node))
+			this.pillsNodes[node] = false;
+		}
+		else if (node != -1 && this.ppillsNodes[node]) {
 			points += Constants.POWER_PILL;
+			this.ppillsNodes[node] = false;
+		}
 
 		return points;
 	}
