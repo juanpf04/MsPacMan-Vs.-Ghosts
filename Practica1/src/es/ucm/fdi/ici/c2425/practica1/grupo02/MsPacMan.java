@@ -1,5 +1,8 @@
 package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -10,9 +13,7 @@ import pacman.game.Game;
 
 public class MsPacMan extends PacmanController {
 
-	private static final int VALUE_PATH_GHOST_NOT_EDIBLE = -1500;
-	private static final int VALUE_PER_NODE = 20;
-	private static final int DEPTH = 3;
+	private static final int DEPTH = 4; // Best Depth: 4 for pills
 
 	// Works as a struct to store the path information
 	private class PathInfo {
@@ -23,7 +24,7 @@ public class MsPacMan extends PacmanController {
 		public MOVE endMove;
 
 		public PathInfo() {
-			this(0, -1, -1, null, null);
+			this(0, -1, -1, MOVE.NEUTRAL, MOVE.NEUTRAL);
 		}
 
 		public PathInfo(int points, int startNode, int endNode, MOVE startMove, MOVE endMove) {
@@ -39,10 +40,9 @@ public class MsPacMan extends PacmanController {
 
 	private int currentNode;
 	private MOVE lastMove;
-	private int eatMultiplier;
 
-	private Set<Integer> ghostsNodes;
-	private Set<Integer> eGhostsNodes;
+	private Map<Integer, MOVE> ghostsNodes;
+	private Map<Integer, MOVE> eGhostsNodes;
 	private Set<Integer> pillsNodes;
 	private Set<Integer> powerPillsNodes;
 
@@ -55,9 +55,8 @@ public class MsPacMan extends PacmanController {
 
 		// Initialize variables
 		this.game = null;
-		this.eatMultiplier = 1;
-		this.ghostsNodes = new HashSet<>();
-		this.eGhostsNodes = new HashSet<>();
+		this.ghostsNodes = new HashMap<>();
+		this.eGhostsNodes = new HashMap<>();
 		this.pillsNodes = new HashSet<>();
 		this.powerPillsNodes = new HashSet<>();
 	}
@@ -82,11 +81,12 @@ public class MsPacMan extends PacmanController {
 		for (GHOST ghost : GHOST.values()) {
 			if (this.game.getGhostLairTime(ghost) <= 0) {
 				int ghostNode = this.game.getGhostCurrentNodeIndex(ghost);
+				MOVE ghostMove = this.game.getGhostLastMoveMade(ghost);
 
 				if (this.game.isGhostEdible(ghost))
-					this.eGhostsNodes.add(ghostNode);
+					this.eGhostsNodes.put(ghostNode, ghostMove);
 				else
-					this.ghostsNodes.add(ghostNode);
+					this.ghostsNodes.put(ghostNode, ghostMove);
 			}
 		}
 
@@ -166,7 +166,7 @@ public class MsPacMan extends PacmanController {
 
 			// Check if the path is the best
 			int points = path.points + bestNextPath.points;
-			if (bestPath.startMove == null || bestPath.points < points) {
+			if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < points) {
 				bestPath.startMove = move;
 				bestPath.points = points;
 			}
@@ -211,8 +211,7 @@ public class MsPacMan extends PacmanController {
 		}
 
 		// Update the path
-		// path.points += game.getShortestPathDistance(startNode, endNode, currentMove)
-		// * VALUE_PER_NODE; // TODO: revisar
+		path.points += this.getGhostPoints(path, depth);
 		path.endNode = endNode;
 		path.endMove = this.game.getMoveToMakeToReachDirectNeighbour(currentNode, endNode);
 
@@ -220,33 +219,45 @@ public class MsPacMan extends PacmanController {
 	}
 
 	/**
-	 * Returns the points of a node.
+	 * Returns the points of a node. Check if the node is a pill or a power pill
+	 * remove it from the set if contained to avoid counting it again and return the
+	 * weighting points based on the depth of the search.
 	 * 
-	 * @param node The node index.
+	 * @param node  The node index.
+	 * @param depth The depth of the search.
 	 * @return The points of a node.
 	 */
 	private int getNodePoints(int node, int depth) {
-		int points = 0;
-
-//		if (this.ghostsNodes.contains(node)) // FIXME: revisar
-//			points += VALUE_PATH_GHOST_NOT_EDIBLE;
-//
-//		if (this.eGhostsNodes.contains(node))
-//			points += ++this.eatMultiplier * Constants.GHOST_EAT_SCORE;
-
-		// Check if the node is a pill or a power pill
-		// Remove it from the set of pills or power pills if contained
-		// to avoid counting it again
-		// Update the points
-
 		if (this.pillsNodes.remove(node))
-			points += Constants.PILL + depth; // more early the pill, more points
+			return Constants.PILL + depth; // more early the pill, more points
 
-		else if (this.powerPillsNodes.remove(node))
-			points += (Constants.POWER_PILL + depth)
+		if (this.powerPillsNodes.remove(node))
+			return (Constants.POWER_PILL + depth)
 					- ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - this.ghostsNodes.size()));
 
-		return points;
+		return 0;
+	}
+
+	/**
+	 * Returns the points of a path based on the ghosts.
+	 * 
+	 * @param path  The path information.
+	 * @param depth The depth of the search.
+	 * @return The points of the path.
+	 */
+	private int getGhostPoints(PathInfo path, int depth) { // TODO: IMPLEMENTAR
+		int endNode = path.endNode;
+		// int msPacManDistance = this.game.getShortestPathDistance(path.startNode,
+		// endNode, path.startMove); // peta no se por que
+
+//		for (Entry<Integer, MOVE> ghost : this.ghostsNodes.entrySet()) {
+//			int ghostDisntance = this.game.getShortestPathDistance(ghost.getKey(), endNode, ghost.getValue());
+//			if (ghostDisntance < msPacManDistance) {
+//
+//			}
+//		}
+
+		return 0;
 	}
 
 }
