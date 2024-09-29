@@ -156,7 +156,7 @@ public class MsPacMan extends PacmanController {
 
 		// for each possible move check the path and the best next path
 		for (MOVE move : possibleMoves) {
-			PathInfo path = this.getPath(currentNode, move);
+			PathInfo path = this.getPath(currentNode, move, depth);
 
 			PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
 
@@ -184,7 +184,7 @@ public class MsPacMan extends PacmanController {
 	 * @param depth     The depth of the search.
 	 * @return The path for MsPacMan.
 	 */
-	private PathInfo getPath(int startNode, MOVE startMove) {
+	private PathInfo getPath(int startNode, MOVE startMove, int depth) {
 		PathInfo path = new PathInfo(0, startNode, -1, startMove, null);
 
 		int currentNode = startNode;
@@ -196,7 +196,7 @@ public class MsPacMan extends PacmanController {
 		// while the end node is not a junction
 		while (!game.isJunction(endNode)) {
 			// Add the points of the node to the path
-			path.points += getNodePoints(endNode);
+			path.points += getNodePoints(endNode, depth);
 
 			// Update the current node
 			currentNode = endNode;
@@ -225,7 +225,7 @@ public class MsPacMan extends PacmanController {
 	 * @param node The node index.
 	 * @return The points of a node.
 	 */
-	private int getNodePoints(int node) {
+	private int getNodePoints(int node, int depth) {
 		int points = 0;
 
 //		if (this.ghostsNodes.contains(node)) // FIXME: revisar
@@ -240,10 +240,10 @@ public class MsPacMan extends PacmanController {
 		// Update the points
 
 		if (this.pillsNodes.remove(node))
-			points += Constants.PILL;
+			points += Constants.PILL + depth; // more early the pill, more points
 
 		else if (this.powerPillsNodes.remove(node))
-			points += Constants.POWER_PILL;
+			points += ((Constants.POWER_PILL + depth) * this.ghostsNodes.size()) - 150;
 
 		return points;
 	}
