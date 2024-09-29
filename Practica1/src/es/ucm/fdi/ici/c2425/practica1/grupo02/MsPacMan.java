@@ -1,7 +1,6 @@
 package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
