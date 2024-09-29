@@ -150,19 +150,28 @@ public class MsPacMan extends PacmanController {
 		// Get the possible moves
 		MOVE[] possibleMoves = this.game.getPossibleMoves(currentNode, lastMove);
 
-		// Make a copy of the pills and power pills
+		// Make a copy of the game state
 		Set<Integer> pillsCopy = new HashSet<>(this.pillsNodes);
 		Set<Integer> powerPillsCopy = new HashSet<>(this.powerPillsNodes);
+		Map<Integer, MOVE> ghostsCopy = new HashMap<>(this.ghostsNodes);
+		Map<Integer, MOVE> eGhostsCopy = new HashMap<>(this.eGhostsNodes);
 
 		// for each possible move check the path and the best next path
 		for (MOVE move : possibleMoves) {
 			PathInfo path = this.getPath(currentNode, move, depth);
 
+			// TODO: calcular nuevas posicion de los fantasmas
+			// por cada posible posicion de los fantasmas, calcular la mejor ruta
+
+			// OPTIMIZATION: If the path is not the best, don't check the next path
+
 			PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
 
-			// Restore the pills and power pills
+			// Restore the game state
 			this.pillsNodes = new HashSet<Integer>(pillsCopy);
 			this.powerPillsNodes = new HashSet<Integer>(powerPillsCopy);
+			this.ghostsNodes = new HashMap<Integer, MOVE>(ghostsCopy);
+			this.eGhostsNodes = new HashMap<Integer, MOVE>(eGhostsCopy);
 
 			// Check if the path is the best
 			int points = path.points + bestNextPath.points;
