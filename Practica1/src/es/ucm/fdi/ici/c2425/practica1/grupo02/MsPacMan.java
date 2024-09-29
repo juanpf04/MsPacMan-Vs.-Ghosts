@@ -243,7 +243,8 @@ public class MsPacMan extends PacmanController {
 			points += Constants.PILL + depth; // more early the pill, more points
 
 		else if (this.powerPillsNodes.remove(node))
-			points += ((Constants.POWER_PILL + depth) * this.ghostsNodes.size()) - 150;
+			points += (Constants.POWER_PILL + depth)
+					- ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - this.ghostsNodes.size()));
 
 		return points;
 	}
