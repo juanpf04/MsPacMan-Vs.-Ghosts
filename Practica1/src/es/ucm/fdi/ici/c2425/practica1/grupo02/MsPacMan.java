@@ -227,12 +227,16 @@ public class MsPacMan extends PacmanController {
 		MOVE currentMove = path.startMove;
 		int endNode = path.endNode;
 
-		do {
-			// Get the next node
-			endNode = this.game.getNeighbour(currentNode, currentMove);
+		// Get the next node
+		endNode = this.game.getNeighbour(currentNode, currentMove);
 
-			// TODO: mover los fantasmas
-			// TODO: sumar puntos fantasmas
+		this.travelDistance++;
+
+		// TODO: mover los fantasmas
+		// TODO: sumar puntos fantasmas
+
+		// while the end node is not a junction
+		while (!game.isJunction(endNode)) {
 
 			// Add the points of the node to the path
 			path.points += this.getNodePoints(endNode, depth);
@@ -244,11 +248,16 @@ public class MsPacMan extends PacmanController {
 			// move just in case it's going to hit a wall
 			currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
 
+			endNode = this.game.getNeighbour(currentNode, currentMove);
+
 			// Update the travel distance
 			this.travelDistance++;
+
+			// TODO: mover los fantasmas
+			// TODO: sumar puntos fantasmas
 		}
-		// while the end node is not a junction
-		while (!game.isJunction(endNode));
+
+		path.points += this.getNodePoints(endNode, depth);
 
 		// Update the path
 		path.endNode = endNode;
@@ -272,7 +281,7 @@ public class MsPacMan extends PacmanController {
 
 		if (this.powerPillsNodes.remove(node))
 			return (Constants.POWER_PILL + depth)
-					- ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - this.ghostsNodes.size()));
+					- ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - this.numGhosts));
 
 		return 0;
 	}
