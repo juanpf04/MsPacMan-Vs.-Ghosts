@@ -46,6 +46,7 @@ public final class Ghosts extends GhostController {
 	
 	private int pacmanNode;
 	private Set<Integer> ppillsNodes;
+	private boolean[] nodos; //MARCA
 	
 	public Ghosts() {
 		this.setName("Fantasmikos");
@@ -175,6 +176,7 @@ public final class Ghosts extends GhostController {
 
 		int points = 0;
 
+		
 		if(node == this.pacmanNode && state) {
 			points += PACMAN;
 		}
