@@ -189,8 +189,17 @@ public class MsPacMan extends PacmanController {
 			PathInfo path = this.getPath(currentNode, move, depth);
 
 			// OPTIMIZATION: If the path is not the best, don't check the next path
+			if (bestPath.startMove == MOVE.NEUTRAL || true) { // pensar condicion
 
-			PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
+				PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
+
+				// Check if the path is the best
+				int points = path.points + bestNextPath.points;
+				if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < points) {
+					bestPath.startMove = move;
+					bestPath.points = points;
+				}
+			}
 
 			// Restore the game state
 			this.pillsNodes = new HashSet<>(pillsCopy);
@@ -198,14 +207,6 @@ public class MsPacMan extends PacmanController {
 			this.ghostsNodes = new HashMap<>(ghostsCopy);
 
 			this.travelDistance = 0;
-
-			// Check if the path is the best
-			int points = path.points + bestNextPath.points;
-			if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < points) {
-				bestPath.startMove = move;
-				bestPath.points = points;
-			}
-
 		}
 
 		return bestPath;
@@ -231,8 +232,7 @@ public class MsPacMan extends PacmanController {
 
 		this.travelDistance++;
 
-		// TODO: mover los fantasmas
-		// TODO: sumar puntos fantasmas
+		this.moveGhosts();
 
 		// while the end node is not a junction
 		while (!game.isJunction(endNode)) {
@@ -252,8 +252,7 @@ public class MsPacMan extends PacmanController {
 			// Update the travel distance
 			this.travelDistance++;
 
-			// TODO: mover los fantasmas
-			// TODO: sumar puntos fantasmas
+			this.moveGhosts();
 		}
 
 		path.points += this.getNodePoints(endNode, depth);
@@ -265,6 +264,14 @@ public class MsPacMan extends PacmanController {
 		return path;
 	}
 
+	private int getNodePoints(int node, int depth) {
+		return this.getPillsPoints(node, depth) + this.getGhostPoints(node, depth);
+	}
+
+	private void moveGhosts() {
+
+	}
+
 	/**
 	 * Returns the points of a node. Check if the node is a pill or a power pill
 	 * remove it from the set if contained to avoid counting it again and return the
@@ -274,7 +281,7 @@ public class MsPacMan extends PacmanController {
 	 * @param depth The depth of the search.
 	 * @return The points of a node.
 	 */
-	private int getNodePoints(int node, int depth) { // TODO: añadir puntos fantasmas
+	private int getPillsPoints(int node, int depth) { // TODO: añadir ppills ponderen distancia a fantasmas
 		if (this.pillsNodes.remove(node))
 			return Constants.PILL + depth; // more early the pill, more points
 
@@ -292,17 +299,7 @@ public class MsPacMan extends PacmanController {
 	 * @param depth The depth of the search.
 	 * @return The points of the path.
 	 */
-	private int getGhostPoints(PathInfo path, int depth) { // TODO: IMPLEMENTAR
-		int endNode = path.endNode;
-		// int msPacManDistance = this.game.getShortestPathDistance(path.startNode,
-		// endNode, path.startMove); // peta no se por que
-
-//		for (Entry<Integer, MOVE> ghost : this.ghostsNodes.entrySet()) {
-//			int ghostDisntance = this.game.getShortestPathDistance(ghost.getKey(), endNode, ghost.getValue());
-//			if (ghostDisntance < msPacManDistance) {
-//
-//			}
-//		}
+	private int getGhostPoints(int node, int depth) { // TODO: IMPLEMENTAR
 
 		return 0;
 	}
