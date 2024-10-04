@@ -168,9 +168,7 @@ public class MsPacMan extends PacmanController {
 
 			// OPTIMIZATION: If the path is not the best, don't check the next path
 			if (path.endMove != null) {
-
 				PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
-
 				points += bestNextPath.points;
 			}
 
@@ -258,7 +256,8 @@ public class MsPacMan extends PacmanController {
 	 * @param depth The depth of the search.
 	 * @return The points of a node.
 	 */
-	private int getPillsPoints(int node, int depth) { // TODO: añadir ppills ponderen distancia a fantasmas
+	private int getPillsPoints(int node, int depth) { // TODO: añadir ppills ponderen distancia a fantasmas y actualizar
+														// edible time fantasmas
 		if (this.pillsNodes.remove(node))
 			return Constants.PILL + depth; // more early the pill, more points
 
@@ -276,12 +275,12 @@ public class MsPacMan extends PacmanController {
 	 * @param depth The depth of the search.
 	 * @return The points of the path.
 	 */
-	private int getGhostPoints(int node, int depth) { // TODO: IMPLEMENTAR
+	private int getGhostPoints(int node, int depth) { // TODO: modificar fantasma cuando es comido
 		int points = 0;
 
 		for (Ghost ghost : this.ghostsNodes.values()) {
 			if (this.isCloseEnought(node, ghost.currentNodeIndex)) {
-				if (ghost.edibleTime == 0)
+				if (ghost.edibleTime <= 0)
 					points -= Constants.GHOST_EAT_SCORE * depth;
 				else
 					points += Constants.GHOST_EAT_SCORE * ++this.eatenGhosts;
@@ -299,10 +298,10 @@ public class MsPacMan extends PacmanController {
 	/**
 	 * Moves the ghosts.
 	 */
-	private void moveGhosts() {
+	private void moveGhosts() { // TODO: al mover, actualizar el tiempo
 		for (Ghost ghost : this.ghostsNodes.values()) {
-			if (ghost.lairTime == 0) {
-				if (ghost.edibleTime == 0 || ghost.edibleTime % Constants.GHOST_SPEED_REDUCTION != 0) {
+			if (ghost.lairTime <= 0) {
+				if (ghost.edibleTime <= 0 || ghost.edibleTime % Constants.GHOST_SPEED_REDUCTION != 0) {
 					int oldNode = ghost.currentNodeIndex;
 
 					if (this.game.isJunction(oldNode)) {
