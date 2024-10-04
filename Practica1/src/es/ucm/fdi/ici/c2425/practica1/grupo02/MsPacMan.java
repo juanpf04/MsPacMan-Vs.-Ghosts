@@ -13,7 +13,7 @@ import pacman.game.internal.Ghost;
 
 public class MsPacMan extends PacmanController {
 
-	private static final int DEPTH = 4; // Best Depth: 4 for pills
+	private static final int DEPTH = 3; // Best Depth: 4 for pills
 
 	// Works as a struct to store the path information
 	private class PathInfo {
@@ -118,12 +118,12 @@ public class MsPacMan extends PacmanController {
 	}
 
 	/**
-	 * Checks if MsPacMan needs to make a decision.
+	 * Checks if MsPacMan needs to make a decision. Check if MsPacMan is in a
+	 * junction (has more than one possible move)
 	 * 
 	 * @return True if needs to make a decision, false otherwise.
 	 */
 	private boolean doesMsPacManRequireAction() {
-		// Check if MsPacMan is in a junction (has more than one possible move)
 		return this.game.getPossibleMoves(this.currentNode, this.lastMove).length > 1;
 	}
 
@@ -261,6 +261,8 @@ public class MsPacMan extends PacmanController {
 		if (this.pillsNodes.remove(node))
 			return Constants.PILL + depth; // more early the pill, more points
 
+		// int newEdibleTime = (int) (EDIBLE_TIME * (Math.pow(EDIBLE_TIME_REDUCTION,
+		// levelCount % LEVEL_RESET_REDUCTION)));
 		int nGhosts = (int) this.ghostsNodes.values().stream().filter(ghost -> ghost.edibleTime == 0).count();
 		if (this.powerPillsNodes.remove(node))
 			return (Constants.POWER_PILL + depth) - ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - nGhosts));
@@ -276,21 +278,29 @@ public class MsPacMan extends PacmanController {
 	 * @return The points of the path.
 	 */
 	private int getGhostPoints(int node, int depth) { // TODO: modificar fantasma cuando es comido
-		int points = 0;
-
 		for (Ghost ghost : this.ghostsNodes.values()) {
 			if (this.isCloseEnought(node, ghost.currentNodeIndex)) {
-				if (ghost.edibleTime <= 0)
-					points -= Constants.GHOST_EAT_SCORE * depth;
-				else
-					points += Constants.GHOST_EAT_SCORE * ++this.eatenGhosts;
-
+				if (ghost.edibleTime == 0)
+					return -Constants.GHOST_EAT_SCORE * depth;
+				else {
+					ghost.edibleTime = 0;
+					ghost.lairTime = (int) (ghost.type.initialLairTime * (Math.pow(Constants.LAIR_REDUCTION,
+							this.game.getCurrentLevel() % Constants.LEVEL_RESET_REDUCTION)));
+					return Constants.GHOST_EAT_SCORE * ++this.eatenGhosts;
+				}
 			}
 		}
 
-		return points;
+		return 0;
 	}
 
+	/**
+	 * Checks if two nodes are close enough.
+	 * 
+	 * @param node1 The first node index.
+	 * @param node2 The second node index.
+	 * @return True if the nodes are close enough, false otherwise.
+	 */
 	private boolean isCloseEnought(int node1, int node2) {
 		return this.game.getShortestPathDistance(node1, node2) <= Constants.EAT_DISTANCE;
 	}
@@ -300,8 +310,8 @@ public class MsPacMan extends PacmanController {
 	 */
 	private void moveGhosts() { // TODO: al mover, actualizar el tiempo
 		for (Ghost ghost : this.ghostsNodes.values()) {
-			if (ghost.lairTime <= 0) {
-				if (ghost.edibleTime <= 0 || ghost.edibleTime % Constants.GHOST_SPEED_REDUCTION != 0) {
+			if (ghost.lairTime == 0) {
+				if (ghost.edibleTime == 0 || ghost.edibleTime % Constants.GHOST_SPEED_REDUCTION != 0) {
 					int oldNode = ghost.currentNodeIndex;
 
 					if (this.game.isJunction(oldNode)) {
