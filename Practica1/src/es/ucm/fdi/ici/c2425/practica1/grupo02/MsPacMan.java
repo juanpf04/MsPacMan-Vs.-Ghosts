@@ -13,7 +13,7 @@ import pacman.game.internal.Ghost;
 
 public class MsPacMan extends PacmanController {
 
-	private static final int DEPTH = 4; // Best Depth: 4 for pills
+	private static final int DEPTH = 3; // Best Depth: 4 for pills
 	private static final int MAX_DISTANCE = 500;
 
 	// Works as a struct to store the path information
@@ -168,17 +168,20 @@ public class MsPacMan extends PacmanController {
 		for (MOVE move : possibleMoves) {
 			PathInfo path = this.getPath(currentNode, move, depth);
 
+			int points = path.points;
+
 			// OPTIMIZATION: If the path is not the best, don't check the next path
-			if (bestPath.startMove == MOVE.NEUTRAL || true) { // pensar condicion
+			if (path.endMove != null) {
 
 				PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
 
-				// Check if the path is the best
-				int points = path.points + bestNextPath.points;
-				if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < points) {
-					bestPath.startMove = move;
-					bestPath.points = points;
-				}
+				points += bestNextPath.points;
+			}
+
+			// Check if the path is the best
+			if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < points) {
+				bestPath.startMove = move;
+				bestPath.points = points;
 			}
 
 			// Restore the game state
@@ -220,6 +223,11 @@ public class MsPacMan extends PacmanController {
 
 			// Add the points of the node to the path
 			path.points += this.getNodePoints(endNode, depth);
+
+			if (path.points < 0) { // FIXME si el camino es malo, no seguir
+				path.endMove = null;
+				return path;
+			}
 
 			// Update the current node
 			currentNode = endNode;
@@ -280,9 +288,9 @@ public class MsPacMan extends PacmanController {
 		int points = 0;
 
 		// Calculate adjacent nodes to the node
-		// Because the 
-		
-		Set<Integer> nodes = new HashSet<>(); 
+		// Because the
+
+		Set<Integer> nodes = new HashSet<>();
 
 		nodes.add(node);
 
@@ -290,7 +298,7 @@ public class MsPacMan extends PacmanController {
 			nodes.add(this.game.getNeighbour(node, move));
 
 		for (Ghost ghost : this.ghostsNodes.values()) {
-			if (nodes.contains(ghost.currentNodeIndex)) {
+			if (nodes.contains(ghost.currentNodeIndex)) { // FIXME: si se come o te comen, quitar fantasma
 				if (ghost.edibleTime == 0)
 					points -= Constants.GHOST_EAT_SCORE * depth;
 				else
