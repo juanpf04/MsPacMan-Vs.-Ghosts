@@ -44,6 +44,9 @@ public class MsPacMan extends PacmanController {
 
 	private int travelDistance; // Distance traveled by MsPacMan sirve para ponderar los puntos segun a que
 								// distancia te los has encontrado algo
+	private int eatenGhosts;
+
+	// Data structures to store the game state
 
 	private Map<Integer, Ghost> ghostsNodes;
 	private Set<Integer> pillsNodes;
@@ -78,6 +81,8 @@ public class MsPacMan extends PacmanController {
 		this.lastMove = this.game.getPacmanLastMoveMade();
 
 		// Update Ghosts
+
+		this.eatenGhosts = this.game.getNumGhostsEaten();
 
 		this.ghostsNodes.clear();
 		for (GHOST ghost : GHOST.values()) {
@@ -156,6 +161,7 @@ public class MsPacMan extends PacmanController {
 		Set<Integer> powerPillsCopy = new HashSet<>(this.powerPillsNodes);
 		Map<Integer, Ghost> ghostsCopy = new HashMap<>(this.ghostsNodes);
 
+		int eatenGhostsCopy = this.eatenGhosts;
 		this.travelDistance = 0;
 
 		// for each possible move check the path and the best next path
@@ -180,6 +186,7 @@ public class MsPacMan extends PacmanController {
 			this.powerPillsNodes = new HashSet<>(powerPillsCopy);
 			this.ghostsNodes = new HashMap<>(ghostsCopy);
 
+			this.eatenGhosts = eatenGhostsCopy;
 			this.travelDistance = 0;
 		}
 
@@ -242,22 +249,6 @@ public class MsPacMan extends PacmanController {
 		return this.getPillsPoints(node, depth) + this.getGhostPoints(node, depth);
 	}
 
-	private void moveGhosts() {
-		for (Ghost ghost : this.ghostsNodes.values()) {
-            if (ghost.lairTime == 0) {
-                if (ghost.edibleTime == 0 || ghost.edibleTime % Constants.GHOST_SPEED_REDUCTION != 0) {
-                	int oldNode = ghost.currentNodeIndex;
-                	
-					if (this.game.isJunction(ghost.currentNodeIndex)) {
-						// si esta en interseccion, cambiar de direccion a la mas desfavorable al pacman
-					}
-
-                	// TODO: mover fantasma
-                }
-            }
-        }
-	}
-
 	/**
 	 * Returns the points of a node. Check if the node is a pill or a power pill
 	 * remove it from the set if contained to avoid counting it again and return the
@@ -273,8 +264,7 @@ public class MsPacMan extends PacmanController {
 
 		int nGhosts = (int) this.ghostsNodes.values().stream().filter(ghost -> ghost.edibleTime == 0).count();
 		if (this.powerPillsNodes.remove(node))
-			return (Constants.POWER_PILL + depth)
-					- ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - nGhosts));
+			return (Constants.POWER_PILL + depth) - ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - nGhosts));
 
 		return 0;
 	}
@@ -287,8 +277,48 @@ public class MsPacMan extends PacmanController {
 	 * @return The points of the path.
 	 */
 	private int getGhostPoints(int node, int depth) { // TODO: IMPLEMENTAR
+		int points = 0;
 
-		return 0;
+		// Calculate adjacent nodes to the node
+		// Because the 
+		
+		Set<Integer> nodes = new HashSet<>(); 
+
+		nodes.add(node);
+
+		for (MOVE move : MOVE.values()) // FIXME: Calcular para dos de distancia
+			nodes.add(this.game.getNeighbour(node, move));
+
+		for (Ghost ghost : this.ghostsNodes.values()) {
+			if (nodes.contains(ghost.currentNodeIndex)) {
+				if (ghost.edibleTime == 0)
+					points -= Constants.GHOST_EAT_SCORE * depth;
+				else
+					points += Constants.GHOST_EAT_SCORE * ++this.eatenGhosts;
+
+			}
+		}
+
+		return points;
+	}
+
+	/**
+	 * Moves the ghosts.
+	 */
+	private void moveGhosts() {
+		for (Ghost ghost : this.ghostsNodes.values()) {
+			if (ghost.lairTime == 0) {
+				if (ghost.edibleTime == 0 || ghost.edibleTime % Constants.GHOST_SPEED_REDUCTION != 0) {
+					int oldNode = ghost.currentNodeIndex;
+
+					if (this.game.isJunction(oldNode)) {
+						// si esta en interseccion, cambiar de direccion a la mas desfavorable al pacman
+					}
+
+					// TODO: mover fantasma
+				}
+			}
+		}
 	}
 
 }
