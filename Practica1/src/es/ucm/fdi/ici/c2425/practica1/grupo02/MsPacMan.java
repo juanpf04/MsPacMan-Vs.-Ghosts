@@ -13,8 +13,7 @@ import pacman.game.internal.Ghost;
 
 public class MsPacMan extends PacmanController {
 
-	private static final int DEPTH = 3; // Best Depth: 4 for pills
-	private static final int MAX_DISTANCE = 500;
+	private static final int DEPTH = 4; // Best Depth: 4 for pills
 
 	// Works as a struct to store the path information
 	private class PathInfo {
@@ -42,8 +41,6 @@ public class MsPacMan extends PacmanController {
 	private int currentNode;
 	private MOVE lastMove;
 
-	private int travelDistance; // Distance traveled by MsPacMan sirve para ponderar los puntos segun a que
-								// distancia te los has encontrado algo
 	private int eatenGhosts;
 
 	// Data structures to store the game state
@@ -162,7 +159,6 @@ public class MsPacMan extends PacmanController {
 		Map<Integer, Ghost> ghostsCopy = new HashMap<>(this.ghostsNodes);
 
 		int eatenGhostsCopy = this.eatenGhosts;
-		this.travelDistance = 0;
 
 		// for each possible move check the path and the best next path
 		for (MOVE move : possibleMoves) {
@@ -190,7 +186,6 @@ public class MsPacMan extends PacmanController {
 			this.ghostsNodes = new HashMap<>(ghostsCopy);
 
 			this.eatenGhosts = eatenGhostsCopy;
-			this.travelDistance = 0;
 		}
 
 		return bestPath;
@@ -214,20 +209,20 @@ public class MsPacMan extends PacmanController {
 		// Get the next node
 		endNode = this.game.getNeighbour(currentNode, currentMove);
 
-		this.travelDistance++;
-
 		this.moveGhosts();
 
 		// while the end node is not a junction
 		while (!game.isJunction(endNode)) {
 
 			// Add the points of the node to the path
-			path.points += this.getNodePoints(endNode, depth);
+			int nodePoints = this.getNodePoints(endNode, depth);
 
-			if (path.points < 0) { // FIXME si el camino es malo, no seguir
+			if (nodePoints < 0) {
 				path.endMove = null;
 				return path;
 			}
+
+			path.points += nodePoints;
 
 			// Update the current node
 			currentNode = endNode;
@@ -237,9 +232,6 @@ public class MsPacMan extends PacmanController {
 			currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
 
 			endNode = this.game.getNeighbour(currentNode, currentMove);
-
-			// Update the travel distance
-			this.travelDistance++;
 
 			this.moveGhosts();
 		}
@@ -287,18 +279,8 @@ public class MsPacMan extends PacmanController {
 	private int getGhostPoints(int node, int depth) { // TODO: IMPLEMENTAR
 		int points = 0;
 
-		// Calculate adjacent nodes to the node
-		// Because the
-
-		Set<Integer> nodes = new HashSet<>();
-
-		nodes.add(node);
-
-		for (MOVE move : MOVE.values()) // FIXME: Calcular para dos de distancia
-			nodes.add(this.game.getNeighbour(node, move));
-
 		for (Ghost ghost : this.ghostsNodes.values()) {
-			if (nodes.contains(ghost.currentNodeIndex)) { // FIXME: si se come o te comen, quitar fantasma
+			if (this.isCloseEnought(node, ghost.currentNodeIndex)) {
 				if (ghost.edibleTime == 0)
 					points -= Constants.GHOST_EAT_SCORE * depth;
 				else
@@ -308,6 +290,10 @@ public class MsPacMan extends PacmanController {
 		}
 
 		return points;
+	}
+
+	private boolean isCloseEnought(int node1, int node2) {
+		return this.game.getShortestPathDistance(node1, node2) <= Constants.EAT_DISTANCE;
 	}
 
 	/**
