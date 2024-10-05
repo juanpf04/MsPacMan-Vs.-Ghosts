@@ -1,7 +1,6 @@
 package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
 import java.util.EnumMap;
-import java.util.Random;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,11 +12,9 @@ import pacman.game.Game;
 
 public final class Ghosts extends GhostController {
 
-	private final static int LIMIT_DISTANCE = 60;
+	private final static int LIMIT_DISTANCE = 25;
 
 	private EnumMap<GHOST, MOVE> moves = new EnumMap<GHOST, MOVE>(GHOST.class);
-	private MOVE[] allMoves = MOVE.values();
-	private Random rnd = new Random();
 
 	private Map<GHOST, Integer> ghostIndices = new HashMap<>();
 	private int mspacmanIndex;
@@ -39,9 +36,25 @@ public final class Ghosts extends GhostController {
 			if (game.doesGhostRequireAction(ghost)) {
 
 				// flight mode
-				if (game.isGhostEdible(ghost) || isPacmanCloseToPowerPill(game)) {
-					System.out.println("getting flight move");
+				if (game.isGhostEdible(ghost)) {
 					this.moves.put(ghost, getBestFlightMove(game, ghost));
+				}
+
+				else if (isPacmanCloseToPowerPill(game)) {
+					int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+					int closestPPill = getClosestPowerPill(game, ghostIndex);
+					int pacmanDist = game.getShortestPathDistance(ghostIndex,closestPPill);
+					int ghostDist = game.getShortestPathDistance(mspacmanIndex,closestPPill);
+					if (pacmanDist > ghostDist) {
+						MOVE move = game.getNextMoveTowardsTarget(
+							ghostIndex,
+							closestPPill,
+							game.getGhostLastMoveMade(ghost),
+							DM.EUCLID);
+						this.moves.put(ghost,move);
+					} else {
+						this.moves.put(ghost,getBestFlightMove(game, ghost));
+					}
 				}
 
 				// attack mode
@@ -61,6 +74,15 @@ public final class Ghosts extends GhostController {
 	 * @return
 	 */
 	private MOVE getBestAttackMove(Game game, GHOST ghost) {
+		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+		if (getGhostDensity(game, ghostIndex) >= 1.2) {
+			return game.getNextMoveAwayFromTarget(
+				ghostIndices.get(ghost),
+				getGhostCenterIndex(game),
+				game.getGhostLastMoveMade(ghost),
+				DM.EUCLID);
+		}
+
 		return game.getNextMoveTowardsTarget(
 				ghostIndices.get(ghost),
 				mspacmanIndex,
@@ -77,14 +99,11 @@ public final class Ghosts extends GhostController {
 	 */
 	private MOVE getBestFlightMove(Game game, GHOST ghost) {
 		int ghostCenter = getGhostCenterIndex(game);
-		System.out.println(ghostCenter);
 		int moveAwayPoint;
 
 		// check if we need to move away from the other ghosts too
-		if (getGhostDensity(game, ghostCenter) >= 2.0) {
-			//int[] path = game.getShortestPath(mspacmanIndex, ghostCenter);
-			//moveAwayPoint = path[path.length / 2];
-			moveAwayPoint = mspacmanIndex;
+		if (getGhostDensity(game, ghostCenter) >= 1.2) {
+			moveAwayPoint = ghostCenter;
 		}
 		// if other ghosts arent close enough just move away from pacman
 		else {
@@ -113,7 +132,7 @@ public final class Ghosts extends GhostController {
 
 	/**
 	 * Calculates ghost density at a certain point using an exponential density
-	 * function
+	 * function. Range is between 0 and 1, where 1 is high density
 	 * 
 	 * @param game     the current game
 	 * @param position position at which we want to calculate the ghost density at
@@ -123,11 +142,13 @@ public final class Ghosts extends GhostController {
 		double density = 0.0;
 		for (GHOST ghost : GHOST.values()) {
 			double distance = game.getEuclideanDistance(ghostIndices.get(ghost), position);
-			density += Math.exp(-2 * distance); // Exponentially decaying contribution
+			if (distance < 25) {
+				density += Math.exp(-0.1 * distance); // Exponentially decaying contribution
+			}
 		}
-		System.out.println("Density: " + density);
 		return density;
 	}
+
 
 	private int getGhostCenterIndex(Game game) {
 		int bestNode = -1;
@@ -166,4 +187,20 @@ public final class Ghosts extends GhostController {
 		return false;
 	}
 
+
+	/**
+	 * Get closest active power pill to a position
+	 */
+	private int getClosestPowerPill(Game game, int position) {
+		int closest = -1;
+		int currDist = Integer.MAX_VALUE;
+		for (int powerPill : game.getActivePowerPillsIndices()) {
+			int pathDistance = game.getShortestPathDistance(position, powerPill);
+			if (pathDistance < currDist) {
+				currDist = pathDistance;
+				closest = powerPill;
+			}
+		}
+		return closest;
+	}
 }
