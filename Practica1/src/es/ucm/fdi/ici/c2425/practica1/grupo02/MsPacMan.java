@@ -13,7 +13,8 @@ import pacman.game.internal.Ghost;
 
 public class MsPacMan extends PacmanController {
 
-	private static final int DEPTH = 3; // Best Depth: 4 for pills
+	private static final int DEPTH = 3;
+	private final static int LIMIT_DISTANCE = 100;
 
 	/*
 	 * Data structure to hold all information pertaining to the paths.
@@ -276,7 +277,7 @@ public class MsPacMan extends PacmanController {
 	 * @param depth The depth of the search.
 	 * @return The points of a node.
 	 */
-	private int getPillsPoints(int node, int depth) { // TODO: añadir ppills ponderen distancia a fantasmas
+	private int getPillsPoints(int node, int depth) {
 
 		if (this.pillsNodes.remove(node))
 			return Constants.PILL + depth;
@@ -364,7 +365,7 @@ public class MsPacMan extends PacmanController {
 						int minDistance = this.game.getShortestPathDistance(ghost.currentNodeIndex, ppill);
 
 						// If the ghost is not edible, move towards MsPacMan
-						if (ghost.edibleTime == 0 && (minDistance > 100
+						if (ghost.edibleTime == 0 && (minDistance > LIMIT_DISTANCE
 								|| this.game.getShortestPathDistance(ghost.currentNodeIndex, ppill) < minDistance))
 							ghost.lastMoveMade = this.game.getApproximateNextMoveTowardsTarget(ghost.currentNodeIndex,
 									node, ghost.lastMoveMade, DM.PATH);
