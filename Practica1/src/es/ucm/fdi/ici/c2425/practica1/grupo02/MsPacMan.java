@@ -360,15 +360,8 @@ public class MsPacMan extends PacmanController {
 
 					if (this.game.isJunction(ghost.currentNodeIndex)) {
 
-						int ppill = 0;
-						int minDistance = -1;
-
-						for (int pp : this.powerPillsNodes) {
-							if (minDistance == -1 || this.game.getShortestPathDistance(node, pp) < minDistance) {
-								ppill = pp;
-								minDistance = this.game.getShortestPathDistance(node, pp);
-							}
-						}
+						int ppill = Methods.getClosestPowerPill(this.game, ghost.currentNodeIndex);
+						int minDistance = this.game.getShortestPathDistance(ghost.currentNodeIndex, ppill);
 
 						// If the ghost is not edible, move towards MsPacMan
 						if (ghost.edibleTime == 0 && (minDistance > 100
