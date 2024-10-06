@@ -13,7 +13,7 @@ import pacman.game.Game;
 
 public final class Ghosts extends GhostController {
 
-	private final static int LIMIT_DISTANCE = 25;
+	private final static int LIMIT_DISTANCE = 20;
 	private final static double UMBRAL_DENSITY = 1.2;
 
 	private Game game;
