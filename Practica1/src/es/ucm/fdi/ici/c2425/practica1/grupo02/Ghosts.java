@@ -180,7 +180,11 @@ public final class Ghosts extends GhostController {
 	}
 
 	/**
-	 * Get closest active power pill to a position
+	 * Get the closest power pill to a certain position
+	 * 
+	 * @param game     the current game
+	 * @param position the position we want to calculate the closest power pill to
+	 * @ @return the index of the closest power pill
 	 */
 	private int getClosestPowerPill(Game game, int position) {
 		int closest = -1;
