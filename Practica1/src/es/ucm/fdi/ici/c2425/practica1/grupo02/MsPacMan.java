@@ -1,180 +1,327 @@
 package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import pacman.controllers.PacmanController;
-import pacman.game.Constants.DM;
-import pacman.game.Constants.GHOST;
-import pacman.game.Constants.MOVE;
+import pacman.game.Constants.*;
+import pacman.game.Constants;
 import pacman.game.Game;
-import pacman.game.internal.Node;
-import java.util.ArrayList;
-import java.util.List;
+import pacman.game.internal.Ghost;
 
-public class MsPacMan extends PacmanController{
+public class MsPacMan extends PacmanController {
 
-	private static final int RANGE = 200;
-	private static final int PILL_VALUE = 10;
-	private static final int VALUE_PATH_GHOST_NOT_EDIBLE = -1500;
-	private static final int VALUE_PATH_GHOST_EDIBLE = +1000;
-	private static final int VALUE_PER_NODE = 20;
-	private static final int POWER_PILL_VALUE = 30;
-	private static final int ALL_GHOSTS_OUTSIDE = 500;
-	
+	private static final int DEPTH = 3; // Best Depth: 4 for pills
+
+	// Works as a struct to store the path information
+	private class PathInfo {
+		public int points;
+		public int startNode;
+		public int endNode;
+		public MOVE startMove;
+		public MOVE endMove;
+
+		public PathInfo() {
+			this(0, -1, -1, MOVE.NEUTRAL, MOVE.NEUTRAL);
+		}
+
+		public PathInfo(int points, int startNode, int endNode, MOVE startMove, MOVE endMove) {
+			this.points = points;
+			this.startNode = startNode;
+			this.endNode = endNode;
+			this.startMove = startMove;
+			this.endMove = endMove;
+		}
+	}
+
+	private Game game;
+
+	private int currentNode;
+	private MOVE lastMove;
+
+	private int eatenGhosts;
+
+	// Data structures to store the game state
+
+	private Map<Integer, Ghost> ghostsNodes;
+	private Set<Integer> pillsNodes;
+	private Set<Integer> powerPillsNodes;
+
+	/**
+	 * Constructor for MsPacMan.
+	 */
 	public MsPacMan() {
 		this.setName("Fantasmikos");
 		this.setTeam("Grupo02");
+
+		// Initialize variables
+		this.game = null;
+		this.ghostsNodes = new HashMap<>();
+		this.pillsNodes = new HashSet<>();
+		this.powerPillsNodes = new HashSet<>();
+
 	}
-	
-    @Override
-    public MOVE getMove(Game game, long timeDue) {
-    	boolean juctionIndice = false;
-    	int pacmanNode = game.getPacmanCurrentNodeIndex();
-    	juctionIndice = game.isJunction(pacmanNode);
-    	
-    	if(juctionIndice) {
-    		Map<Integer, GHOST> ghostIndices = new HashMap<Integer, GHOST>();
-    		Map<MOVE, Variables> caminos = new HashMap<MOVE, Variables>();
-    		
-    		ghostIndices(game, ghostIndices);
-    		this.initializePaths(caminos,game, ghostIndices, pacmanNode);
-    		
-    		return analyzeBestPath(caminos, game);
-    
-    	}
-    	
-        return MOVE.NEUTRAL;
-    }
-    
-    public String getName() {
-    	return "Fantasmikos";
-    }
-    
-    //Pasar a clase general. Se encarga de iniciar los caminos posibles tras el estudio de los mismos desde el nodo de intersección en el que estamos
-    private void initializePaths(Map<MOVE, Variables> caminos, Game game, Map<Integer,GHOST> ghostIndices, int pacmanNode) {
-    	
-    	EnumMap<MOVE, Integer> movements = game.getCurrentMaze().graph[pacmanNode].allNeighbourhoods.get(game.getPacmanLastMoveMade());
-    	
-    	if(movements != null) {
-	    	for (Map.Entry<MOVE, Integer> entry : movements.entrySet()) {
-	    		
-    			 List<Integer> nodes = path(game, entry.getValue(), entry.getKey());
-    			 Variables camino = studyPath(game, nodes, pacmanNode, ghostIndices);
-    			 caminos.put(entry.getKey(), camino);
-	    		
-	    	}
-    	}
-		
-    }
-    
-    //Guardamos en un mapa el nodo de cada fantasma.
-    private void ghostIndices(Game game, Map<Integer, GHOST> ghostIndices) {
-    	
-    	for(GHOST g: GHOST.values()) {
-    		int index = game.getGhostCurrentNodeIndex(g);
-    		
-    		if(ghostIndices.get(index) == null) {
-    			ghostIndices.put(index, g);
-    		}
-    	}
-    }
-    
-    //Comprobar si todos los fantasmas están fuera de su guarida
-    private boolean ghostsOutOfHiding(Game game) {
-    	int nGhosts = 0;
-    	
-    	for(GHOST g: GHOST.values()) {
-    		if(game.getGhostCurrentNodeIndex(g) != game.getGhostInitialNodeIndex()) {
-    			nGhosts++;
-    		}
-    	}
-    	
-    	return nGhosts == 4;
-    }
-    
-    private List<Integer> path(Game game, int node, MOVE m) {
-    	List<Integer> nodes = new ArrayList<>();
-    	EnumMap<MOVE, Integer> move = game.getCurrentMaze().graph[node].allNeighbourhoods.get(m);
-    	MOVE mv = m;
-    	if(move != null) nodes.add(node);
-    	while(move.containsKey(mv)) {
-    		Integer index = move.get(mv);
-    		nodes.add(index);
-    		
-    		move = game.getCurrentMaze().graph[index].allNeighbourhoods.get(mv);
-    	}
-    	
-    	return nodes;
-    	
-    }
-    //Estudiamos el camino
-    private Variables studyPath(Game game, List<Integer> nodes, int initialNode,Map<Integer,GHOST> ghostIndices) {
-    	int i = 0;
-    	Variables v = new Variables(0,0);
-    	
-    	while(i < nodes.size() && !game.isJunction(game.getCurrentMaze().graph[nodes.get(i)].numNeighbouringNodes)) {
-    		Node nodo = game.getCurrentMaze().graph[nodes.get(i)];
-    		
-    	
-    		if(ghostIndices.containsKey(i) && game.getDistance(initialNode, nodes.get(i), DM.MANHATTAN) <= RANGE) {
-    			v.setNearestGhosts(ghostIndices.get(i));
-    		}
-    		if(nodo.pillIndex != -1) {
-    			v.setNumberOfPills(v.getNumberOfPills() +1);
-    		}
-    		else if(nodo.powerPillIndex != -1) {
-    			v.activatePowerPill(true);
-    		}
-    		
-    		
-    		i++;
-    	}
-    	
-    	v.setDistanceFromNearestIndex(game.getDistance(initialNode, nodes.get(i < nodes.size() ? i : i - 1), DM.MANHATTAN));
-    	
-    	return v;
-    }
-    
-  //Evaluamos cual es el camino mas eficiente mediante un sistema de rangos númericos. Dependiendo de las situaciones que se den se suman/restan puntos
-    private MOVE analyzeBestPath(Map<MOVE, Variables> caminos, Game game) {
-    	int puntos_camino = 0;
-    	TreeMap<Integer, MOVE> mejor_camino = new TreeMap<Integer,MOVE>();
-    	
-    	
-		for (Map.Entry<MOVE, Variables> entry : caminos.entrySet()) {
-			Variables camino = entry.getValue();
-			
-			if(camino.getNumberOfGhosts() > 0) {
-				for(GHOST g: camino.getNearestGhosts()) {
-						if(!game.isGhostEdible(g)) puntos_camino += VALUE_PATH_GHOST_NOT_EDIBLE;
-						else puntos_camino += VALUE_PATH_GHOST_EDIBLE;		
-				}
+
+	/**
+	 * Updates the game state and variables.
+	 * 
+	 * @param game The game state.
+	 */
+	private void update(Game game) {
+		this.game = game;
+
+		// Update MsPacMan
+
+		this.currentNode = this.game.getPacmanCurrentNodeIndex();
+		this.lastMove = this.game.getPacmanLastMoveMade();
+
+		// Update Ghosts
+
+		this.eatenGhosts = this.game.getNumGhostsEaten();
+
+		this.ghostsNodes.clear();
+		for (GHOST ghost : GHOST.values()) {
+			if (this.game.getGhostLairTime(ghost) <= 0) {
+				int ghostNode = this.game.getGhostCurrentNodeIndex(ghost);
+				MOVE ghostMove = this.game.getGhostLastMoveMade(ghost);
+				int edibleTime = this.game.getGhostEdibleTime(ghost);
+				int lairTime = this.game.getGhostLairTime(ghost);
+
+				this.ghostsNodes.put(ghostNode, new Ghost(ghost, ghostNode, edibleTime, lairTime, ghostMove));
 			}
-			
-		
-			if(camino.powerPill() && camino.getNumberOfGhosts() > 0) {
-				puntos_camino += POWER_PILL_VALUE;
-				
-				if(ghostsOutOfHiding(game)) {
-					puntos_camino += ALL_GHOSTS_OUTSIDE;
-				}
-			}
-			else if(camino.powerPill()) {
-				puntos_camino += POWER_PILL_VALUE * -100;
-			}
-		
-			puntos_camino += camino.getDistanceFromNearestIndex() * VALUE_PER_NODE;
-			puntos_camino += camino.getNumberOfPills() * PILL_VALUE;
-			
-			
-			mejor_camino.put(puntos_camino, entry.getKey());
-			puntos_camino = 0;
 		}
-    	
-    	return mejor_camino.lastEntry().getValue();
-    }
+
+		// Update Pills and Power Pills
+
+		this.pillsNodes.clear();
+		int pills[] = this.game.getActivePillsIndices();
+		for (int pill : pills)
+			this.pillsNodes.add(pill);
+
+		this.powerPillsNodes.clear();
+		int ppills[] = this.game.getActivePowerPillsIndices();
+		for (int ppill : ppills)
+			this.powerPillsNodes.add(ppill);
+
+	}
+
+	@Override
+	public MOVE getMove(Game game, long timeDue) {
+		this.update(game);
+
+		if (this.doesMsPacManRequireAction())
+			return this.getBestMove();
+
+		return MOVE.NEUTRAL;
+	}
+
+	/**
+	 * Checks if MsPacMan needs to make a decision. Check if MsPacMan is in a
+	 * junction (has more than one possible move)
+	 * 
+	 * @return True if needs to make a decision, false otherwise.
+	 */
+	private boolean doesMsPacManRequireAction() {
+		return this.game.getPossibleMoves(this.currentNode, this.lastMove).length > 1;
+	}
+
+	/**
+	 * Returns the best move for MsPacMan.
+	 * 
+	 * @return The best move for MsPacMan.
+	 */
+	private MOVE getBestMove() {
+		return this.getBestPath(this.currentNode, this.lastMove, DEPTH).startMove;
+	}
+
+	/**
+	 * Returns the best path for MsPacMan.
+	 * 
+	 * @param currentNode The current node index.
+	 * @param lastMove    The last move.
+	 * @param depth       The depth of the search (number of paths to check).
+	 * @return The best path for MsPacMan.
+	 */
+	private PathInfo getBestPath(int currentNode, MOVE lastMove, int depth) {
+		PathInfo bestPath = new PathInfo();
+
+		if (depth == 0) // If there are no more paths to check
+			return bestPath;
+
+		// Get the possible moves
+		MOVE[] possibleMoves = this.game.getPossibleMoves(currentNode, lastMove);
+
+		// Make a copy of the game state
+		Set<Integer> pillsCopy = new HashSet<>(this.pillsNodes);
+		Set<Integer> powerPillsCopy = new HashSet<>(this.powerPillsNodes);
+		Map<Integer, Ghost> ghostsCopy = new HashMap<>(this.ghostsNodes);
+
+		int eatenGhostsCopy = this.eatenGhosts;
+
+		// for each possible move check the path and the best next path
+		for (MOVE move : possibleMoves) {
+			PathInfo path = this.getPath(currentNode, move, depth);
+
+			int points = path.points;
+
+			// OPTIMIZATION: If the path is not the best, don't check the next path
+			if (path.endMove != null) {
+				PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
+				points += bestNextPath.points;
+			}
+
+			// Check if the path is the best
+			if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < points) {
+				bestPath.startMove = move;
+				bestPath.points = points;
+			}
+
+			// Restore the game state
+			this.pillsNodes = new HashSet<>(pillsCopy);
+			this.powerPillsNodes = new HashSet<>(powerPillsCopy);
+			this.ghostsNodes = new HashMap<>(ghostsCopy);
+
+			this.eatenGhosts = eatenGhostsCopy;
+		}
+
+		return bestPath;
+	}
+
+	/**
+	 * Returns the path for MsPacMan.
+	 * 
+	 * @param startNode The start node index.
+	 * @param startMove The start move.
+	 * @param depth     The depth of the search.
+	 * @return The path for MsPacMan.
+	 */
+	private PathInfo getPath(int startNode, MOVE startMove, int depth) {
+		PathInfo path = new PathInfo(0, startNode, -1, startMove, null);
+
+		int currentNode = path.startNode;
+		MOVE currentMove = path.startMove;
+		int endNode = path.endNode;
+
+		// Get the next node
+		endNode = this.game.getNeighbour(currentNode, currentMove);
+
+		this.moveGhosts();
+
+		// while the end node is not a junction
+		while (!game.isJunction(endNode)) {
+
+			// Add the points of the node to the path
+			int nodePoints = this.getNodePoints(endNode, depth);
+
+			if (nodePoints < 0) {
+				path.endMove = null;
+				return path;
+			}
+
+			path.points += nodePoints;
+
+			// Update the current node
+			currentNode = endNode;
+
+			// Since it's on a path, it always has only one possible move, but we check the
+			// move just in case it's going to hit a wall
+			currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
+
+			endNode = this.game.getNeighbour(currentNode, currentMove);
+
+			this.moveGhosts();
+		}
+
+		path.points += this.getNodePoints(endNode, depth);
+
+		// Update the path
+		path.endNode = endNode;
+		path.endMove = this.game.getMoveToMakeToReachDirectNeighbour(currentNode, endNode);
+
+		return path;
+	}
+
+	private int getNodePoints(int node, int depth) {
+		return this.getPillsPoints(node, depth) + this.getGhostPoints(node, depth);
+	}
+
+	/**
+	 * Returns the points of a node. Check if the node is a pill or a power pill
+	 * remove it from the set if contained to avoid counting it again and return the
+	 * weighting points based on the depth of the search.
+	 * 
+	 * @param node  The node index.
+	 * @param depth The depth of the search.
+	 * @return The points of a node.
+	 */
+	private int getPillsPoints(int node, int depth) { // TODO: aÃ±adir ppills ponderen distancia a fantasmas y actualizar
+														// edible time fantasmas
+		if (this.pillsNodes.remove(node))
+			return Constants.PILL + depth; // more early the pill, more points
+
+		// int newEdibleTime = (int) (EDIBLE_TIME * (Math.pow(EDIBLE_TIME_REDUCTION,
+		// levelCount % LEVEL_RESET_REDUCTION)));
+		int nGhosts = (int) this.ghostsNodes.values().stream().filter(ghost -> ghost.edibleTime == 0).count();
+		if (this.powerPillsNodes.remove(node))
+			return (Constants.POWER_PILL + depth) - ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - nGhosts));
+
+		return 0;
+	}
+
+	/**
+	 * Returns the points of a path based on the ghosts.
+	 * 
+	 * @param path  The path information.
+	 * @param depth The depth of the search.
+	 * @return The points of the path.
+	 */
+	private int getGhostPoints(int node, int depth) { // TODO: modificar fantasma cuando es comido
+		for (Ghost ghost : this.ghostsNodes.values()) {
+			if (this.isCloseEnought(node, ghost.currentNodeIndex)) {
+				if (ghost.edibleTime == 0)
+					return -Constants.GHOST_EAT_SCORE * depth;
+				else {
+					ghost.edibleTime = 0;
+					ghost.lairTime = (int) (ghost.type.initialLairTime * (Math.pow(Constants.LAIR_REDUCTION,
+							this.game.getCurrentLevel() % Constants.LEVEL_RESET_REDUCTION)));
+					return Constants.GHOST_EAT_SCORE * ++this.eatenGhosts;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Checks if two nodes are close enough.
+	 * 
+	 * @param node1 The first node index.
+	 * @param node2 The second node index.
+	 * @return True if the nodes are close enough, false otherwise.
+	 */
+	private boolean isCloseEnought(int node1, int node2) {
+		return this.game.getShortestPathDistance(node1, node2) <= Constants.EAT_DISTANCE;
+	}
+
+	/**
+	 * Moves the ghosts.
+	 */
+	private void moveGhosts() { // TODO: al mover, actualizar el tiempo
+		for (Ghost ghost : this.ghostsNodes.values()) {
+			if (ghost.lairTime == 0) {
+				if (ghost.edibleTime == 0 || ghost.edibleTime % Constants.GHOST_SPEED_REDUCTION != 0) {
+					int oldNode = ghost.currentNodeIndex;
+
+					if (this.game.isJunction(oldNode)) {
+						// si esta en interseccion, cambiar de direccion a la mas desfavorable al pacman
+					}
+
+					// TODO: mover fantasma
+				}
+			}
+		}
+	}
 
 }
