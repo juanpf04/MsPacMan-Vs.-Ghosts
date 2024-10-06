@@ -4,6 +4,8 @@ import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
 import pacman.controllers.PacmanController;
 
+import es.ucm.fdi.ici.c2425.practica1.grupo02.Ghosts;
+
 /*	ICI HALL-OF-FAME
 
 --- Best MsPacMan (score) --- 
@@ -42,7 +44,9 @@ public class ExecutorTest {
 
         //PacmanController pacMan = new HumanController(new KeyBoardInput());
         PacmanController pacMan = new es.ucm.fdi.ici.c2223.practica1.grupo06.MsPacMan();
-        GhostController ghosts = new es.ucm.fdi.ici.c2324.practica1.grupo08.Ghosts();
+        //GhostController ghosts = new es.ucm.fdi.ici.c2324.practica1.grupo08.Ghosts();
+        //GhostController ghosts = new es.ucm.fdi.ici.c2324.practica2.grupo04.Ghosts();
+        GhostController ghosts = new Ghosts();
         
         System.out.println( 
             executor.runGame(pacMan, ghosts, 30) //last parameter defines speed

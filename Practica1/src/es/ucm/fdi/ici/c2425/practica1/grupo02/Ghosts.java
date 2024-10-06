@@ -1,205 +1,206 @@
 package es.ucm.fdi.ici.c2425.practica1.grupo02;
 
 import java.util.EnumMap;
-import java.util.HashSet;
-
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import pacman.controllers.GhostController;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
-import pacman.game.Constants;
 import pacman.game.Game;
 
 public final class Ghosts extends GhostController {
 
-	private final static int LIMIT_DISTANCE = 60;
-	private final static int LIMIT_DISTANCE_BETWEEN_PACMAN_PPILL = 30;
-	private static final int VALUE_PER_NODE = 20;
-	private static final int DEPTH = 3;
-	private final static int PACMAN = -10000;
-	
-	public class PathInfo {
-		public int points;
-		public int startNode;
-		public int endNode;
-		public MOVE startMove;
-		public MOVE endMove;
+	private final static int LIMIT_DISTANCE = 25;
 
-		public PathInfo() {
-			this(0, -1, -1, null, null);
-		}
-
-		public PathInfo(int points, int startNode, int endNode, MOVE startMove, MOVE endMove) {
-			this.points = points;
-			this.startNode = startNode;
-			this.endNode = endNode;
-			this.startMove = startMove;
-			this.endMove = endMove;
-		}
-	}
-	
-	
 	private EnumMap<GHOST, MOVE> moves = new EnumMap<GHOST, MOVE>(GHOST.class);
-	private Game game;
-	
-	private int pacmanNode;
-	private Set<Integer> ppillsNodes;
-	private boolean[] nodos; //MARCA
-	
+
+	private Map<GHOST, Integer> ghostIndices = new HashMap<>();
+	private int mspacmanIndex;
+
 	public Ghosts() {
 		this.setName("Fantasmikos");
 		this.setTeam("Grupo02");
-		
-		this.ppillsNodes = new HashSet<>();
 	}
 
-	private void update(Game game) {
-		this.game = game;
-		this.pacmanNode = game.getPacmanCurrentNodeIndex();
-		
-		int ppills[] = game.getActivePowerPillsIndices();
-		for (int ppill : ppills)
-			this.ppillsNodes.add(ppill);
-		
-	}
 	@Override
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
-		this.update(game);
-		
-		
-		for(GHOST g: GHOST.values()) {
-			int ghostNode = game.getGhostCurrentNodeIndex(g);
-			MOVE lastMove = game.getGhostLastMoveMade(g);
-			
-			if(game.doesGhostRequireAction(g)) {
-				
-				if(game.isGhostEdible(g)) {
-					moves.put(g, this.runAwayFromPacman(ghostNode, lastMove));
+		this.moves.clear();
+
+		mspacmanIndex = game.getPacmanCurrentNodeIndex();
+
+		saveGhostIndices(game);
+
+		for (GHOST ghost : GHOST.values()) {
+			if (game.doesGhostRequireAction(ghost)) {
+
+				// flight mode
+				if (game.isGhostEdible(ghost)) {
+					this.moves.put(ghost, getBestFlightMove(game, ghost));
 				}
+
+				else if (isPacmanCloseToPowerPill(game)) {
+					int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+					int closestPPill = getClosestPowerPill(game, ghostIndex);
+					int pacmanDist = game.getShortestPathDistance(ghostIndex,closestPPill);
+					int ghostDist = game.getShortestPathDistance(mspacmanIndex,closestPPill);
+					if (pacmanDist > ghostDist) {
+						MOVE move = game.getNextMoveTowardsTarget(
+							ghostIndex,
+							closestPPill,
+							game.getGhostLastMoveMade(ghost),
+							DM.EUCLID);
+						this.moves.put(ghost,move);
+					} else {
+						this.moves.put(ghost,getBestFlightMove(game, ghost));
+					}
+				}
+
+				// attack mode
 				else {
-					
-					if(danger(game,ghostNode, pacmanNode)) {
-						moves.put(g, this.runAwayFromPacman(ghostNode, lastMove));
-					}
-					else {
-						if(game.getShortestPathDistance(pacmanNode, ghostNode) <= LIMIT_DISTANCE)
-							moves.put(g, this.chasePacman(ghostNode, lastMove));
-						else
-							moves.put(g, game.getApproximateNextMoveTowardsTarget(ghostNode, pacmanNode, lastMove, DM.PATH));
-					}
+					this.moves.put(ghost, getBestAttackMove(game, ghost));
 				}
 			}
 		}
-		
-		return moves;
+		return this.moves;
 	}
-	
-	private boolean danger(Game game, int ghostNode, int pacmanNode) {
-		return pacmanNearToPowerPill(pacmanNode, game);
+
+	/**
+	 * Get the best flight move for a give ghost
+	 * 
+	 * @param game  the current game
+	 * @param ghost the ghost we want the flight move for
+	 * @return
+	 */
+	private MOVE getBestAttackMove(Game game, GHOST ghost) {
+		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+		if (getGhostDensity(game, ghostIndex) >= 1.2) {
+			return game.getNextMoveAwayFromTarget(
+				ghostIndices.get(ghost),
+				getGhostCenterIndex(game),
+				game.getGhostLastMoveMade(ghost),
+				DM.EUCLID);
+		}
+
+		return game.getNextMoveTowardsTarget(
+				ghostIndices.get(ghost),
+				mspacmanIndex,
+				game.getGhostLastMoveMade(ghost),
+				DM.EUCLID);
 	}
-	
-	private boolean pacmanNearToPowerPill(int pacmanNode, Game game) {
-		
-		for(int i: game.getActivePowerPillsIndices())
-			if(game.getShortestPathDistance(pacmanNode, i) <= LIMIT_DISTANCE_BETWEEN_PACMAN_PPILL)
+
+	/**
+	 * Get the best flight move for a give ghost
+	 *
+	 * @param game  the current game
+	 * @param ghost the ghost we want the flight move for
+	 * @return
+	 */
+	private MOVE getBestFlightMove(Game game, GHOST ghost) {
+		int ghostCenter = getGhostCenterIndex(game);
+		int moveAwayPoint;
+
+		// check if we need to move away from the other ghosts too
+		if (getGhostDensity(game, ghostCenter) >= 1.2) {
+			moveAwayPoint = ghostCenter;
+		}
+		// if other ghosts arent close enough just move away from pacman
+		else {
+			moveAwayPoint = mspacmanIndex;
+		}
+
+		return game.getNextMoveAwayFromTarget(
+				ghostIndices.get(ghost),
+				moveAwayPoint,
+				game.getGhostLastMoveMade(ghost),
+				DM.EUCLID);
+	}
+
+	/**
+	 * Save all current ghost indices in the corresponding Map<> attribute
+	 * 
+	 * @param game the current game
+	 */
+	private void saveGhostIndices(Game game) {
+		this.ghostIndices.clear();
+		for (GHOST g : GHOST.values()) {
+			int index = game.getGhostCurrentNodeIndex(g);
+			this.ghostIndices.put(g, index);
+		}
+	}
+
+	/**
+	 * Calculates ghost density at a certain point using an exponential density
+	 * function. Range is between 0 and 1, where 1 is high density
+	 * 
+	 * @param game     the current game
+	 * @param position position at which we want to calculate the ghost density at
+	 * @return numerical value for ghost density
+	 */
+	private double getGhostDensity(Game game, int position) {
+		double density = 0.0;
+		for (GHOST ghost : GHOST.values()) {
+			double distance = game.getEuclideanDistance(ghostIndices.get(ghost), position);
+			if (distance < 25) {
+				density += Math.exp(-0.1 * distance); // Exponentially decaying contribution
+			}
+		}
+		return density;
+	}
+
+
+	private int getGhostCenterIndex(Game game) {
+		int bestNode = -1;
+		double minDistanceSum = Double.MAX_VALUE;
+
+		for (GHOST g1 : GHOST.values()) {
+			double currentDistanceSum = 0;
+			for (GHOST g2 : GHOST.values()) {
+				if (g1 != g2) {
+					currentDistanceSum += game.getEuclideanDistance(ghostIndices.get(g1), ghostIndices.get(g2));
+				}
+			}
+			// Check if this node has the smallest total distance
+			if (currentDistanceSum < minDistanceSum) {
+				minDistanceSum = currentDistanceSum;
+				bestNode = ghostIndices.get(g1);
+			}
+		}
+
+		return bestNode;
+	}
+
+	/**
+	 * Check whether pacman is LIMIT_DISTANCE away from a PowerPill
+	 * 
+	 * @param game current game
+	 * @return
+	 */
+	private boolean isPacmanCloseToPowerPill(Game game) {
+		for (int powerPill : game.getActivePowerPillsIndices()) {
+			if (game.getShortestPathDistance(game.getPacmanCurrentNodeIndex(), powerPill,
+					game.getPacmanLastMoveMade()) < LIMIT_DISTANCE)
 				return true;
-		
+		}
+
 		return false;
 	}
 
-	
-	private MOVE runAwayFromPacman(int currentNode, MOVE lastMove) {
-		return bestPath(currentNode, lastMove, DEPTH, null, true).startMove;
-	}
-	
-	private MOVE chasePacman(int currentNode, MOVE lastMove) {
-		return bestPath(currentNode, lastMove, DEPTH, null, false).startMove;
-	}
-	
-	private PathInfo bestPath(int currentNode, MOVE lastMove, int depth, Object currentState, boolean state) {
-		PathInfo bestPath = new PathInfo();
 
-		if (depth == 0)
-			return bestPath;
-
-		MOVE[] possibleMoves = this.game.getPossibleMoves(currentNode, lastMove);
-
-		//MARCAR SI UN CAMINO YA HA SIDO TOMADO POR UN FANTASMA
-		
-		for (MOVE move : possibleMoves) {
-			PathInfo path = this.getPath(currentNode, move,state);
-
-			PathInfo bestSecondPath = this.bestPath(path.endNode, path.endMove, depth - 1, null, state);
-		
-			//DESMARCAR
-
-			int points = path.points + bestSecondPath.points;
-
-			if (bestPath.startMove == null || bestPath.points < points) {
-				bestPath.startMove = move;
-				bestPath.points = points;
+	/**
+	 * Get closest active power pill to a position
+	 */
+	private int getClosestPowerPill(Game game, int position) {
+		int closest = -1;
+		int currDist = Integer.MAX_VALUE;
+		for (int powerPill : game.getActivePowerPillsIndices()) {
+			int pathDistance = game.getShortestPathDistance(position, powerPill);
+			if (pathDistance < currDist) {
+				currDist = pathDistance;
+				closest = powerPill;
 			}
-
 		}
-
-		return bestPath;
-	}
-	
-	private PathInfo getPath(int startNode, MOVE startMove, boolean state) {
-		PathInfo path = new PathInfo(0, startNode, -1, startMove, null);
-
-		int currentNode = startNode;
-		MOVE currentMove = startMove;
-
-		int endNode = this.game.getNeighbour(startNode, currentMove);
-
-		while (!game.isJunction(endNode)) {
-			path.points += getNodePoints(endNode, state);
-
-			currentNode = endNode;
-			currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
-			endNode = this.game.getNeighbour(currentNode, currentMove);
-
-		}
-
-		path.points += game.getShortestPathDistance(startNode, endNode, currentMove) * ( state == true ? VALUE_PER_NODE : VALUE_PER_NODE * -1); // TODO: revisar
-		path.endNode = endNode;
-		path.endMove = this.game.getMoveToMakeToReachDirectNeighbour(currentNode, endNode);
-
-		return path;
-	}
-	
-	//state, true para indicar que el fantasma es comestible, false para indicar que no lo es
-	private int getNodePoints(int node, boolean state) { // FIXME: implement
-
-		int points = 0;
-
-		
-		if(node == this.pacmanNode && state) {
-			points += PACMAN;
-		}
-		else if(node == this.pacmanNode)
-			points += PACMAN * -1;
-		
-		if (node != -1 && !this.ppillsNodes.contains(node)) {
-			
-			if(state) 
-				points += Constants.PILL * -1;
-			else 
-				points += Constants.PILL;
-			
-		}
-		else if (node != -1) {
-			
-			if(state || game.getShortestPathDistance(pacmanNode, node) < LIMIT_DISTANCE_BETWEEN_PACMAN_PPILL)
-				points += Constants.POWER_PILL * -1;
-			else
-				points += Constants.POWER_PILL;
-			
-		}
-
-		return points;
+		return closest;
 	}
 }
