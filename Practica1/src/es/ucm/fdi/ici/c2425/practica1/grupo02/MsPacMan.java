@@ -16,7 +16,7 @@ public class MsPacMan extends PacmanController {
 	private static final int DEPTH = 3; // Best Depth: 4 for pills
 
 	/*
-	 * Data structure to hold all information pertaining to the ghosts.
+	 * Data structure to hold all information pertaining to the paths.
 	 */
 	private class PathInfo {
 		public int points;
@@ -42,10 +42,7 @@ public class MsPacMan extends PacmanController {
 
 	private int level;
 
-	private int currentNode;
-	private MOVE lastMove;
-
-	private int eatenGhosts;
+	private int numGhostEaten;
 
 	// Data structures to store the game state
 
@@ -60,9 +57,10 @@ public class MsPacMan extends PacmanController {
 		this.setName("Fantasmikos");
 		this.setTeam("Grupo02");
 
-		// Initialize variables
-		this.game = null;
+		// Initialize data structures
+
 		this.ghosts = new ArrayList<>();
+
 		for (GHOST ghost : GHOST.values()) {
 			this.ghosts.add(new Ghost(ghost, -1, 0, 0, MOVE.NEUTRAL));
 		}
@@ -82,14 +80,9 @@ public class MsPacMan extends PacmanController {
 
 		this.level = this.game.getCurrentLevel();
 
-		// Update MsPacMan
-
-		this.currentNode = this.game.getPacmanCurrentNodeIndex();
-		this.lastMove = this.game.getPacmanLastMoveMade();
-
 		// Update Ghosts
 
-		this.eatenGhosts = this.game.getNumGhostsEaten();
+		this.numGhostEaten = this.game.getNumGhostsEaten();
 
 		for (Ghost ghost : this.ghosts) {
 			GHOST type = ghost.type;
@@ -117,20 +110,25 @@ public class MsPacMan extends PacmanController {
 	public MOVE getMove(Game game, long timeDue) {
 		this.update(game);
 
-		if (this.doesMsPacManRequireAction())
-			return this.getBestMove();
+		int currentNode = this.game.getPacmanCurrentNodeIndex();
+		MOVE lastMove = this.game.getPacmanLastMoveMade();
+
+		if (this.doesMsPacManRequireAction(currentNode, lastMove))
+			return this.getBestMove(currentNode, lastMove);
 
 		return MOVE.NEUTRAL;
 	}
 
 	/**
-	 * Checks if MsPacMan needs to make a decision. Check if MsPacMan is in a
-	 * junction (has more than one possible move)
+	 * Checks if MsPacMan needs to make a decision, if MsPacMan is in a junction
+	 * (has more than one possible move).
 	 * 
-	 * @return True if needs to make a decision, false otherwise.
+	 * @param currentNode The current node index.
+	 * @param lastMove    The last move made.
+	 * @return True if MsPacMan requires an action, false otherwise.
 	 */
-	private boolean doesMsPacManRequireAction() {
-		return this.game.getPossibleMoves(this.currentNode, this.lastMove).length > 1;
+	private boolean doesMsPacManRequireAction(int currentNode, MOVE lastMove) {
+		return this.game.getPossibleMoves(currentNode, lastMove).length > 1;
 	}
 
 	/**
@@ -138,8 +136,8 @@ public class MsPacMan extends PacmanController {
 	 * 
 	 * @return The best move for MsPacMan.
 	 */
-	private MOVE getBestMove() {
-		return this.getBestPath(this.currentNode, this.lastMove, DEPTH).startMove;
+	private MOVE getBestMove(int currentNode, MOVE lastMove) {
+		return this.getBestPath(currentNode, lastMove, DEPTH).startMove;
 	}
 
 	/**
@@ -161,7 +159,7 @@ public class MsPacMan extends PacmanController {
 		Set<Integer> powerPillsCopy = new HashSet<>(this.powerPillsNodes);
 		List<Ghost> ghostsCopy = new ArrayList<>(this.ghosts);
 
-		int eatenGhostsCopy = this.eatenGhosts;
+		int eatenGhostsCopy = this.numGhostEaten;
 
 		// Get the possible moves
 		MOVE[] possibleMoves = this.game.getPossibleMoves(currentNode, lastMove);
@@ -187,7 +185,7 @@ public class MsPacMan extends PacmanController {
 			this.powerPillsNodes = new HashSet<>(powerPillsCopy);
 			this.ghosts = new ArrayList<>(ghostsCopy);
 
-			this.eatenGhosts = eatenGhostsCopy;
+			this.numGhostEaten = eatenGhostsCopy;
 		}
 
 		return bestPath;
@@ -318,7 +316,7 @@ public class MsPacMan extends PacmanController {
 					ghost.lairTime = (int) (ghost.type.initialLairTime
 							* (Math.pow(Constants.LAIR_REDUCTION, this.level % Constants.LEVEL_RESET_REDUCTION)));
 					ghost.lastMoveMade = MOVE.NEUTRAL;
-					return (Constants.GHOST_EAT_SCORE * ++this.eatenGhosts) + depth;
+					return (Constants.GHOST_EAT_SCORE * ++this.numGhostEaten) + depth;
 				}
 			}
 		}
@@ -365,7 +363,7 @@ public class MsPacMan extends PacmanController {
 						if (ghost.edibleTime == 0 && (minDistance > 100
 								|| this.game.getShortestPathDistance(ghost.currentNodeIndex, ppill) < minDistance))
 							ghost.lastMoveMade = this.game.getApproximateNextMoveTowardsTarget(ghost.currentNodeIndex,
-									this.currentNode, ghost.lastMoveMade, DM.PATH);
+									node, ghost.lastMoveMade, DM.PATH);
 
 						// If the ghost is edible, move away from MsPacMan
 						else
