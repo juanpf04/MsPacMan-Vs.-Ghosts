@@ -14,14 +14,19 @@ public final class Ghosts extends GhostController {
 
 	private final static int LIMIT_DISTANCE = 25;
 
-	private EnumMap<GHOST, MOVE> moves = new EnumMap<GHOST, MOVE>(GHOST.class);
-
-	private Map<GHOST, Integer> ghostIndices = new HashMap<>();
 	private int mspacmanIndex;
+
+	private EnumMap<GHOST, MOVE> moves;
+	private Map<GHOST, Integer> ghostIndices;
 
 	public Ghosts() {
 		this.setName("Fantasmikos");
 		this.setTeam("Grupo02");
+
+		// Initialize data structures
+
+		this.moves = new EnumMap<>(GHOST.class);
+		this.ghostIndices = new HashMap<>();
 	}
 
 	@Override
@@ -43,17 +48,14 @@ public final class Ghosts extends GhostController {
 				else if (isPacmanCloseToPowerPill(game)) {
 					int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
 					int closestPPill = getClosestPowerPill(game, ghostIndex);
-					int pacmanDist = game.getShortestPathDistance(ghostIndex,closestPPill);
-					int ghostDist = game.getShortestPathDistance(mspacmanIndex,closestPPill);
+					int pacmanDist = game.getShortestPathDistance(ghostIndex, closestPPill);
+					int ghostDist = game.getShortestPathDistance(mspacmanIndex, closestPPill);
 					if (pacmanDist > ghostDist) {
-						MOVE move = game.getNextMoveTowardsTarget(
-							ghostIndex,
-							closestPPill,
-							game.getGhostLastMoveMade(ghost),
-							DM.EUCLID);
-						this.moves.put(ghost,move);
+						MOVE move = game.getNextMoveTowardsTarget(ghostIndex, closestPPill,
+								game.getGhostLastMoveMade(ghost), DM.EUCLID);
+						this.moves.put(ghost, move);
 					} else {
-						this.moves.put(ghost,getBestFlightMove(game, ghost));
+						this.moves.put(ghost, getBestFlightMove(game, ghost));
 					}
 				}
 
@@ -76,17 +78,11 @@ public final class Ghosts extends GhostController {
 	private MOVE getBestAttackMove(Game game, GHOST ghost) {
 		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
 		if (getGhostDensity(game, ghostIndex) >= 1.2) {
-			return game.getNextMoveAwayFromTarget(
-				ghostIndices.get(ghost),
-				getGhostCenterIndex(game),
-				game.getGhostLastMoveMade(ghost),
-				DM.EUCLID);
+			return game.getNextMoveAwayFromTarget(ghostIndices.get(ghost), getGhostCenterIndex(game),
+					game.getGhostLastMoveMade(ghost), DM.EUCLID);
 		}
 
-		return game.getNextMoveTowardsTarget(
-				ghostIndices.get(ghost),
-				mspacmanIndex,
-				game.getGhostLastMoveMade(ghost),
+		return game.getNextMoveTowardsTarget(ghostIndices.get(ghost), mspacmanIndex, game.getGhostLastMoveMade(ghost),
 				DM.EUCLID);
 	}
 
@@ -110,10 +106,7 @@ public final class Ghosts extends GhostController {
 			moveAwayPoint = mspacmanIndex;
 		}
 
-		return game.getNextMoveAwayFromTarget(
-				ghostIndices.get(ghost),
-				moveAwayPoint,
-				game.getGhostLastMoveMade(ghost),
+		return game.getNextMoveAwayFromTarget(ghostIndices.get(ghost), moveAwayPoint, game.getGhostLastMoveMade(ghost),
 				DM.EUCLID);
 	}
 
@@ -148,7 +141,6 @@ public final class Ghosts extends GhostController {
 		}
 		return density;
 	}
-
 
 	private int getGhostCenterIndex(Game game) {
 		int bestNode = -1;
@@ -186,7 +178,6 @@ public final class Ghosts extends GhostController {
 
 		return false;
 	}
-
 
 	/**
 	 * Get closest active power pill to a position
