@@ -153,10 +153,8 @@ public class MsPacMan extends PacmanController {
 	private PathInfo getBestPath(int currentNode, MOVE lastMove, int depth) { // TODO: revisar caso base
 		PathInfo bestPath = new PathInfo();
 
-		if (depth == 0) { // If there are no more paths to check
-			//bestPath.points = (int) (-100 * this.getGhostDensity(currentNode));
+		if (depth == 0) // If there are no more paths to check
 			return bestPath;
-		}
 
 		// Make a copy of the game state
 		Set<Integer> pillsCopy = new HashSet<>(this.pillsNodes);
@@ -172,18 +170,16 @@ public class MsPacMan extends PacmanController {
 		for (MOVE move : possibleMoves) {
 			PathInfo path = this.getPath(currentNode, move, depth);
 
-			int points = path.points;
-
 			// OPTIMIZATION: If the path is not the best, don't check the next path
 			if (path.endMove != null) {
 				PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
-				points += bestNextPath.points;
+				path.points += bestNextPath.points;
 			}
 
 			// Check if the path is the best
-			if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < points) {
+			if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < path.points) {
 				bestPath.startMove = move;
-				bestPath.points = points;
+				bestPath.points = path.points;
 			}
 
 			// Restore the game state
@@ -282,7 +278,7 @@ public class MsPacMan extends PacmanController {
 		if (this.pillsNodes.remove(node))
 			return Constants.PILL + depth; // more early the pill, more points
 
-		int nGhosts = (int) this.ghosts.stream().filter(ghost -> ghost.edibleTime == 0).count();
+		int nGhosts = (int) this.ghosts.stream().filter(ghost -> ghost.edibleTime == 0 && ghost.lairTime == 0).count();
 		if (this.powerPillsNodes.remove(node)) {
 			// update Ghosts edible time
 			int newEdibleTime = (int) (Constants.EDIBLE_TIME
@@ -342,27 +338,42 @@ public class MsPacMan extends PacmanController {
 	}
 
 	/**
-	 * Update the ghosts.
+	 * Updates the ghosts positions and edible time.
+	 * 
+	 * @param node The MsPacMan node index.
 	 */
-	private void updateGhosts(int node) { // TODO: terminar
+	private void updateGhosts(int node) {
 
 		for (Ghost ghost : this.ghosts) {
+			// Update the ghost position if it's not in the lair
 			if (ghost.lairTime == 0) {
 				if (ghost.edibleTime == 0 || ghost.edibleTime % Constants.GHOST_SPEED_REDUCTION != 0) {
 
 					if (this.game.isJunction(ghost.currentNodeIndex)) {
-						// si esta en interseccion, cambiar de direccion a la mas desfavorable al pacman
-						if (ghost.edibleTime == 0) {
-							ghost.lastMoveMade = this.game.getApproximateNextMoveTowardsTarget(ghost.currentNodeIndex,
-									this.currentNode, ghost.lastMoveMade, DM.PATH);
-						} else {
-							ghost.lastMoveMade = this.game.getApproximateNextMoveAwayFromTarget(ghost.currentNodeIndex,
-									node, ghost.lastMoveMade, DM.PATH);
+
+						int ppill = 0;
+						int minDistance = -1;
+
+						for (int pp : this.powerPillsNodes) {
+							if (minDistance == -1 || this.game.getShortestPathDistance(node, pp) < minDistance) {
+								ppill = pp;
+								minDistance = this.game.getShortestPathDistance(node, pp);
+							}
 						}
 
-					} else {
+						// If the ghost is not edible, move towards MsPacMan
+						if (ghost.edibleTime == 0 && (minDistance > 100
+								|| this.game.getShortestPathDistance(ghost.currentNodeIndex, ppill) < minDistance))
+							ghost.lastMoveMade = this.game.getApproximateNextMoveTowardsTarget(ghost.currentNodeIndex,
+									this.currentNode, ghost.lastMoveMade, DM.PATH);
+
+						// If the ghost is edible, move away from MsPacMan
+						else
+							ghost.lastMoveMade = this.game.getApproximateNextMoveAwayFromTarget(ghost.currentNodeIndex,
+									node, ghost.lastMoveMade, DM.PATH);
+
+					} else
 						ghost.lastMoveMade = this.game.getPossibleMoves(ghost.currentNodeIndex, ghost.lastMoveMade)[0];
-					}
 
 					ghost.currentNodeIndex = this.game.getNeighbour(ghost.currentNodeIndex, ghost.lastMoveMade);
 				}
@@ -379,24 +390,6 @@ public class MsPacMan extends PacmanController {
 				}
 			}
 		}
-	}
 
-	/**
-	 * Calculates ghost density at a certain node using an exponential density
-	 * function. Range is between 0 and 1, where 1 is high density
-	 * 
-	 * @param node node at which we want to calculate the ghost density at
-	 * @return numerical value for ghost density
-	 */
-	private double getGhostDensity(int node) {
-		double density = 0.0;
-		for (Ghost ghost : this.ghosts) {
-			double distance = this.game.getEuclideanDistance(ghost.currentNodeIndex, node);
-			if (distance < 25) {
-				density += Math.exp(-0.1 * distance); // Exponentially decaying contribution
-			}
-		}
-		return density;
 	}
-
 }
