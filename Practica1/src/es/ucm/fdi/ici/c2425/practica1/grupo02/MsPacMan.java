@@ -67,7 +67,6 @@ public class MsPacMan extends PacmanController {
 
 		this.pillsNodes = new HashSet<>();
 		this.powerPillsNodes = new HashSet<>();
-
 	}
 
 	/**
@@ -77,10 +76,9 @@ public class MsPacMan extends PacmanController {
 	 */
 	private void update(Game game) {
 		this.game = game;
-
 		this.level = this.game.getCurrentLevel();
 
-		// Update Ghosts
+		// Update Ghosts structures
 
 		this.numGhostEaten = this.game.getNumGhostsEaten();
 
@@ -92,7 +90,7 @@ public class MsPacMan extends PacmanController {
 			ghost.lairTime = this.game.getGhostLairTime(type);
 		}
 
-		// Update Pills and Power Pills
+		// Update Pills and Power Pills structures
 
 		this.pillsNodes.clear();
 		int pills[] = this.game.getActivePillsIndices();
@@ -134,6 +132,8 @@ public class MsPacMan extends PacmanController {
 	/**
 	 * Returns the best move for MsPacMan.
 	 * 
+	 * @param currentNode The current node index.
+	 * @param lastMove    The last move made.
 	 * @return The best move for MsPacMan.
 	 */
 	private MOVE getBestMove(int currentNode, MOVE lastMove) {
@@ -144,47 +144,53 @@ public class MsPacMan extends PacmanController {
 	 * Returns the best path for MsPacMan.
 	 * 
 	 * @param currentNode The current node index.
-	 * @param lastMove    The last move.
-	 * @param depth       The depth of the search (number of paths to check).
-	 * @return The best path for MsPacMan.
+	 * @param lastMove    The last move made.
+	 * @param depth       The depth of the search.
+	 * @return The PathInfo of best path for MsPacMan.
 	 */
-	private PathInfo getBestPath(int currentNode, MOVE lastMove, int depth) { // TODO: revisar caso base
+	private PathInfo getBestPath(int currentNode, MOVE lastMove, int depth) {
 		PathInfo bestPath = new PathInfo();
 
-		if (depth == 0) // If there are no more paths to check
+		// If is the end of the search, return an empty path
+
+		if (depth == 0)
 			return bestPath;
 
 		// Make a copy of the game state
+
 		Set<Integer> pillsCopy = new HashSet<>(this.pillsNodes);
 		Set<Integer> powerPillsCopy = new HashSet<>(this.powerPillsNodes);
 		List<Ghost> ghostsCopy = new ArrayList<>(this.ghosts);
-
 		int eatenGhostsCopy = this.numGhostEaten;
 
 		// Get the possible moves
+
 		MOVE[] possibleMoves = this.game.getPossibleMoves(currentNode, lastMove);
 
 		// for each possible move check the path and the best next path
+
 		for (MOVE move : possibleMoves) {
 			PathInfo path = this.getPath(currentNode, move, depth);
 
-			// OPTIMIZATION: If the path is not the best, don't check the next path
+			// If the path doesn't end, don't check the next paths
+
 			if (path.endMove != null) {
 				PathInfo bestNextPath = this.getBestPath(path.endNode, path.endMove, depth - 1);
 				path.points += bestNextPath.points;
 			}
 
 			// Check if the path is the best
+
 			if (bestPath.startMove == MOVE.NEUTRAL || bestPath.points < path.points) {
 				bestPath.startMove = move;
 				bestPath.points = path.points;
 			}
 
 			// Restore the game state
+
 			this.pillsNodes = new HashSet<>(pillsCopy);
 			this.powerPillsNodes = new HashSet<>(powerPillsCopy);
 			this.ghosts = new ArrayList<>(ghostsCopy);
-
 			this.numGhostEaten = eatenGhostsCopy;
 		}
 
@@ -192,12 +198,12 @@ public class MsPacMan extends PacmanController {
 	}
 
 	/**
-	 * Returns the path for MsPacMan.
+	 * Returns the path of MsPacMan.
 	 * 
 	 * @param startNode The start node index.
 	 * @param startMove The start move.
 	 * @param depth     The depth of the search.
-	 * @return The path for MsPacMan.
+	 * @return The path of MsPacMan.
 	 */
 	private PathInfo getPath(int startNode, MOVE startMove, int depth) {
 		PathInfo path = new PathInfo(0, startNode, -1, startMove, null);
@@ -205,15 +211,13 @@ public class MsPacMan extends PacmanController {
 		int currentNode = path.startNode;
 		MOVE currentMove = path.startMove;
 
-		// Get the next node
+		// Update the game one step and get the path points
 		int endNode = this.game.getNeighbour(currentNode, currentMove);
-
 		this.updateGhosts(endNode);
-
 		int nodePoints = this.getNodePoints(endNode, depth);
-
 		path.points += nodePoints;
 
+		// if it's going to hit a ghost, return the path with no end
 		if (nodePoints < 0)
 			return path;
 
@@ -227,19 +231,18 @@ public class MsPacMan extends PacmanController {
 			// move just in case it's going to hit a wall
 			currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
 
+			// Update the game one step and get the path points
 			endNode = this.game.getNeighbour(currentNode, currentMove);
-
 			this.updateGhosts(endNode);
-
 			nodePoints = this.getNodePoints(endNode, depth);
-
 			path.points += nodePoints;
 
+			// if it's going to hit a ghost, return the path with no end
 			if (nodePoints < 0)
 				return path;
 		}
 
-		// Update the path
+		// Update the path end
 		path.endNode = endNode;
 		path.endMove = currentMove;
 
@@ -248,7 +251,8 @@ public class MsPacMan extends PacmanController {
 
 	/**
 	 * Returns the points of a node. Check if the node is a pill or a power pill,
-	 * and if it's close enough to a ghost.
+	 * and if it's close enough to a ghost. More early the node is in the path, more
+	 * points it gets.
 	 * 
 	 * @param node  The node index.
 	 * @param depth The depth of the search.
@@ -273,21 +277,26 @@ public class MsPacMan extends PacmanController {
 	 * @return The points of a node.
 	 */
 	private int getPillsPoints(int node, int depth) { // TODO: añadir ppills ponderen distancia a fantasmas
-		if (this.pillsNodes.remove(node))
-			return Constants.PILL + depth; // more early the pill, more points
 
-		int nGhosts = (int) this.ghosts.stream().filter(ghost -> ghost.edibleTime == 0 && ghost.lairTime == 0).count();
+		if (this.pillsNodes.remove(node))
+			return Constants.PILL + depth;
+
 		if (this.powerPillsNodes.remove(node)) {
-			// update Ghosts edible time
+
+			// Number of ghosts that are not edible
+			int nGhosts = (int) this.ghosts.stream().filter(ghost -> ghost.edibleTime == 0 && ghost.lairTime == 0)
+					.count();
+
+			// Calculate the new edible time
 			int newEdibleTime = (int) (Constants.EDIBLE_TIME
 					* (Math.pow(Constants.EDIBLE_TIME_REDUCTION, this.level % Constants.LEVEL_RESET_REDUCTION)));
 
+			// Update the ghosts edible time
 			for (Ghost ghost : this.ghosts) {
-				if (ghost.lairTime == 0) {
+				if (ghost.lairTime == 0)
 					ghost.edibleTime = newEdibleTime;
-				} else {
+				else
 					ghost.edibleTime = 0;
-				}
 			}
 
 			return (Constants.POWER_PILL + depth) - ((Constants.POWER_PILL + depth) * (Constants.NUM_GHOSTS - nGhosts));
@@ -312,10 +321,12 @@ public class MsPacMan extends PacmanController {
 				if (ghost.edibleTime == 0)
 					return -Constants.GHOST_EAT_SCORE * depth;
 				else {
+					// Update the ghost state after being eaten
 					ghost.edibleTime = 0;
 					ghost.lairTime = (int) (ghost.type.initialLairTime
 							* (Math.pow(Constants.LAIR_REDUCTION, this.level % Constants.LEVEL_RESET_REDUCTION)));
 					ghost.lastMoveMade = MOVE.NEUTRAL;
+
 					return (Constants.GHOST_EAT_SCORE * ++this.numGhostEaten) + depth;
 				}
 			}
@@ -370,7 +381,7 @@ public class MsPacMan extends PacmanController {
 							ghost.lastMoveMade = this.game.getApproximateNextMoveAwayFromTarget(ghost.currentNodeIndex,
 									node, ghost.lastMoveMade, DM.PATH);
 
-					} else
+					} else // If the ghost is not in a junction, keep moving in the same direction
 						ghost.lastMoveMade = this.game.getPossibleMoves(ghost.currentNodeIndex, ghost.lastMoveMade)[0];
 
 					ghost.currentNodeIndex = this.game.getNeighbour(ghost.currentNodeIndex, ghost.lastMoveMade);
@@ -388,6 +399,5 @@ public class MsPacMan extends PacmanController {
 				}
 			}
 		}
-
 	}
 }
