@@ -15,7 +15,9 @@ public class MsPacMan extends PacmanController {
 
 	private static final int DEPTH = 3; // Best Depth: 4 for pills
 
-	// Works as a struct to store the path information
+	/*
+	 * Data structure to hold all information pertaining to the ghosts.
+	 */
 	private class PathInfo {
 		public int points;
 		public int startNode;
@@ -152,7 +154,7 @@ public class MsPacMan extends PacmanController {
 		PathInfo bestPath = new PathInfo();
 
 		if (depth == 0) { // If there are no more paths to check
-			bestPath.points = (int) (-100 * this.getGhostDensity(currentNode));
+			//bestPath.points = (int) (-100 * this.getGhostDensity(currentNode));
 			return bestPath;
 		}
 
@@ -214,16 +216,15 @@ public class MsPacMan extends PacmanController {
 
 		this.updateGhosts(endNode);
 
+		int nodePoints = this.getNodePoints(endNode, depth);
+
+		path.points += nodePoints;
+
+		if (nodePoints < 0)
+			return path;
+
 		// while the end node is not a junction
 		while (!game.isJunction(endNode)) {
-
-			// Add the points of the node to the path
-			int nodePoints = this.getNodePoints(endNode, depth);
-
-			if (nodePoints < 0)
-				return path;
-
-			path.points += nodePoints;
 
 			// Update the current node
 			currentNode = endNode;
@@ -235,17 +236,30 @@ public class MsPacMan extends PacmanController {
 			endNode = this.game.getNeighbour(currentNode, currentMove);
 
 			this.updateGhosts(endNode);
-		}
 
-		path.points += this.getNodePoints(endNode, depth);
+			nodePoints = this.getNodePoints(endNode, depth);
+
+			path.points += nodePoints;
+
+			if (nodePoints < 0)
+				return path;
+		}
 
 		// Update the path
 		path.endNode = endNode;
-		path.endMove = this.game.getMoveToMakeToReachDirectNeighbour(currentNode, endNode);
+		path.endMove = currentMove;
 
 		return path;
 	}
 
+	/**
+	 * Returns the points of a node. Check if the node is a pill or a power pill,
+	 * and if it's close enough to a ghost.
+	 * 
+	 * @param node  The node index.
+	 * @param depth The depth of the search.
+	 * @return The points of a node.
+	 */
 	private int getNodePoints(int node, int depth) {
 		int ghostPoints = this.getGhostPoints(node, depth);
 
