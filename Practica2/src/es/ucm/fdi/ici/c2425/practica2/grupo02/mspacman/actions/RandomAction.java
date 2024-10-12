@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica2.grupoYY.mspacman.actions;
+package es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions;
 
 import java.util.Random;
 

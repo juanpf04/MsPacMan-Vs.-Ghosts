@@ -1,7 +1,7 @@
-package es.ucm.fdi.ici.c2425.practica2.grupoYY.ghosts.transitions;
+package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions;
 
 import es.ucm.fdi.ici.Input;
-import es.ucm.fdi.ici.c2425.practica2.grupoYY.ghosts.GhostsInput;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 
 public class PacManNearPPillTransition implements Transition {

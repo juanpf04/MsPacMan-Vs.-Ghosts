@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica2.grupoYY.ghosts.actions;
+package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions;
 
 import es.ucm.fdi.ici.Action;
 import pacman.game.Constants.DM;
