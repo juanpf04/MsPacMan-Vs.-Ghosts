@@ -33,40 +33,74 @@ public class MsPacMan extends PacmanController {
 		GraphFSMObserver observer = new GraphFSMObserver(fsm.toString());
 		fsm.addObserver(observer);
 
-		SimpleState state1 = new SimpleState("state1", new RandomAction());
-		SimpleState state2 = new SimpleState("state2", new RandomAction());
-		SimpleState state3 = new SimpleState("state3", new RandomAction());
+		SimpleState last_pills = new SimpleState("state1", new RandomAction());
 
 		Transition tran1 = new RandomTransition(.3);
 		Transition tran2 = new RandomTransition(.2);
 		Transition tran3 = new RandomTransition(.1);
-		Transition tran4 = new RandomTransition(.01);
+		Transition tran4 = new RandomTransition(.4);
 
-		FSM cfsm1 = new FSM("Compound1");
-		GraphFSMObserver c1observer = new GraphFSMObserver(cfsm1.toString());
-		cfsm1.addObserver(c1observer);
+		// --------------------------------------------
+		
+		FSM cfsm_pills = new FSM("Pills");
+		GraphFSMObserver pills_observer = new GraphFSMObserver(cfsm_pills.toString());
+		cfsm_pills.addObserver(pills_observer);
 
 		SimpleState cstate1 = new SimpleState("cstate1", new RandomAction());
 		SimpleState cstate2 = new SimpleState("cstate2", new RandomAction());
 		Transition ctran1 = new RandomTransition(.35);
 		Transition ctran2 = new RandomTransition(.25);
-		cfsm1.add(cstate1, ctran1, cstate2);
-		cfsm1.add(cstate2, ctran2, cstate1);
-		cfsm1.ready(cstate1);
-		CompoundState compound1 = new CompoundState("compound1", cfsm1);
+		cfsm_pills.add(cstate1, ctran1, cstate2);
+		cfsm_pills.add(cstate2, ctran2, cstate1);
+		cfsm_pills.ready(cstate1);
+		CompoundState pills = new CompoundState("pills", cfsm_pills);
 
-		fsm.add(state1, tran1, state2);
-		fsm.add(state2, tran2, state3);
-		fsm.add(state3, tran3, compound1);
-		fsm.add(compound1, tran4, state1);
+		// --------------------------------------------
 
-		fsm.ready(state1);
+		FSM cfsm_flee = new FSM("Flee");
+		GraphFSMObserver flee_observer = new GraphFSMObserver(cfsm_flee.toString());
+		cfsm_flee.addObserver(flee_observer);
+
+		SimpleState cstate11 = new SimpleState("cstate1", new RandomAction());
+		SimpleState cstate22 = new SimpleState("cstate2", new RandomAction());
+		Transition ctran11 = new RandomTransition(.35);
+		Transition ctran22 = new RandomTransition(.25);
+		cfsm_flee.add(cstate11, ctran11, cstate22);
+		cfsm_flee.add(cstate22, ctran22, cstate11);
+		cfsm_flee.ready(cstate11);
+		CompoundState flee = new CompoundState("flee", cfsm_flee);
+		
+		// --------------------------------------------
+
+		FSM cfsm_chase = new FSM("Chase");
+		GraphFSMObserver chase_observer = new GraphFSMObserver(cfsm_chase.toString());
+		cfsm_chase.addObserver(chase_observer);
+
+		SimpleState cstate14 = new SimpleState("cstate1", new RandomAction());
+		SimpleState cstate24 = new SimpleState("cstate2", new RandomAction());
+		Transition ctran14 = new RandomTransition(.35);
+		Transition ctran24 = new RandomTransition(.25);
+		cfsm_chase.add(cstate14, ctran14, cstate24);
+		cfsm_chase.add(cstate24, ctran24, cstate14);
+		cfsm_chase.ready(cstate14);
+		CompoundState chase = new CompoundState("chase", cfsm_chase);
+		
+		// --------------------------------------------
+
+		fsm.add(pills, tran1, flee);
+		fsm.add(flee, tran2, chase);
+		fsm.add(chase, tran3, last_pills);
+		fsm.add(last_pills, tran4, pills);
+
+		fsm.ready(pills);
 
 		JFrame frame = new JFrame();
 		JPanel main = new JPanel();
 		main.setLayout(new BorderLayout());
 		main.add(observer.getAsPanel(true, null), BorderLayout.CENTER);
-		main.add(c1observer.getAsPanel(true, null), BorderLayout.SOUTH);
+		main.add(pills_observer.getAsPanel(true, null), BorderLayout.SOUTH);
+		main.add(flee_observer.getAsPanel(true, null), BorderLayout.SOUTH);
+		main.add(chase_observer.getAsPanel(true, null), BorderLayout.SOUTH);
 		frame.getContentPane().add(main);
 		frame.pack();
 		frame.setVisible(true);
