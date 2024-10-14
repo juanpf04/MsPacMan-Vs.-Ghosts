@@ -33,26 +33,26 @@ public class MsPacMan extends PacmanController {
 		GraphFSMObserver observer = new GraphFSMObserver(fsm.toString());
 		fsm.addObserver(observer);
 
-		SimpleState last_pills = new SimpleState("state1", new RandomAction());
-
-		Transition tran1 = new RandomTransition(.3);
-		Transition tran2 = new RandomTransition(.2);
-		Transition tran3 = new RandomTransition(.1);
-		Transition tran4 = new RandomTransition(.4);
+		Transition danger = new RandomTransition(.3);
+		Transition safety = new RandomTransition(.2);
+		Transition die = new RandomTransition(.1);
+		Transition noEdibleTime = new RandomTransition(.1);
+		Transition eatPowerPill = new RandomTransition(.4);
 
 		// --------------------------------------------
-		
+
 		FSM cfsm_pills = new FSM("Pills");
 		GraphFSMObserver pills_observer = new GraphFSMObserver(cfsm_pills.toString());
 		cfsm_pills.addObserver(pills_observer);
 
-		SimpleState cstate1 = new SimpleState("cstate1", new RandomAction());
-		SimpleState cstate2 = new SimpleState("cstate2", new RandomAction());
+		SimpleState safePills = new SimpleState("safe pills", new RandomAction());
+		SimpleState morePills = new SimpleState("more pills", new RandomAction());
+		SimpleState nearestPill = new SimpleState("early pills", new RandomAction());
 		Transition ctran1 = new RandomTransition(.35);
 		Transition ctran2 = new RandomTransition(.25);
 		cfsm_pills.add(cstate1, ctran1, cstate2);
 		cfsm_pills.add(cstate2, ctran2, cstate1);
-		cfsm_pills.ready(cstate1);
+		cfsm_pills.ready(safePath);
 		CompoundState pills = new CompoundState("pills", cfsm_pills);
 
 		// --------------------------------------------
@@ -69,28 +69,32 @@ public class MsPacMan extends PacmanController {
 		cfsm_flee.add(cstate22, ctran22, cstate11);
 		cfsm_flee.ready(cstate11);
 		CompoundState flee = new CompoundState("flee", cfsm_flee);
-		
+
 		// --------------------------------------------
 
 		FSM cfsm_chase = new FSM("Chase");
 		GraphFSMObserver chase_observer = new GraphFSMObserver(cfsm_chase.toString());
 		cfsm_chase.addObserver(chase_observer);
 
-		SimpleState cstate14 = new SimpleState("cstate1", new RandomAction());
-		SimpleState cstate24 = new SimpleState("cstate2", new RandomAction());
+		SimpleState moreGhosts = new SimpleState("more ghosts", new RandomAction());
+		SimpleState nearestGhost = new SimpleState("nearest ghost", new RandomAction());
+		SimpleState safetyGhost = new SimpleState("safety ghost", new RandomAction());
 		Transition ctran14 = new RandomTransition(.35);
 		Transition ctran24 = new RandomTransition(.25);
 		cfsm_chase.add(cstate14, ctran14, cstate24);
 		cfsm_chase.add(cstate24, ctran24, cstate14);
 		cfsm_chase.ready(cstate14);
 		CompoundState chase = new CompoundState("chase", cfsm_chase);
-		
+
 		// --------------------------------------------
 
-		fsm.add(pills, tran1, flee);
-		fsm.add(flee, tran2, chase);
-		fsm.add(chase, tran3, last_pills);
-		fsm.add(last_pills, tran4, pills);
+		fsm.add(pills, danger, flee);
+		fsm.add(chase, danger, flee);
+		fsm.add(chase, noEdibleTime, pills);
+		fsm.add(chase, die, pills);
+		fsm.add(flee, die, pills);
+		fsm.add(flee, safety, pills);
+		fsm.add(flee, eatPowerPill, chase);
 
 		fsm.ready(pills);
 
@@ -98,9 +102,9 @@ public class MsPacMan extends PacmanController {
 		JPanel main = new JPanel();
 		main.setLayout(new BorderLayout());
 		main.add(observer.getAsPanel(true, null), BorderLayout.CENTER);
-		main.add(pills_observer.getAsPanel(true, null), BorderLayout.SOUTH);
+		main.add(pills_observer.getAsPanel(true, null), BorderLayout.WEST);
 		main.add(flee_observer.getAsPanel(true, null), BorderLayout.SOUTH);
-		main.add(chase_observer.getAsPanel(true, null), BorderLayout.SOUTH);
+		main.add(chase_observer.getAsPanel(true, null), BorderLayout.EAST);
 		frame.getContentPane().add(main);
 		frame.pack();
 		frame.setVisible(true);
