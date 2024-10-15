@@ -45,14 +45,14 @@ public class MsPacMan extends PacmanController {
 		GraphFSMObserver pills_observer = new GraphFSMObserver(cfsm_pills.toString());
 		cfsm_pills.addObserver(pills_observer);
 
-		SimpleState safePills = new SimpleState("safe pills", new RandomAction());
 		SimpleState morePills = new SimpleState("more pills", new RandomAction());
+		SimpleState safePills = new SimpleState("safe pills", new RandomAction());
 		SimpleState nearestPill = new SimpleState("early pills", new RandomAction());
 		Transition ctran1 = new RandomTransition(.35);
 		Transition ctran2 = new RandomTransition(.25);
-		cfsm_pills.add(cstate1, ctran1, cstate2);
-		cfsm_pills.add(cstate2, ctran2, cstate1);
-		cfsm_pills.ready(safePath);
+		cfsm_pills.add(morePills, ctran1, nearestPill);
+		cfsm_pills.add(nearestPill, ctran2, safePills);
+		cfsm_pills.ready(morePills);
 		CompoundState pills = new CompoundState("pills", cfsm_pills);
 
 		// --------------------------------------------
