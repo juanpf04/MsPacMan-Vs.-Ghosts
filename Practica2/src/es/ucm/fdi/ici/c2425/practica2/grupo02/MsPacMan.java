@@ -10,7 +10,13 @@ import es.ucm.fdi.ici.fsm.FSM;
 import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.MsPacManInput;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.RandomAction;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.RandomTransition;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_chase.ShortEdibleTime;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_compuestos.*;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_flee.EdibleGhostCloserThanGhost;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_flee.EvaluatePills;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_flee.PowerPillCloserThanGhost;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_pills.IndifferentNumbersPills;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_pills.MaximumPillsPath;
 import es.ucm.fdi.ici.fsm.SimpleState;
 import es.ucm.fdi.ici.fsm.Transition;
 import es.ucm.fdi.ici.fsm.observers.GraphFSMObserver;
@@ -33,11 +39,14 @@ public class MsPacMan extends PacmanController {
 		GraphFSMObserver observer = new GraphFSMObserver(fsm.toString());
 		fsm.addObserver(observer);
 
-		Transition danger = new RandomTransition(.3);
-		Transition safety = new RandomTransition(.2);
-		Transition die = new RandomTransition(.1);
-		Transition noEdibleTime = new RandomTransition(.1);
-		Transition eatPowerPill = new RandomTransition(.4);
+		//Transiciones de la maquina de estados
+
+		Transition dangerFromPills = new PacmanInDangerTransition("from Pills");
+		Transition dangerFromChase = new PacmanInDangerTransition("from Chase");
+		Transition safety = new SafetyPacmanTransition();
+		Transition die = new PacManDiedTransition();
+		Transition noEdibleTime = new WithoutEdibleTimeForChaseTransition();
+		Transition eatPowerPill = new PacmanEatPowerPillTransition();
 
 		// --------------------------------------------
 
@@ -48,11 +57,19 @@ public class MsPacMan extends PacmanController {
 		SimpleState morePills = new SimpleState("more pills", new RandomAction());
 		SimpleState safePills = new SimpleState("safe pills", new RandomAction());
 		SimpleState nearestPill = new SimpleState("early pills", new RandomAction());
-		Transition ctran1 = new RandomTransition(.35);
-		Transition ctran2 = new RandomTransition(.25);
-		cfsm_pills.add(morePills, ctran1, nearestPill);
-		cfsm_pills.add(nearestPill, ctran2, safePills);
+		
+		Transition severalPaths1 = new SafetyPacmanTransition();
+		Transition severalPaths2 = new SafetyPacmanTransition();
+		Transition sameNumberOfPills = new IndifferentNumbersPills();
+		Transition pathWithMaximumNumberPills = new MaximumPillsPath();
+		
+		cfsm_pills.add(safePills, pathWithMaximumNumberPills, morePills);
+		cfsm_pills.add(morePills, severalPaths1, safePills);
+		cfsm_pills.add(morePills, sameNumberOfPills, nearestPill);
+		cfsm_pills.add(nearestPill, severalPaths2, safePills);
+
 		cfsm_pills.ready(morePills);
+
 		CompoundState pills = new CompoundState("pills", cfsm_pills);
 
 		// --------------------------------------------
@@ -61,13 +78,22 @@ public class MsPacMan extends PacmanController {
 		GraphFSMObserver flee_observer = new GraphFSMObserver(cfsm_flee.toString());
 		cfsm_flee.addObserver(flee_observer);
 
-		SimpleState cstate11 = new SimpleState("cstate1", new RandomAction());
-		SimpleState cstate22 = new SimpleState("cstate2", new RandomAction());
-		Transition ctran11 = new RandomTransition(.35);
-		Transition ctran22 = new RandomTransition(.25);
-		cfsm_flee.add(cstate11, ctran11, cstate22);
-		cfsm_flee.add(cstate22, ctran22, cstate11);
-		cfsm_flee.ready(cstate11);
+		SimpleState safetyPath = new SimpleState("Safety path", new RandomAction());
+		SimpleState edibleGhost = new SimpleState("More edible ghosts", new RandomAction());
+		SimpleState morePillsFlee = new SimpleState("More pills", new RandomAction());
+		SimpleState powerPill = new SimpleState("PowerPill", new RandomAction());
+		
+		Transition edibleGhostNearestThanGhost = new EdibleGhostCloserThanGhost();
+		Transition powerPillCloserThanGhostFromSafetyPath = new PowerPillCloserThanGhost("From safety Path");
+		Transition powerPillCloserThanGhostFromPills = new PowerPillCloserThanGhost("From pills");
+		Transition evaluatePills = new EvaluatePills();
+
+		cfsm_flee.add(safetyPath, edibleGhostNearestThanGhost, edibleGhost);
+		cfsm_flee.add(safetyPath, powerPillCloserThanGhostFromSafetyPath, powerPill);
+		cfsm_flee.add(edibleGhost, evaluatePills, morePillsFlee);
+		cfsm_flee.add(morePillsFlee, powerPillCloserThanGhostFromPills, powerPill);
+
+		cfsm_flee.ready(safetyPath);
 		CompoundState flee = new CompoundState("flee", cfsm_flee);
 
 		// --------------------------------------------
@@ -79,17 +105,23 @@ public class MsPacMan extends PacmanController {
 		SimpleState moreGhosts = new SimpleState("more ghosts", new RandomAction());
 		SimpleState nearestGhost = new SimpleState("nearest ghost", new RandomAction());
 		SimpleState safetyGhost = new SimpleState("safety ghost", new RandomAction());
-		Transition ctran14 = new RandomTransition(.35);
-		Transition ctran24 = new RandomTransition(.25);
-		cfsm_chase.add(cstate14, ctran14, cstate24);
-		cfsm_chase.add(cstate24, ctran24, cstate14);
-		cfsm_chase.ready(cstate14);
+		
+		Transition withoutTimeFromMoreGhost = new ShortEdibleTime("From more ghosts");
+		Transition withoutTimeFromSafetyGhost = new ShortEdibleTime("From safety ghosts");
+		Transition edibleGhostClose = new EdibleGhostCloserThanGhost();
+
+
+		cfsm_chase.add(moreGhosts, withoutTimeFromMoreGhost, nearestGhost);
+		cfsm_chase.add(moreGhosts, edibleGhostClose, safetyGhost);
+		cfsm_chase.add(safetyGhost, withoutTimeFromSafetyGhost, nearestGhost);
+
+		cfsm_chase.ready(moreGhosts);
 		CompoundState chase = new CompoundState("chase", cfsm_chase);
 
 		// --------------------------------------------
 
-		fsm.add(pills, danger, flee);
-		fsm.add(chase, danger, flee);
+		fsm.add(pills, dangerFromPills, flee);
+		fsm.add(chase, dangerFromChase, flee);
 		fsm.add(chase, noEdibleTime, pills);
 		fsm.add(chase, die, pills);
 		fsm.add(flee, die, pills);
