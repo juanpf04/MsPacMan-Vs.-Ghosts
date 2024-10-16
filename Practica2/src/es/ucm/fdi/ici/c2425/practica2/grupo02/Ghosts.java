@@ -1,12 +1,12 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.EnumMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostInfo;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions.*;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.*;
@@ -25,10 +25,12 @@ import pacman.game.Game;
 public class Ghosts extends GhostController {
 
 	EnumMap<GHOST, FSM> fsms;
+	GhostInfo info;
 
 	public Ghosts() {
 		setName("Fantasmikos");
 
+		info = new GhostInfo();
 		fsms = new EnumMap<GHOST, FSM>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
 			FSM fsm = new FSM(ghost.name());
@@ -39,7 +41,7 @@ public class Ghosts extends GhostController {
 
 			SimpleState lair = new SimpleState("lair", new RandomAction());
 
-			Transition die = new RandomTransition(.1);
+			Transition die = new GhostDiesTransition(ghost);
 			Transition noLairTime = new RandomTransition(.1);
 			Transition pacmanDies = new RandomTransition(.1);
 			Transition edible = new RandomTransition(.3);
@@ -56,17 +58,20 @@ public class Ghosts extends GhostController {
 			cfsm_cover.addObserver(cover_observer);
 
 			SimpleState coverExit = new SimpleState("cover exit", new RandomAction());
-			//TODO mirar nodeIndex de las powerPills para inicializar los estados
+			/*
+			 * PPill: 97 PPill: 102 PPill: 1143 PPill: 1148
+			 */
 			SimpleState coverPPill1 = new SimpleState("cover powerpill 1", new RandomAction());
 			SimpleState coverPPill2 = new SimpleState("cover powerpill 2", new RandomAction());
 			SimpleState coverPPill3 = new SimpleState("cover powerpill 3", new RandomAction());
 			SimpleState coverPPill4 = new SimpleState("cover powerpill 4", new RandomAction());
 			SimpleState coverLastPills = new SimpleState("cover last pills", new RandomAction());
 
-			//TODO transicion existe powerpill, hay alguien mas cerca en exit y ppill cercana a pacman
-			Transition coverExitToPPill1 = new RandomTransition(.35); 
+			// TODO transicion existe powerpill, hay alguien mas cerca en exit y ppill
+			// cercana a pacman
+			Transition coverExitToPPill1 = new RandomTransition(.35);
 			Transition coverExitToPPill2 = new RandomTransition(.25);
-			Transition coverExitToPPill3 = new RandomTransition(.35); 
+			Transition coverExitToPPill3 = new RandomTransition(.35);
 			Transition coverExitToPPill4 = new RandomTransition(.25);
 			Transition coverExitToPPillLast = new RandomTransition(.25);
 
@@ -91,9 +96,9 @@ public class Ghosts extends GhostController {
 			SimpleState fleeDisperse = new SimpleState("flee disperse", new RandomAction());
 			SimpleState fleeToGhost = new SimpleState("flee to ghost", new RandomAction());
 
-			Transition fleePacmanToDisperse = new RandomTransition(.35); 
+			Transition fleePacmanToDisperse = new RandomTransition(.35);
 			Transition fleePacmanToPPill = new RandomTransition(.25);
-			Transition fleePacmanToGhost = new RandomTransition(.35); 
+			Transition fleePacmanToGhost = new RandomTransition(.35);
 			Transition fleeDisperseToPacman = new RandomTransition(.25);
 			Transition fleeDisperseToPPill = new RandomTransition(.25);
 			Transition fleePPillToPacman = new RandomTransition(.25);
@@ -117,7 +122,7 @@ public class Ghosts extends GhostController {
 			GraphFSMObserver chase_observer = new GraphFSMObserver(cfsm_chase.toString());
 			cfsm_chase.addObserver(chase_observer);
 
-			//TODO mirar si renta pasar edible ghost a cover(block)
+			// TODO mirar si renta pasar edible ghost a cover(block)
 			SimpleState chasePacMan = new SimpleState("chase pacman", new RandomAction());
 			SimpleState chaseEdibleGhost = new SimpleState("chase edible ghost", new RandomAction());
 
@@ -147,6 +152,8 @@ public class Ghosts extends GhostController {
 			fsm.add(flee, pacmanDies, lair);
 			fsm.add(flee, notEdible, chase);
 
+			fsm.add(lair, noLairTime, chase);
+
 			fsm.ready(block);
 
 			JFrame frame = new JFrame();
@@ -173,7 +180,7 @@ public class Ghosts extends GhostController {
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
 		EnumMap<GHOST, MOVE> result = new EnumMap<GHOST, MOVE>(GHOST.class);
 
-		GhostsInput in = new GhostsInput(game);
+		GhostsInput in = new GhostsInput(game, info);
 
 		for (GHOST ghost : GHOST.values()) {
 			FSM fsm = fsms.get(ghost);

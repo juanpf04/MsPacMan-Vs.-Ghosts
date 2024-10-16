@@ -4,11 +4,11 @@ import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 
-public class MsPacManNearPPillTransition implements Transition {
+public class MsPacManNearPowerPillTransition implements Transition {
 
 	public static double thresold = 30;
 	
-	public MsPacManNearPPillTransition() {
+	public MsPacManNearPowerPillTransition() {
 		super();
 	}
 

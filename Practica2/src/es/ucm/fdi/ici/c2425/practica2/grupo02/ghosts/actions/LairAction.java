@@ -6,10 +6,10 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
-public class ChaseAction implements Action {
+public class LairAction implements Action {
 
     GHOST ghost;
-	public ChaseAction( GHOST ghost) {
+	public LairAction( GHOST ghost) {
 		this.ghost = ghost;
 	}
 
