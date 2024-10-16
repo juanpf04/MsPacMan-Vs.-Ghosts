@@ -60,17 +60,27 @@ public class Ghosts extends GhostController {
 
 			SimpleState blockExit = new SimpleState("block exit", new RandomAction());
 			//TODO mirar nodeIndex de las powerPills para inicializar los estados
-			SimpleState blockPPill1 = new SimpleState("block powerpill 1", new BlockPowerPillAction(12));
-			SimpleState blockPPill2 = new SimpleState("block powerpill 2", new BlockPowerPillAction(12));
-			SimpleState blockPPill3 = new SimpleState("block powerpill 3", new BlockPowerPillAction(12));
-			SimpleState blockPPill4 = new SimpleState("block powerpill 4", new BlockPowerPillAction(12));
+			SimpleState blockPPill1 = new SimpleState("block powerpill 1", new RandomAction());
+			SimpleState blockPPill2 = new SimpleState("block powerpill 2", new RandomAction());
+			SimpleState blockPPill3 = new SimpleState("block powerpill 3", new RandomAction());
+			SimpleState blockPPill4 = new SimpleState("block powerpill 4", new RandomAction());
 			SimpleState blockLastPills = new SimpleState("block last pills", new RandomAction());
+
 			//TODO transicion existe powerpill, hay alguien mas cerca en exit y ppill cercana a pacman
-			Transition PPill = new RandomTransition(.35); 
-			Transition ctran2 = new RandomTransition(.25);
-			cfsm_block.add(blockExit, ctran1, nearestPill);
-			cfsm_block.add(nearestPill, ctran2, safePills);
+			Transition blockExitToPPill1 = new RandomTransition(.35); 
+			Transition blockExitToPPill2 = new RandomTransition(.25);
+			Transition blockExitToPPill3 = new RandomTransition(.35); 
+			Transition blockExitToPPill4 = new RandomTransition(.25);
+			Transition blockExitToPPillLast = new RandomTransition(.25);
+
+			cfsm_block.add(blockExit, blockExitToPPill1, blockPPill1);
+			cfsm_block.add(blockExit, blockExitToPPill2, blockPPill2);
+			cfsm_block.add(blockExit, blockExitToPPill3, blockPPill3);
+			cfsm_block.add(blockExit, blockExitToPPill4, blockPPill4);
+			cfsm_block.add(blockExit, blockExitToPPillLast, blockLastPills);
+
 			cfsm_block.ready(blockExit);
+
 			CompoundState block = new CompoundState("Block", cfsm_block);
 
 			// --------------------------------------------
@@ -79,15 +89,29 @@ public class Ghosts extends GhostController {
 			GraphFSMObserver flee_observer = new GraphFSMObserver(cfsm_flee.toString());
 			cfsm_flee.addObserver(flee_observer);
 
-			SimpleState fleePacMan = new SimpleState("cstate1", new RandomAction());
-			SimpleState fleePPill = new SimpleState("cstate2", new RandomAction());
-			SimpleState disperse = new SimpleState("cstate2", new RandomAction());
-			SimpleState fleeToGhost = new SimpleState("cstate2", new RandomAction());
-			Transition ctran11 = new RandomTransition(.35);
-			Transition ctran22 = new RandomTransition(.25);
-			cfsm_flee.add(cstate11, ctran11, cstate22);
-			cfsm_flee.add(cstate22, ctran22, cstate11);
-			cfsm_flee.ready(cstate11);
+			SimpleState fleePacMan = new SimpleState("flee pacman", new RandomAction());
+			SimpleState fleePPill = new SimpleState("flee ppill", new RandomAction());
+			SimpleState fleeDisperse = new SimpleState("flee disperse", new RandomAction());
+			SimpleState fleeToGhost = new SimpleState("flee to ghost", new RandomAction());
+
+			Transition fleePacmanToDisperse = new RandomTransition(.35); 
+			Transition fleePacmanToPPill = new RandomTransition(.25);
+			Transition fleePacmanToGhost = new RandomTransition(.35); 
+			Transition fleeDisperseToPacman = new RandomTransition(.25);
+			Transition fleeDisperseToPPill = new RandomTransition(.25);
+			Transition fleePPillToPacman = new RandomTransition(.25);
+			Transition fleePPillToDisperse = new RandomTransition(.25);
+
+			cfsm_flee.add(fleePacMan, fleePacmanToDisperse, fleeDisperse);
+			cfsm_flee.add(fleePacMan, fleePacmanToPPill, fleePPill);
+			cfsm_flee.add(fleePacMan, fleePacmanToGhost, fleeToGhost);
+			cfsm_flee.add(fleeDisperse, fleeDisperseToPacman, fleePacMan);
+			cfsm_flee.add(fleeDisperse, fleeDisperseToPPill, fleePPill);
+			cfsm_flee.add(fleePPill, fleePPillToPacman, fleePacMan);
+			cfsm_flee.add(fleePPill, fleePPillToDisperse, fleeDisperse);
+
+			cfsm_flee.ready(fleePacMan);
+
 			CompoundState flee = new CompoundState("flee", cfsm_flee);
 
 			// --------------------------------------------
@@ -95,32 +119,43 @@ public class Ghosts extends GhostController {
 			FSM cfsm_chase = new FSM("Chase");
 			GraphFSMObserver chase_observer = new GraphFSMObserver(cfsm_chase.toString());
 			cfsm_chase.addObserver(chase_observer);
+
 			//TODO mirar si renta pasar edible ghost a cover(block)
 			SimpleState chasePacMan = new SimpleState("chase pacman", new RandomAction());
 			SimpleState chaseEdibleGhost = new SimpleState("chase edible ghost", new RandomAction());
+
 			Transition edibleGhostNearToPacMan = new RandomTransition(.35);
 			Transition nearToEdibleGhost = new RandomTransition(.25);
-			cfsm_chase.add(cstate14, ctran14, cstate24);
-			cfsm_chase.add(cstate24, ctran24, cstate14);
-			cfsm_chase.ready(cstate14);
+
+			cfsm_chase.add(chasePacMan, edibleGhostNearToPacMan, chaseEdibleGhost);
+			cfsm_chase.add(chaseEdibleGhost, nearToEdibleGhost, chasePacMan);
+
+			cfsm_chase.ready(chasePacMan);
+
 			CompoundState chase = new CompoundState("chase", cfsm_chase);
 
 			// --------------------------------------------
 
-			fsm.add(block, danger, flee);
-			fsm.add(chase, danger, flee);
-			fsm.add(chase, noEdibleTime, block);
-			fsm.add(chase, die, block);
-			fsm.add(flee, die, block);
-			fsm.add(flee, safety, block);
-			fsm.add(flee, eatPowerPill, chase);
+			fsm.add(block, edible, flee);
+			fsm.add(block, pacmanNearToPPill, flee);
+			fsm.add(block, nearToPacMan, chase);
+			fsm.add(block, pacmanDies, lair);
+
+			fsm.add(chase, edible, flee);
+			fsm.add(chase, pacmanNearToPPill, flee);
+			fsm.add(chase, pacmanDies, lair);
+			fsm.add(chase, someoneNearToPacMan, block);
+
+			fsm.add(flee, die, lair);
+			fsm.add(flee, pacmanDies, lair);
+			fsm.add(flee, notEdible, chase);
 
 			fsm.ready(block);
 
 			JFrame frame = new JFrame();
 			JPanel main = new JPanel();
 			main.setLayout(new BorderLayout());
-			main.add(observer.getAsPanel(true, null), BorderLayout.CENTER);
+			main.add(graphObserver.getAsPanel(true, null), BorderLayout.CENTER);
 			main.add(block_observer.getAsPanel(true, null), BorderLayout.WEST);
 			main.add(flee_observer.getAsPanel(true, null), BorderLayout.SOUTH);
 			main.add(chase_observer.getAsPanel(true, null), BorderLayout.EAST);
