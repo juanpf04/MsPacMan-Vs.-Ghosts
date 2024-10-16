@@ -39,7 +39,7 @@ public class Ghosts extends GhostController {
 			GraphFSMObserver graphObserver = new GraphFSMObserver(ghost.name());
 			fsm.addObserver(graphObserver);
 
-			SimpleState lair = new SimpleState("lair", new RandomAction());
+			SimpleState lair = new SimpleState("lair", new LairAction(ghost));
 
 			Transition die = new GhostDiesTransition(ghost);
 			Transition noLairTime = new RandomTransition(.1);
