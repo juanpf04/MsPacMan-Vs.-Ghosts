@@ -5,10 +5,10 @@ import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
-public class GhostsEdibleTransition2 implements Transition  {
+public class GhostDiesTransition implements Transition  {
 
 	GHOST ghost;
-	public GhostsEdibleTransition2(GHOST ghost) {
+	public GhostDiesTransition(GHOST ghost) {
 		super();
 		this.ghost = ghost;
 	}
@@ -36,7 +36,7 @@ public class GhostsEdibleTransition2 implements Transition  {
 
 	@Override
 	public String toString() {
-		return "Ghost is edible";
+		return this.ghost+" edible";
 	}
 
 	
