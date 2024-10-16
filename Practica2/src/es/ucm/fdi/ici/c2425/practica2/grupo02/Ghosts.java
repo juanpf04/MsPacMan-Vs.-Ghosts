@@ -8,11 +8,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions.ChaseAction;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions.RunAwayAction;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.GhostsEdibleTransition;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.GhostsNotEdibleAndMsPacManFarPPill;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.MsPacManNearPPillTransition;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions.*;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.*;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.RandomAction;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.RandomTransition;
 import es.ucm.fdi.ici.fsm.CompoundState;
@@ -54,34 +51,34 @@ public class Ghosts extends GhostController {
 
 			// --------------------------------------------
 
-			FSM cfsm_block = new FSM("Block");
-			GraphFSMObserver block_observer = new GraphFSMObserver(cfsm_block.toString());
-			cfsm_block.addObserver(block_observer);
+			FSM cfsm_cover = new FSM("Cover");
+			GraphFSMObserver cover_observer = new GraphFSMObserver(cfsm_cover.toString());
+			cfsm_cover.addObserver(cover_observer);
 
-			SimpleState blockExit = new SimpleState("block exit", new RandomAction());
+			SimpleState coverExit = new SimpleState("cover exit", new RandomAction());
 			//TODO mirar nodeIndex de las powerPills para inicializar los estados
-			SimpleState blockPPill1 = new SimpleState("block powerpill 1", new RandomAction());
-			SimpleState blockPPill2 = new SimpleState("block powerpill 2", new RandomAction());
-			SimpleState blockPPill3 = new SimpleState("block powerpill 3", new RandomAction());
-			SimpleState blockPPill4 = new SimpleState("block powerpill 4", new RandomAction());
-			SimpleState blockLastPills = new SimpleState("block last pills", new RandomAction());
+			SimpleState coverPPill1 = new SimpleState("cover powerpill 1", new RandomAction());
+			SimpleState coverPPill2 = new SimpleState("cover powerpill 2", new RandomAction());
+			SimpleState coverPPill3 = new SimpleState("cover powerpill 3", new RandomAction());
+			SimpleState coverPPill4 = new SimpleState("cover powerpill 4", new RandomAction());
+			SimpleState coverLastPills = new SimpleState("cover last pills", new RandomAction());
 
 			//TODO transicion existe powerpill, hay alguien mas cerca en exit y ppill cercana a pacman
-			Transition blockExitToPPill1 = new RandomTransition(.35); 
-			Transition blockExitToPPill2 = new RandomTransition(.25);
-			Transition blockExitToPPill3 = new RandomTransition(.35); 
-			Transition blockExitToPPill4 = new RandomTransition(.25);
-			Transition blockExitToPPillLast = new RandomTransition(.25);
+			Transition coverExitToPPill1 = new RandomTransition(.35); 
+			Transition coverExitToPPill2 = new RandomTransition(.25);
+			Transition coverExitToPPill3 = new RandomTransition(.35); 
+			Transition coverExitToPPill4 = new RandomTransition(.25);
+			Transition coverExitToPPillLast = new RandomTransition(.25);
 
-			cfsm_block.add(blockExit, blockExitToPPill1, blockPPill1);
-			cfsm_block.add(blockExit, blockExitToPPill2, blockPPill2);
-			cfsm_block.add(blockExit, blockExitToPPill3, blockPPill3);
-			cfsm_block.add(blockExit, blockExitToPPill4, blockPPill4);
-			cfsm_block.add(blockExit, blockExitToPPillLast, blockLastPills);
+			cfsm_cover.add(coverExit, coverExitToPPill1, coverPPill1);
+			cfsm_cover.add(coverExit, coverExitToPPill2, coverPPill2);
+			cfsm_cover.add(coverExit, coverExitToPPill3, coverPPill3);
+			cfsm_cover.add(coverExit, coverExitToPPill4, coverPPill4);
+			cfsm_cover.add(coverExit, coverExitToPPillLast, coverLastPills);
 
-			cfsm_block.ready(blockExit);
+			cfsm_cover.ready(coverExit);
 
-			CompoundState block = new CompoundState("Block", cfsm_block);
+			CompoundState block = new CompoundState("cover", cfsm_cover);
 
 			// --------------------------------------------
 
@@ -156,7 +153,7 @@ public class Ghosts extends GhostController {
 			JPanel main = new JPanel();
 			main.setLayout(new BorderLayout());
 			main.add(graphObserver.getAsPanel(true, null), BorderLayout.CENTER);
-			main.add(block_observer.getAsPanel(true, null), BorderLayout.WEST);
+			main.add(cover_observer.getAsPanel(true, null), BorderLayout.WEST);
 			main.add(flee_observer.getAsPanel(true, null), BorderLayout.SOUTH);
 			main.add(chase_observer.getAsPanel(true, null), BorderLayout.EAST);
 			frame.getContentPane().add(main);
