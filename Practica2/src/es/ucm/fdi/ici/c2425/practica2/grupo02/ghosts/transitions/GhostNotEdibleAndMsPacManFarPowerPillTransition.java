@@ -5,38 +5,25 @@ import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
-public class GhostsEdibleTransition implements Transition  {
+public class GhostNotEdibleAndMsPacManFarPowerPillTransition implements Transition {
 
 	GHOST ghost;
-	public GhostsEdibleTransition(GHOST ghost) {
+	public GhostNotEdibleAndMsPacManFarPowerPillTransition(GHOST ghost) {
 		super();
 		this.ghost = ghost;
 	}
-
-
-
+	
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput)in;
-		switch(ghost) {
-			case BLINKY:
-				return input.isBLINKYedible();
-			case INKY:
-				return input.isINKYedible();
-			case PINKY:
-				return input.isPINKYedible();
-			case SUE:
-				return input.isSUEedible();
-			default:
-				return false;
-		}
+		GhostEdibleTransition edible = new GhostEdibleTransition(ghost);
+		MsPacManNearPowerPillTransition near = new MsPacManNearPowerPillTransition();
+		return !edible.evaluate(input) && !near.evaluate(input);
 	}
-
-
 
 	@Override
 	public String toString() {
-		return this.ghost+" edible";
+		return "Ghost not edible and MsPacman far PPill";
 	}
 
 	

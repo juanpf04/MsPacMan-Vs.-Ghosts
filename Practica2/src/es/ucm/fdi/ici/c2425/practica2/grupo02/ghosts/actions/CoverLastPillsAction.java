@@ -6,10 +6,10 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
-public class CoverLastPills implements Action {
+public class CoverLastPillsAction implements Action {
 
     GHOST ghost;
-	public CoverLastPills( GHOST ghost) {
+	public CoverLastPillsAction( GHOST ghost) {
 		this.ghost = ghost;
 	}
 

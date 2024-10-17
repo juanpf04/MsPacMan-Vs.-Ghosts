@@ -9,8 +9,10 @@ import pacman.game.Game;
 public class CoverPowerPillAction implements Action {
 
     GHOST ghost;
-	public CoverPowerPillAction( GHOST ghost) {
+    int powerPillIndex;
+	public CoverPowerPillAction( GHOST ghost, int powerPillIndex) {
 		this.ghost = ghost;
+		this.powerPillIndex = powerPillIndex;
 	}
 
 	@Override
