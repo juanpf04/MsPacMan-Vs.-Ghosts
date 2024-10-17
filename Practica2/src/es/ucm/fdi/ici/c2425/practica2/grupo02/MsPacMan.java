@@ -9,14 +9,21 @@ import es.ucm.fdi.ici.fsm.CompoundState;
 import es.ucm.fdi.ici.fsm.FSM;
 import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.MsPacManInput;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.RandomAction;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_chase.ShortEdibleTime;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.SafePaths;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.chase_actions.MoreGhostsChaseAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.chase_actions.NearestGhostChaseAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.chase_actions.SafetyGhostChaseAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.flee_actions.MoreEdibleGhostFleeAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.flee_actions.MorePillsFleeAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.flee_actions.PowerPillFleeAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.flee_actions.SafetyPathFleeAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.pills_actions.ChooseAnyPillsAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.pills_actions.MorePillsPillsAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.pills_actions.SafeLongestPathPillsAction;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_chase.*;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_compuestos.*;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_flee.EdibleGhostCloserThanGhost;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_flee.EvaluatePills;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_flee.PowerPillCloserThanGhost;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_pills.IndifferentNumbersPills;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_pills.MaximumPillsPath;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_flee.*;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.transitions.estados_pills.*;
 import es.ucm.fdi.ici.fsm.SimpleState;
 import es.ucm.fdi.ici.fsm.Transition;
 import es.ucm.fdi.ici.fsm.observers.GraphFSMObserver;
@@ -54,9 +61,11 @@ public class MsPacMan extends PacmanController {
 		GraphFSMObserver pills_observer = new GraphFSMObserver(cfsm_pills.toString());
 		cfsm_pills.addObserver(pills_observer);
 
-		SimpleState morePills = new SimpleState("more pills", new RandomAction());
-		SimpleState safePills = new SimpleState("safe pills", new RandomAction());
-		SimpleState nearestPill = new SimpleState("early pills", new RandomAction());
+		SafePaths safePathsPills = new SafePaths();
+		
+		SimpleState safePills = new SimpleState("safe longest path", new SafeLongestPathPillsAction(safePathsPills));
+		SimpleState morePills = new SimpleState("more pills", new MorePillsPillsAction(safePathsPills));
+		SimpleState chooseAny = new SimpleState("choose any", new ChooseAnyPillsAction());
 		
 		Transition severalPaths1 = new SafetyPacmanTransition();
 		Transition severalPaths2 = new SafetyPacmanTransition();
@@ -65,8 +74,8 @@ public class MsPacMan extends PacmanController {
 		
 		cfsm_pills.add(safePills, pathWithMaximumNumberPills, morePills);
 		cfsm_pills.add(morePills, severalPaths1, safePills);
-		cfsm_pills.add(morePills, sameNumberOfPills, nearestPill);
-		cfsm_pills.add(nearestPill, severalPaths2, safePills);
+		cfsm_pills.add(morePills, sameNumberOfPills, chooseAny);
+		cfsm_pills.add(chooseAny, severalPaths2, safePills);
 
 		cfsm_pills.ready(morePills);
 
@@ -78,10 +87,12 @@ public class MsPacMan extends PacmanController {
 		GraphFSMObserver flee_observer = new GraphFSMObserver(cfsm_flee.toString());
 		cfsm_flee.addObserver(flee_observer);
 
-		SimpleState safetyPath = new SimpleState("Safety path", new RandomAction());
-		SimpleState edibleGhost = new SimpleState("More edible ghosts", new RandomAction());
-		SimpleState morePillsFlee = new SimpleState("More pills", new RandomAction());
-		SimpleState powerPill = new SimpleState("PowerPill", new RandomAction());
+		SafePaths safePathsFlee = new SafePaths();
+
+		SimpleState safetyPath = new SimpleState("Safety path", new SafetyPathFleeAction(safePathsFlee));
+		SimpleState edibleGhost = new SimpleState("More edible ghosts", new MoreEdibleGhostFleeAction(safePathsFlee));
+		SimpleState morePillsFlee = new SimpleState("More pills", new MorePillsFleeAction(safePathsFlee));
+		SimpleState powerPill = new SimpleState("PowerPill", new PowerPillFleeAction());
 		
 		Transition edibleGhostNearestThanGhost = new EdibleGhostCloserThanGhost();
 		Transition powerPillCloserThanGhostFromSafetyPath = new PowerPillCloserThanGhost("From safety Path");
@@ -102,9 +113,9 @@ public class MsPacMan extends PacmanController {
 		GraphFSMObserver chase_observer = new GraphFSMObserver(cfsm_chase.toString());
 		cfsm_chase.addObserver(chase_observer);
 
-		SimpleState moreGhosts = new SimpleState("more ghosts", new RandomAction());
-		SimpleState nearestGhost = new SimpleState("nearest ghost", new RandomAction());
-		SimpleState safetyGhost = new SimpleState("safety ghost", new RandomAction());
+		SimpleState moreGhosts = new SimpleState("more ghosts", new MoreGhostsChaseAction());
+		SimpleState nearestGhost = new SimpleState("nearest ghost", new NearestGhostChaseAction());
+		SimpleState safetyGhost = new SimpleState("safety ghost", new SafetyGhostChaseAction());
 		
 		Transition withoutTimeFromMoreGhost = new ShortEdibleTime("From more ghosts");
 		Transition withoutTimeFromSafetyGhost = new ShortEdibleTime("From safety ghosts");
