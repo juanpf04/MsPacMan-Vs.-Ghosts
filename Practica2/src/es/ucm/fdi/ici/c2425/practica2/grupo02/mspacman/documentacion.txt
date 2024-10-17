@@ -1,0 +1,40 @@
+CAMBIOS
+
+TRANSICIONES:
+He añadido todas las transiciones. Tengo que revisar el código y tras revisarlo optimizarlo
+ya que muchas funciones utilizan la misma función de recorrer tanto caminos como fantasmas.
+Lo malo es que dentro de esos recorridos se compruebas cosas distintas.
+
+
+ACCIONES
+He añadido una clase SafePaths, la cual se encarga de almacenar para cada tick de simulacion
+un map con el movimiento y el número de fantasmas de ese movimiento. Esto nos permite filtrar
+caminos que no queremos estudiar además de no cometer errores en el estudio. Por ejemplo:
+
+En el estado flee, primero estudiamos el/los camino/s mas seguro/s. Si hay más de uno tenemos en cuenta
+cual de ellos tiene mas fantasmas comestibles. Bien, si se da este caso, cuando llegamos al estudio de 
+que camino tiene mas fantasmas, si no tenemos en cuenta el estudiar unicamente los caminos marcados como seguros
+puede darse el caso de que se detecte que algun camino restante determiando como inseguro sea el que
+mas fantasmas comestibles tiene, y por tanto, devolviendo un movimiento erroneo. De esta manera, nos aseguramos
+de escoger los caminos filtrados según nuestras condiciones.
+
+---------------------------------------------------------------------------------------------------------------
+Se ha implementado la clase MsPacManInfo donde declaro funciones que se encargar de gestionar
+la información del pacman. Como su posicion, último movimineto, entre otras.
+Se me han colado algunos movimientos que no deberían ir ahi pero lo cambiare.
+
+---------------------------------------------------------------------------------------------------------------
+
+He implementado las acciones de pacman según nuestra maquina de estados. Como en las transiciones, me queda
+revisar el codigo por si me he rayado calculando algo o no he tenido algo en cuenta, y despues de eso ver como
+reutilizar el codigo de las busquedas/hacerlo más eficiente.
+
+Tengo dudas ya que para el estudio de los caminos me gustaría utilizar el backtracking de la Práctica1, pero
+al tener que realizar varios estudios ya que en cada accion se estudia una cosa concreta y no varias para 
+luego determinar el mejor movimienot, sería muy ineficiente usarlo para cada acción. Por ahora el estudio
+que estoy haciendo es iterativo, y por tanto, su profundidad es de un nodo.
+
+CUESTIONES
+
+No se muy bien como funcionan las acciones grandes que engloban las pequeñas, ya que no hacen nada como tal, 
+solo engloban un conjunto de acciones. 

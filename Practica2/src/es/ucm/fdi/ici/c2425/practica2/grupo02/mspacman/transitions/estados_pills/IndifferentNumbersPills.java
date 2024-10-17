@@ -8,7 +8,6 @@ public class IndifferentNumbersPills implements Transition {
 
     @Override
     public boolean evaluate(Input in) {
-        @SuppressWarnings("rawtypes")
         MsPacManInput  input = (MsPacManInput) in;
         return input.sameNumberOfPills();
     }
