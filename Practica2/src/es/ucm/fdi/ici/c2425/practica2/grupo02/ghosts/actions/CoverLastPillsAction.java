@@ -28,6 +28,6 @@ public class CoverLastPillsAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return ghost.toString().toLowerCase() + " covers last pills";
+		return "cover last pills";
 	}
 }

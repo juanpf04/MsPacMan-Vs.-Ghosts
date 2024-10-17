@@ -25,6 +25,6 @@ public class RunAwayAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return ghost + " runs away";
+		return "run away";
 	}
 }

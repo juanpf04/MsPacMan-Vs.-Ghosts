@@ -40,6 +40,6 @@ public class DisperseAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return ghost + " disperses";
+		return "disperse";
 	}
 }

@@ -20,6 +20,6 @@ public class LairAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return ghost + " in lair";
+		return "in lair";
 	}
 }

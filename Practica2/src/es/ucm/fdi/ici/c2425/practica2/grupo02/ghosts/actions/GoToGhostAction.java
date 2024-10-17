@@ -28,6 +28,6 @@ public class GoToGhostAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return ghost + " goes to ghost";
+		return "go to ghost";
 	}
 }

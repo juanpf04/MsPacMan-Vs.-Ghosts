@@ -37,7 +37,7 @@ public class Ghosts extends GhostController {
 			GraphFSMObserver graphObserver = new GraphFSMObserver(ghost.name());
 			fsm.addObserver(graphObserver);
 
-			SimpleState lair = new SimpleState("lair", new LairAction(ghost));
+			SimpleState lair = new SimpleState(new LairAction(ghost));
 
 			Transition die = new GhostDiesTransition(ghost);
 			Transition noLairTime = new GhostRequiresActionTransition(ghost);
@@ -54,14 +54,14 @@ public class Ghosts extends GhostController {
 			GraphFSMObserver cover_observer = new GraphFSMObserver(cfsm_cover.toString());
 			cfsm_cover.addObserver(cover_observer);
 
-			SimpleState coverExit = new SimpleState("cover exit", new CoverExitAction(ghost));
+			SimpleState coverExit = new SimpleState(new CoverExitAction(ghost));
 
-			SimpleState coverPPill1 = new SimpleState("cover powerpill 1", new CoverPowerPillAction(ghost, 97));
-			SimpleState coverPPill2 = new SimpleState("cover powerpill 2", new CoverPowerPillAction(ghost, 102));
-			SimpleState coverPPill3 = new SimpleState("cover powerpill 3", new CoverPowerPillAction(ghost, 1143));
-			SimpleState coverPPill4 = new SimpleState("cover powerpill 4", new CoverPowerPillAction(ghost, 1148));
-			
-			SimpleState coverLastPills = new SimpleState("cover last pills", new CoverLastPillsAction(ghost));
+			SimpleState coverPPill1 = new SimpleState(new CoverPowerPillAction(ghost, 97));
+			SimpleState coverPPill2 = new SimpleState(new CoverPowerPillAction(ghost, 102));
+			SimpleState coverPPill3 = new SimpleState(new CoverPowerPillAction(ghost, 1143));
+			SimpleState coverPPill4 = new SimpleState(new CoverPowerPillAction(ghost, 1148));
+
+			SimpleState coverLastPills = new SimpleState(new CoverLastPillsAction(ghost, this.info));
 
 			// TODO transicion existe powerpill, hay alguien mas cerca en exit y ppill
 			// cercana a pacman
@@ -87,10 +87,10 @@ public class Ghosts extends GhostController {
 			GraphFSMObserver flee_observer = new GraphFSMObserver(cfsm_flee.toString());
 			cfsm_flee.addObserver(flee_observer);
 
-			SimpleState fleePacMan = new SimpleState("flee pacman", new RunAwayAction(ghost));
-			SimpleState fleePPill = new SimpleState("flee ppill", new GoToPowePillAction(ghost));
-			SimpleState fleeDisperse = new SimpleState("flee disperse", new DisperseAction(ghost));
-			SimpleState fleeToGhost = new SimpleState("flee to ghost", new GoToGhostAction(ghost));
+			SimpleState fleePacMan = new SimpleState(new RunAwayAction(ghost));
+			SimpleState fleePPill = new SimpleState(new GoToPowePillAction(ghost, this.info));
+			SimpleState fleeDisperse = new SimpleState(new DisperseAction(ghost, this.info));
+			SimpleState fleeToGhost = new SimpleState(new GoToGhostAction(ghost, this.info));
 
 			Transition fleePacmanToDisperse = new RandomTransition(.35);
 			Transition fleePacmanToPPill = new RandomTransition(.25);
@@ -119,8 +119,8 @@ public class Ghosts extends GhostController {
 			cfsm_chase.addObserver(chase_observer);
 
 			// TODO mirar si renta pasar edible ghost a cover(block)
-			SimpleState chasePacMan = new SimpleState("chase pacman", new ChaseMsPacManAction(ghost));
-			SimpleState chaseEdibleGhost = new SimpleState("chase edible ghost", new CoverEdibleGhostAction(ghost));
+			SimpleState chasePacMan = new SimpleState(new ChaseMsPacManAction(ghost));
+			SimpleState chaseEdibleGhost = new SimpleState(new CoverEdibleGhostAction(ghost));
 
 			Transition edibleGhostNearToPacMan = new RandomTransition(.35);
 			Transition nearToEdibleGhost = new RandomTransition(.25);

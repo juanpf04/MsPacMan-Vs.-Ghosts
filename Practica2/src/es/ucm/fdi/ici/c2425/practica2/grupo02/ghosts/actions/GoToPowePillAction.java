@@ -28,6 +28,6 @@ public class GoToPowePillAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return ghost + " goes to power pill";
+		return "go to power pill";
 	}
 }

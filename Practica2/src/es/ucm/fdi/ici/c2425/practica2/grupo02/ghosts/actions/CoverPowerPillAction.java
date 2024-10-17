@@ -30,6 +30,6 @@ public class CoverPowerPillAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return ghost + " covers power pill " + this.id;
+		return "cover power pill " + this.id;
 	}
 }
