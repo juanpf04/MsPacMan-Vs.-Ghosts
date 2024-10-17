@@ -11,7 +11,7 @@ public class CoverPowerPillAction implements Action {
 	GHOST ghost;
 	int powerPillIndex;
 	int id;
-	int count;
+	static int count;
 
 	public CoverPowerPillAction(GHOST ghost, int powerPillIndex) {
 		this.ghost = ghost;

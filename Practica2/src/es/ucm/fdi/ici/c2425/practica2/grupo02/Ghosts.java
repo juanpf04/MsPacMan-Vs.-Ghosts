@@ -6,7 +6,7 @@ import java.util.EnumMap;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostInfo;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInfo;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions.*;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.*;
@@ -23,12 +23,12 @@ import pacman.game.Game;
 public class Ghosts extends GhostController {
 
 	EnumMap<GHOST, FSM> fsms;
-	GhostInfo info;
+	GhostsInfo info;
 
 	public Ghosts() {
 		setName("Fantasmikos");
 
-		info = new GhostInfo();
+		info = new GhostsInfo();
 		fsms = new EnumMap<GHOST, FSM>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
 			FSM fsm = new FSM(ghost.name());

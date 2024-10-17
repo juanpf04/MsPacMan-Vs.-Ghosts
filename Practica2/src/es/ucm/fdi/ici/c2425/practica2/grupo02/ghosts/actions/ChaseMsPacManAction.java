@@ -25,6 +25,6 @@ public class ChaseMsPacManAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return ghost + " chases";
+		return ghost.toString().toLowerCase() + " chases";
 	}
 }

@@ -12,9 +12,9 @@ public class GhostsInput extends Input {
 	private boolean PINKYedible;
 	private boolean SUEedible;
 	private double minPacmanDistancePPill;
-	private GhostInfo info;
+	private GhostsInfo info;
 	
-	public GhostsInput(Game game, GhostInfo info) {
+	public GhostsInput(Game game, GhostsInfo info) {
 		super(game);
 		this.info = info;
 	}
