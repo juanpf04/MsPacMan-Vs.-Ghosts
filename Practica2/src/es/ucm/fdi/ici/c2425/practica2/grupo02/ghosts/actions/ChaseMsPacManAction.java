@@ -1,14 +1,13 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions;
 
 import es.ucm.fdi.ici.Action;
-import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 public class ChaseMsPacManAction implements Action {
 
-	GHOST ghost;
+	private GHOST ghost;
 
 	public ChaseMsPacManAction(GHOST ghost) {
 		this.ghost = ghost;
@@ -16,15 +15,12 @@ public class ChaseMsPacManAction implements Action {
 
 	@Override
 	public MOVE execute(Game game) {
-		if (game.doesGhostRequireAction(ghost))
-			return game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost),
-					game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DM.PATH);
-
-		return MOVE.NEUTRAL;
+		Action action = new GoToAction(this.ghost, game.getPacmanCurrentNodeIndex());
+		return action.execute(game);
 	}
 
 	@Override
 	public String getActionId() {
-		return "chase";
+		return "Chase";
 	}
 }

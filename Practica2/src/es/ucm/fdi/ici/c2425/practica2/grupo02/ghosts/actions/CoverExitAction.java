@@ -1,6 +1,7 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions;
 
 import es.ucm.fdi.ici.Action;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInfo;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -8,24 +9,22 @@ import pacman.game.Game;
 
 public class CoverExitAction implements Action {
 
-	GHOST ghost;
+	private GHOST ghost;
+	private GhostsInfo info;
 
-	public CoverExitAction(GHOST ghost) {
+	public CoverExitAction(GHOST ghost, GhostsInfo info) {
 		this.ghost = ghost;
+		this.info = info;
 	}
 
 	@Override
 	public MOVE execute(Game game) {
-		if (game.doesGhostRequireAction(ghost)) // if it requires an action
-		{
-			return game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost),
-					game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DM.PATH);
-		}
-		return MOVE.NEUTRAL;
+		Action action = new GoToAction(this.ghost, this.info.getNearestExit(this.ghost));
+		return action.execute(game);
 	}
 
 	@Override
 	public String getActionId() {
-		return "cover exit";
+		return "Cover exit";
 	}
 }

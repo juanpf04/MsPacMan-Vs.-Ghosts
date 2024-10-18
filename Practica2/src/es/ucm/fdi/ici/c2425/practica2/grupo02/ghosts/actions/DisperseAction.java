@@ -9,8 +9,9 @@ import pacman.game.Game;
 
 public class DisperseAction implements Action {
 
-	GHOST ghost;
-	GhostsInfo info;
+	private GHOST ghost;
+	private GhostsInfo info;
+	private int quitar;
 
 	public DisperseAction(GHOST ghost, GhostsInfo info) {
 		this.ghost = ghost;
@@ -18,7 +19,7 @@ public class DisperseAction implements Action {
 	}
 
 	@Override
-	public MOVE execute(Game game) {
+	public MOVE execute(Game game) { // TODO
 		if (game.doesGhostRequireAction(ghost)) {
 			int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
 			int pacmanIndex = game.getPacmanCurrentNodeIndex();
@@ -37,6 +38,6 @@ public class DisperseAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return "disperse";
+		return "Disperse";
 	}
 }

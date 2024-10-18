@@ -11,19 +11,18 @@ public class GhostsInfo {
 	private int nearestEdibleGhostToPacman;
 
 	// nearest not edible ghost to nearest edible ghost to pacman
-	private int nearestGhost; 
+	private int nearestGhost;
 
 	private Map<GHOST, Double> distanceGhostToPacman;
 	private Map<GHOST, Integer> nearestPPill;
 	private Map<GHOST, Double> distanceToNearestPPill;
-	//private Map<GHOST, Integer> nearestGhost;
+	// private Map<GHOST, Integer> nearestGhost;
 
 	public GhostsInfo() {
 		this.nearestPPill = new HashMap<GHOST, Integer>();
-		//this.nearestGhost = new HashMap<GHOST, Integer>();
+		// this.nearestGhost = new HashMap<GHOST, Integer>();
 		this.distanceToNearestPPill = new HashMap<GHOST, Double>();
 	}
-
 
 	// getters
 
@@ -33,6 +32,7 @@ public class GhostsInfo {
 
 	/**
 	 * Node of nearest edible ghost to pacman. Returns -1 if no ghost is edbile.
+	 * 
 	 * @param node
 	 */
 	public int getNearestEdibleGhostToPacman() {
@@ -55,8 +55,6 @@ public class GhostsInfo {
 		return this.distanceToNearestPPill.get(ghost);
 	}
 
-
-
 	// setters
 
 	public void setNearestGhost(int node) {
@@ -75,12 +73,16 @@ public class GhostsInfo {
 		this.nearestPPill.put(ghost, index);
 	}
 
-
 	public void setDistanceToNearestPPill(GHOST ghost, double distance) {
-		this.distanceToNearestPPill.put(ghost,distance);
+		this.distanceToNearestPPill.put(ghost, distance);
 	}
 
 	public void setDistanceGhostToPacman(GHOST ghost, double distance) {
-		this.distanceGhostToPacman.put(ghost,distance);
+		this.distanceGhostToPacman.put(ghost, distance);
+	}
+
+	public int getNearestExit(GHOST ghost) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

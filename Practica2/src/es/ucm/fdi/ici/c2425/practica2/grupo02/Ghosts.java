@@ -1,6 +1,5 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -36,25 +35,23 @@ public class Ghosts extends GhostController {
 		for (GHOST ghost : GHOST.values()) {
 			FSM fsm = new FSM(ghost.name());
 
-			// fsm.addObserver(new ConsoleFSMObserver(ghost.name())); // Por consola
 			GraphFSMObserver graphObserver = new GraphFSMObserver(ghost.name());
 			fsm.addObserver(graphObserver);
 
 			// --------------------------------------------
 
-			FSM cfsm_cover = new FSM("Cover");
-			GraphFSMObserver cover_observer = new GraphFSMObserver(cfsm_cover.toString());
-			cfsm_cover.addObserver(cover_observer);
+			FSM cfsm_chase = new FSM("CHASE");
+			GraphFSMObserver chase_observer = new GraphFSMObserver(cfsm_chase.toString());
+			cfsm_chase.addObserver(chase_observer);
 
-			SimpleState coverExit = new SimpleState(new CoverExitAction(ghost));
-			SimpleState coverEdibleGhost = new SimpleState(new CoverEdibleGhostAction(ghost));
+			SimpleState chasePacMan = new SimpleState(new ChaseMsPacManAction(ghost));
+			SimpleState coverExit = new SimpleState(new CoverExitAction(ghost, this.info));
+			SimpleState coverEdibleGhost = new SimpleState("Cover edible ghost",
+					new GoToGhostAction(ghost, this.info, false));
 
-			SimpleState coverPPill1 = new SimpleState(new CoverPowerPillAction(ghost, 97));
-			SimpleState coverPPill2 = new SimpleState(new CoverPowerPillAction(ghost, 102));
-			SimpleState coverPPill3 = new SimpleState(new CoverPowerPillAction(ghost, 1143));
-			SimpleState coverPPill4 = new SimpleState(new CoverPowerPillAction(ghost, 1148));
+			SimpleState coverPPill = new SimpleState("Cover PowerPill", new GoToPowePillAction(ghost, this.info));
 
-			SimpleState coverLastPills = new SimpleState(new CoverLastPillsAction(ghost, this.info));
+			SimpleState coverLastPills = new SimpleState(new CoverLastPillsAction(ghost));
 
 			Transition coverExitToPPill1 = new PruebaTransition(ghost);
 			Transition coverExitToPPill2 = new PruebaTransition(ghost);
@@ -63,20 +60,20 @@ public class Ghosts extends GhostController {
 			Transition coverExitToPPillLast = new PruebaTransition(ghost);
 			Transition coverExitToEdibleGhost = new PruebaTransition(ghost);
 
-			cfsm_cover.add(coverExit, coverExitToPPill1, coverPPill1);
-			cfsm_cover.add(coverExit, coverExitToPPill2, coverPPill2);
-			cfsm_cover.add(coverExit, coverExitToPPill3, coverPPill3);
-			cfsm_cover.add(coverExit, coverExitToPPill4, coverPPill4);
-			cfsm_cover.add(coverExit, coverExitToEdibleGhost, coverEdibleGhost);
-			cfsm_cover.add(coverExit, coverExitToPPillLast, coverLastPills);
+			cfsm_chase.add(coverExit, coverExitToPPill1, coverPPill1);
+			cfsm_chase.add(coverExit, coverExitToPPill2, coverPPill2);
+			cfsm_chase.add(coverExit, coverExitToPPill3, coverPPill3);
+			cfsm_chase.add(coverExit, coverExitToPPill4, coverPPill4);
+			cfsm_chase.add(coverExit, coverExitToEdibleGhost, coverEdibleGhost);
+			cfsm_chase.add(coverExit, coverExitToPPillLast, coverLastPills);
 
-			cfsm_cover.ready(coverExit);
+			cfsm_chase.ready(coverExit);
 
-			CompoundState block = new CompoundState("cover", cfsm_cover);
+			CompoundState chase = new CompoundState("Chase", cfsm_chase);
 
 			// --------------------------------------------
 
-			FSM cfsm_flee = new FSM("Flee");
+			FSM cfsm_flee = new FSM("FLEE");
 			GraphFSMObserver flee_observer = new GraphFSMObserver(cfsm_flee.toString());
 			cfsm_flee.addObserver(flee_observer);
 
@@ -103,41 +100,33 @@ public class Ghosts extends GhostController {
 
 			cfsm_flee.ready(fleePacMan);
 
-			CompoundState flee = new CompoundState("flee", cfsm_flee);
+			CompoundState flee = new CompoundState("Flee", cfsm_flee);
 
 			// --------------------------------------------
 
 			SimpleState lair = new SimpleState(new LairAction(ghost));
-			SimpleState chase = new SimpleState(new ChaseMsPacManAction(ghost));
 
 			Transition lairTime = new LairTimeTransition(ghost);
-			Transition lairTime1 = new LairTimeTransition(ghost);
 			Transition lairTime2 = new LairTimeTransition(ghost);
 			Transition noLairTime = new GhostRequiresActionTransition(ghost);
 			Transition edible = new GhostEdibleTransition(ghost);
-			Transition edible1 = new GhostEdibleTransition(ghost);
 			Transition pacmanNearToPPill = new MsPacManNearPowerPillTransition();
-			Transition pacmanNearToPPill1 = new MsPacManNearPowerPillTransition();
 			Transition notEdible = new GhostNotEdibleAndMsPacManFarPowerPillTransition(ghost);
 			Transition nearToPacMan = new GhostNearMsPacManTransition(ghost);
-			Transition someoneNearToPacMan = new GhostFarMsPacManTransition(ghost);
 
-			fsm.add(block, edible, flee);
-			fsm.add(block, pacmanNearToPPill, flee);
-			fsm.add(block, nearToPacMan, chase);
-			fsm.add(block, lairTime, lair);
-
-			fsm.add(chase, edible1, flee);
-			fsm.add(chase, pacmanNearToPPill1, flee);
-			fsm.add(chase, lairTime1, lair);
-			fsm.add(chase, someoneNearToPacMan, block);
+			fsm.add(chase, edible, flee);
+			fsm.add(chase, pacmanNearToPPill, flee);
+			fsm.add(chase, nearToPacMan, chasePacMan);
+			fsm.add(chase, lairTime, lair);
 
 			fsm.add(flee, lairTime2, lair);
-			fsm.add(flee, notEdible, chase);
+			fsm.add(flee, notEdible, chasePacMan);
 
-			fsm.add(lair, noLairTime, chase);
+			fsm.add(lair, noLairTime, chasePacMan);
 
-			fsm.ready(block);
+			fsm.ready(chase);
+
+			// --------------------------------------------
 
 			JFrame frame = new JFrame();
 			JPanel main = new JPanel(new GridBagLayout());
@@ -156,7 +145,7 @@ public class Ghosts extends GhostController {
 			gbc.gridwidth = 1;
 			gbc.weightx = 0.5;
 			gbc.weighty = 0.5;
-			main.add(cover_observer.getAsPanel(true, null), gbc);
+			main.add(chase_observer.getAsPanel(true, null), gbc);
 
 			gbc.gridx = 1;
 			gbc.gridy = 1;
@@ -173,6 +162,8 @@ public class Ghosts extends GhostController {
 			size.height = (int) (size.height / 1.25);
 			frame.setSize(size);
 			frame.setVisible(true);
+
+			// --------------------------------------------
 
 			fsms.put(ghost, fsm);
 		}
