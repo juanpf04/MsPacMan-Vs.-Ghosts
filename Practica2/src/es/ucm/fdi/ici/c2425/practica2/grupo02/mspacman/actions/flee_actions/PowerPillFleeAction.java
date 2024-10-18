@@ -10,7 +10,7 @@ public class PowerPillFleeAction implements Action{
     @Override
     public MOVE execute(Game game) {
         MsPacManInput input = new MsPacManInput(game);
-        return input.moveToPowerPill();
+        return input.pacmanRequieresAction() ? input.moveToPowerPill() : MOVE.NEUTRAL;
     }
 
     @Override

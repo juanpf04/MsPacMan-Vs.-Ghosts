@@ -16,9 +16,13 @@ import pacman.game.Game;
 public class MsPacManInput extends Input {
 
 	private MsPacManInfo info;
+	private SafePaths safePaths;
+
 	public MsPacManInput(Game game) {
 		super(game);
 		info = new MsPacManInfo(game);
+		safePaths = new SafePaths();
+
 	}
 
 	@Override
@@ -27,6 +31,16 @@ public class MsPacManInput extends Input {
 
 	}
 
+	public boolean pacmanRequieresAction(){
+		int[] nodes = this.getGame().getJunctionIndices();
+
+		for(int node: nodes){
+			if(this.getGame().getPacmanCurrentNodeIndex() == node){
+				return true;
+			}
+		}
+		return false;
+	}
 	//TRANSITIONS
 
     public boolean edibleGhostNearestThanGhost(int range) {
@@ -107,22 +121,25 @@ public class MsPacManInput extends Input {
 	}
 
 	public boolean sameNumberOfPills() {
-		int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
-		MOVE lastMove = (MOVE) this.getGame().getPacmanLastMoveMade();
+		int currentNode = this.getGame().getPacmanCurrentNodeIndex();
+		MOVE currentMove = (MOVE) this.getGame().getPacmanLastMoveMade();
 
 		Map<MOVE, Integer> numberPills = new HashMap<MOVE, Integer>();
 
-		MOVE[] moves = (MOVE[]) this.getGame().getPossibleMoves(pacmanNode, (pacman.game.Constants.MOVE) lastMove);
+		MOVE[] moves = (MOVE[]) this.getGame().getPossibleMoves(currentNode, currentMove);
 
 		for(MOVE move: moves){
+			currentMove = move;
 			int nPills = 0;
-			int endNode = this.getGame().getNeighbour(pacmanNode, (pacman.game.Constants.MOVE) move);
+			int endNode = this.getGame().getNeighbour(currentNode, currentMove);
 
-			while(!this.getGame().isJunction(endNode)){
+			while(endNode != -1 &&!this.getGame().isJunction(endNode)){
 				
 				if(this.getGame().isPillStillAvailable(endNode)) nPills++;
 
-				endNode = this.getGame().getNeighbour(endNode, (pacman.game.Constants.MOVE) move);
+				currentNode = endNode;
+				currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
+				endNode = this.game.getNeighbour(currentNode, currentMove);
 
 			}
 			numberPills.put(move, nPills);
@@ -149,40 +166,7 @@ public class MsPacManInput extends Input {
 	}
 	
 	public boolean moreThanOneSavePath() {
-		int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
-		MOVE lastMove = (MOVE) this.getGame().getPacmanLastMoveMade();
-
-		MOVE[] moves = (MOVE[]) this.getGame().getPossibleMoves(pacmanNode, (pacman.game.Constants.MOVE) lastMove);
-		
-		//Guardo indices de los fantasmas no comestible actualmente
-		Set<Integer> ghosts = new HashSet<Integer>();
-		initGhost(ghosts);
-
-		//Solucion, si la clave true tiene mas de un entero asociado, hay mas de un camino seguido
-		Map<Boolean, Integer> sol = new HashMap<Boolean, Integer>();
-
-		for(MOVE move: moves){
-			
-			int endNode = this.getGame().getNeighbour(pacmanNode, (pacman.game.Constants.MOVE) move);
-			boolean safetyPath = true;
-
-			//Avanzamos por el camino del movimiento actual, ademas cortamos si nuestro camino no es seguro (eficiencia)
-			while (!this.getGame().isJunction(endNode) && safetyPath) {
-
-				//Si ese nodo esta en ghosts, es porque hay un fantasma no comestible
-				if(ghosts.contains(endNode)){
-					safetyPath = false;
-				}
-
-				//Avanzo nodo en el camino
-				endNode = this.getGame().getNeighbour(pacmanNode, (pacman.game.Constants.MOVE) move);
-			}
-			
-			if(!sol.containsKey(safetyPath))sol.put(safetyPath, 1);
-			else sol.put(safetyPath, sol.get(safetyPath) + 1);
-		}
-
-		return sol.get(true) > 1;
+		return this.safePaths.size() > 1;
 	}
 
 	private void initGhost(Set<Integer> ghosts){
@@ -205,7 +189,8 @@ public class MsPacManInput extends Input {
 		int min_distance = Integer.MAX_VALUE;
 		
 		for(GHOST ghost: GHOST.values()){
-			int distance = Math.min(min_distance, this.getGame().getShortestPathDistance(pacmanNode, this.getGame().getGhostCurrentNodeIndex(ghost)));
+			int distancia = this.getGame().getShortestPathDistance(pacmanNode, this.getGame().getGhostCurrentNodeIndex(ghost));
+			int distance = Math.min(min_distance,distancia);
 			
 			if(this.getGame().getGhostEdibleTime(ghost) == 0)
 				min_distance = distance <= range ? distance : min_distance;
@@ -246,7 +231,7 @@ public class MsPacManInput extends Input {
 	//Ya que asi estudio hasta 3 nodos de profundidad. Además ver como en ese estudio ver todas las variables que nos hacen falta para de
 	//determinar el mejor movimientos posible
 
-    public MOVE pathWithMoreEdibleGhosts(SafePaths safePaths) {
+    public MOVE pathWithMoreEdibleGhosts() {
 		int pacmanNode = info.getPacmanCurrentNodeIndex();
 		
 		MOVE solucion = MOVE.NEUTRAL;
@@ -262,7 +247,7 @@ public class MsPacManInput extends Input {
 		for(MOVE move: moves){
 
 			//Si el camino es seguro, lo estudio, sino paso a otro camino
-			if(safePaths.getSafePaths().get(move) == 0){
+			if(safePaths.getSafePaths().get(move)[0] == 0){
 
 				int endNode = this.getGame().getNeighbour(pacmanNode, move);
 				int numerGhosts = 0;
@@ -346,27 +331,35 @@ public class MsPacManInput extends Input {
 		return solucion;
 	}
 
-	public MOVE pathWithMorePills(SafePaths safePaths) {
-		int pacmanNode = info.getPacmanCurrentNodeIndex();
+	public MOVE pathWithMorePills() {
+		studySecurePaths();
+		int currentNode = info.getPacmanCurrentNodeIndex();
+		MOVE currentMove = info.getPacmanLastMoveMade();
+
 		MOVE solucion = MOVE.NEUTRAL;
 
-		MOVE[] moves = this.getGame().getPossibleMoves(pacmanNode, info.getPacmanLastMoveMade());
+		MOVE[] moves = this.getGame().getPossibleMoves(currentNode, currentMove);
 		int max_pills = Integer.MIN_VALUE;
+		Map<MOVE, Integer[]> paths = new HashMap<>();
 
 		for(MOVE move: moves){
 
-			if(safePaths.getSafePaths().get(move) == 0){
-				int endNode = this.getGame().getNeighbour(pacmanNode, move);
+			if(!safePaths.isEmpty() && safePaths.getSafePaths().get(move)[0] == 0){
+				currentMove = move;
+				int endNode = this.getGame().getNeighbour(currentNode, move);
 				int nPills = 0;
 
-				while (!this.getGame().isJunction(endNode)) {
+				while (endNode != -1 && !this.getGame().isJunction(endNode)) {
 
 					if(this.getGame().isPillStillAvailable(endNode)){
 						nPills++;
 					}
-
-					endNode = this.getGame().getNeighbour(endNode, move);
+					currentNode = endNode;
+					currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
+					endNode = this.game.getNeighbour(currentNode, currentMove);
 				}
+
+				paths.put(move, new Integer[]{0, nPills});
 
 				if(max_pills < nPills){
 					max_pills = nPills;
@@ -374,6 +367,13 @@ public class MsPacManInput extends Input {
 				}
 			}
 		}
+
+		// Filtrar los caminos seguros con mas pills
+        for (Map.Entry<MOVE, Integer[]> entry : paths.entrySet()) {
+            if (entry.getValue()[0] == 0) { // Considera un camino seguro si no hay fantasmas
+                safePaths.addSafePath(entry.getKey(), entry.getValue()[0], entry.getValue()[1]);
+            }
+        }
 
 		return solucion;
 	}
@@ -395,26 +395,32 @@ public class MsPacManInput extends Input {
 		return solucion;
     }
 
-	public MOVE moveToSafetyPath(SafePaths safePaths) {
+	public MOVE moveToSafetyPath() {
+        safePaths = new SafePaths();
 		MsPacManInfo info = new MsPacManInfo(this.getGame());
-		int pacmanNode = info.getPacmanCurrentNodeIndex();
+		int currentNode = info.getPacmanCurrentNodeIndex();
 
+		MOVE[] moves = this.getGame().getPossibleMoves(currentNode, info.getPacmanLastMoveMade());
         Map<MOVE, Integer[]> paths = new HashMap<>();
 
 		Set<Integer> ghosts = new HashSet<>();
 		initGhost(ghosts);
 
-        for (MOVE move : MOVE.values()) {
-            int endNode = this.getGame().getNeighbour(pacmanNode, move);
+        for (MOVE move : moves) {
+			MOVE currentMove = move;
+            int endNode = this.getGame().getNeighbour(currentNode, currentMove);
             int ghostCount = 0;
 			int longitud = 0;
-			while(!this.getGame().isJunction(endNode)){
+
+			while(endNode != -1 && !this.getGame().isJunction(endNode)){
 
 				if (ghosts.contains(endNode)) {
 					ghostCount++;
 				}
 
-				endNode = this.getGame().getNeighbour(pacmanNode, move);
+				currentNode = endNode;
+				currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
+				endNode = this.game.getNeighbour(currentNode, currentMove);
 				longitud++;
 			}
             
@@ -425,7 +431,7 @@ public class MsPacManInput extends Input {
         // Filtrar los caminos seguros
         for (Map.Entry<MOVE, Integer[]> entry : paths.entrySet()) {
             if (entry.getValue()[0] == 0) { // Considera un camino seguro si no hay fantasmas
-                safePaths.addSafePath(entry.getKey(), entry.getValue()[0]);
+                safePaths.addSafePath(entry.getKey(), entry.getValue()[0], 0);
             }
         }
 
@@ -448,7 +454,50 @@ public class MsPacManInput extends Input {
         return safestMove;
 	}
 
-	
+    public MOVE chooseAny() {
+		studySecurePaths();
+        return safePaths.size() > 0 ? safePaths.getSafePaths().keySet().iterator().next():MOVE.NEUTRAL;
+    }
 
+	private void studySecurePaths(){
+		this.safePaths = new SafePaths();
 
+		MsPacManInfo info = new MsPacManInfo(this.getGame());
+		int currentNode = info.getPacmanCurrentNodeIndex();
+
+		MOVE[] moves = this.getGame().getPossibleMoves(currentNode, info.getPacmanLastMoveMade());
+        Map<MOVE, Integer[]> paths = new HashMap<>();
+
+		Set<Integer> ghosts = new HashSet<>();
+		initGhost(ghosts);
+
+        for (MOVE move : moves) {
+			MOVE currentMove = move;
+            int endNode = this.getGame().getNeighbour(currentNode, currentMove);
+            int ghostCount = 0;
+			int longitud = 0;
+
+			while(endNode != -1 && !this.getGame().isJunction(endNode)){
+
+				if (ghosts.contains(endNode)) {
+					ghostCount++;
+				}
+
+				currentNode = endNode;
+				currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
+				endNode = this.game.getNeighbour(currentNode, currentMove);
+				longitud++;
+			}
+            
+			Integer[] path = {ghostCount, longitud};
+            paths.put(move, path);
+        }
+
+        // Filtrar los caminos seguros
+        for (Map.Entry<MOVE, Integer[]> entry : paths.entrySet()) {
+            if (entry.getValue()[0] == 0) { // Considera un camino seguro si no hay fantasmas
+                safePaths.addSafePath(entry.getKey(), entry.getValue()[0], 0);
+            }
+        }
+	}
 }

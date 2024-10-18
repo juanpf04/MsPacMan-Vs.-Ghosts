@@ -38,3 +38,12 @@ CUESTIONES
 
 No se muy bien como funcionan las acciones grandes que engloban las pequeñas, ya que no hacen nada como tal, 
 solo engloban un conjunto de acciones. 
+
+
+
+
+
+
+CAMBIOS--------------------------------------
+He quitado la transicion en el estado Pills de +pills a safety longest path ya que no tiene sentido que vuelva a evaluar los caminos que ya
+han sido calificados como seguros. 

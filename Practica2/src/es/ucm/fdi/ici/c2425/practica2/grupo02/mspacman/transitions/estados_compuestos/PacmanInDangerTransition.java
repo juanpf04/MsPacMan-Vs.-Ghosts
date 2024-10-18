@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 
 public class PacmanInDangerTransition implements Transition {
 
-    private final static int RANGE_PILLS = 30;
+    private final static int RANGE_PILLS = 20;
     private final static int RANGE_CHASE = 20;
     private String state;
     public PacmanInDangerTransition(String state){
