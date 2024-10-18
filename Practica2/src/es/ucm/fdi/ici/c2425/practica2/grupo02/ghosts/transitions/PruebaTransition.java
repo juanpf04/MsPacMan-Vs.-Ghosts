@@ -1,28 +1,30 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions;
 
 import es.ucm.fdi.ici.Input;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
-public class FewPillsTransition implements Transition {
+public class PruebaTransition implements Transition {
 
 	GHOST ghost;
+	static int num;
+	int id;
 
-	public FewPillsTransition(GHOST ghost) {
+	public PruebaTransition(GHOST ghost) {
 		super();
+		this.id = ++num;
 		this.ghost = ghost;
 	}
 
 	@Override
 	public boolean evaluate(Input in) {
-		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfActivePills() < 10;
+		Transition p = new GhostRequiresActionTransition(ghost);
+		return p.evaluate(in);
 	}
 
 	@Override
 	public String toString() {
-		return "few pills";
+		return this.id + "";
 	}
 
 }

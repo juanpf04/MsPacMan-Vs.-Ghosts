@@ -1,6 +1,9 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.EnumMap;
 
 import javax.swing.JFrame;
@@ -37,17 +40,6 @@ public class Ghosts extends GhostController {
 			GraphFSMObserver graphObserver = new GraphFSMObserver(ghost.name());
 			fsm.addObserver(graphObserver);
 
-			SimpleState lair = new SimpleState(new LairAction(ghost));
-
-			Transition die = new GhostDiesTransition(ghost);
-			Transition noLairTime = new GhostRequiresActionTransition(ghost);
-			Transition pacmanDies = new MsPacManDiesTransition(ghost);
-			Transition edible = new GhostEdibleTransition(ghost);
-			Transition notEdible = new GhostNotEdibleAndMsPacManFarPowerPillTransition(ghost);
-			Transition pacmanNearToPPill = new MsPacManNearPowerPillTransition();
-			Transition nearToPacMan = new GhostNearMsPacManTransition(ghost);
-			Transition someoneNearToPacMan = new GhostFarMsPacManTransition(ghost);
-
 			// --------------------------------------------
 
 			FSM cfsm_cover = new FSM("Cover");
@@ -55,6 +47,7 @@ public class Ghosts extends GhostController {
 			cfsm_cover.addObserver(cover_observer);
 
 			SimpleState coverExit = new SimpleState(new CoverExitAction(ghost));
+			SimpleState coverEdibleGhost = new SimpleState(new CoverEdibleGhostAction(ghost));
 
 			SimpleState coverPPill1 = new SimpleState(new CoverPowerPillAction(ghost, 97));
 			SimpleState coverPPill2 = new SimpleState(new CoverPowerPillAction(ghost, 102));
@@ -63,18 +56,18 @@ public class Ghosts extends GhostController {
 
 			SimpleState coverLastPills = new SimpleState(new CoverLastPillsAction(ghost, this.info));
 
-			// TODO transicion existe powerpill, hay alguien mas cerca en exit y ppill
-			// cercana a pacman
-			Transition coverExitToPPill1 = new RandomTransition(.35);
-			Transition coverExitToPPill2 = new RandomTransition(.25);
-			Transition coverExitToPPill3 = new RandomTransition(.35);
-			Transition coverExitToPPill4 = new RandomTransition(.25);
-			Transition coverExitToPPillLast = new RandomTransition(.25);
+			Transition coverExitToPPill1 = new PruebaTransition(ghost);
+			Transition coverExitToPPill2 = new PruebaTransition(ghost);
+			Transition coverExitToPPill3 = new PruebaTransition(ghost);
+			Transition coverExitToPPill4 = new PruebaTransition(ghost);
+			Transition coverExitToPPillLast = new PruebaTransition(ghost);
+			Transition coverExitToEdibleGhost = new PruebaTransition(ghost);
 
 			cfsm_cover.add(coverExit, coverExitToPPill1, coverPPill1);
 			cfsm_cover.add(coverExit, coverExitToPPill2, coverPPill2);
 			cfsm_cover.add(coverExit, coverExitToPPill3, coverPPill3);
 			cfsm_cover.add(coverExit, coverExitToPPill4, coverPPill4);
+			cfsm_cover.add(coverExit, coverExitToEdibleGhost, coverEdibleGhost);
 			cfsm_cover.add(coverExit, coverExitToPPillLast, coverLastPills);
 
 			cfsm_cover.ready(coverExit);
@@ -92,13 +85,13 @@ public class Ghosts extends GhostController {
 			SimpleState fleeDisperse = new SimpleState(new DisperseAction(ghost, this.info));
 			SimpleState fleeToGhost = new SimpleState(new GoToGhostAction(ghost, this.info));
 
-			Transition fleePacmanToDisperse = new RandomTransition(.35);
-			Transition fleePacmanToPPill = new RandomTransition(.25);
-			Transition fleePacmanToGhost = new RandomTransition(.35);
-			Transition fleeDisperseToPacman = new RandomTransition(.25);
-			Transition fleeDisperseToPPill = new RandomTransition(.25);
-			Transition fleePPillToPacman = new RandomTransition(.25);
-			Transition fleePPillToDisperse = new RandomTransition(.25);
+			Transition fleePacmanToDisperse = new PruebaTransition(ghost);
+			Transition fleePacmanToPPill = new PruebaTransition(ghost);
+			Transition fleePacmanToGhost = new PruebaTransition(ghost);
+			Transition fleeDisperseToPacman = new PruebaTransition(ghost);
+			Transition fleeDisperseToPPill = new PruebaTransition(ghost);
+			Transition fleePPillToPacman = new PruebaTransition(ghost);
+			Transition fleePPillToDisperse = new PruebaTransition(ghost);
 
 			cfsm_flee.add(fleePacMan, fleePacmanToDisperse, fleeDisperse);
 			cfsm_flee.add(fleePacMan, fleePacmanToPPill, fleePPill);
@@ -114,38 +107,32 @@ public class Ghosts extends GhostController {
 
 			// --------------------------------------------
 
-			FSM cfsm_chase = new FSM("Chase");
-			GraphFSMObserver chase_observer = new GraphFSMObserver(cfsm_chase.toString());
-			cfsm_chase.addObserver(chase_observer);
+			SimpleState lair = new SimpleState(new LairAction(ghost));
+			SimpleState chase = new SimpleState(new ChaseMsPacManAction(ghost));
 
-			// TODO mirar si renta pasar edible ghost a cover(block)
-			SimpleState chasePacMan = new SimpleState(new ChaseMsPacManAction(ghost));
-			SimpleState chaseEdibleGhost = new SimpleState(new CoverEdibleGhostAction(ghost));
-
-			Transition edibleGhostNearToPacMan = new RandomTransition(.35);
-			Transition nearToEdibleGhost = new RandomTransition(.25);
-
-			cfsm_chase.add(chasePacMan, edibleGhostNearToPacMan, chaseEdibleGhost);
-			cfsm_chase.add(chaseEdibleGhost, nearToEdibleGhost, chasePacMan);
-
-			cfsm_chase.ready(chasePacMan);
-
-			CompoundState chase = new CompoundState("chase", cfsm_chase);
-
-			// --------------------------------------------
+			Transition lairTime = new LairTimeTransition(ghost);
+			Transition lairTime1 = new LairTimeTransition(ghost);
+			Transition lairTime2 = new LairTimeTransition(ghost);
+			Transition noLairTime = new GhostRequiresActionTransition(ghost);
+			Transition edible = new GhostEdibleTransition(ghost);
+			Transition edible1 = new GhostEdibleTransition(ghost);
+			Transition pacmanNearToPPill = new MsPacManNearPowerPillTransition();
+			Transition pacmanNearToPPill1 = new MsPacManNearPowerPillTransition();
+			Transition notEdible = new GhostNotEdibleAndMsPacManFarPowerPillTransition(ghost);
+			Transition nearToPacMan = new GhostNearMsPacManTransition(ghost);
+			Transition someoneNearToPacMan = new GhostFarMsPacManTransition(ghost);
 
 			fsm.add(block, edible, flee);
 			fsm.add(block, pacmanNearToPPill, flee);
 			fsm.add(block, nearToPacMan, chase);
-			fsm.add(block, pacmanDies, lair);
+			fsm.add(block, lairTime, lair);
 
-			fsm.add(chase, edible, flee);
-			fsm.add(chase, pacmanNearToPPill, flee);
-			fsm.add(chase, pacmanDies, lair);
+			fsm.add(chase, edible1, flee);
+			fsm.add(chase, pacmanNearToPPill1, flee);
+			fsm.add(chase, lairTime1, lair);
 			fsm.add(chase, someoneNearToPacMan, block);
 
-			fsm.add(flee, die, lair);
-			fsm.add(flee, pacmanDies, lair);
+			fsm.add(flee, lairTime2, lair);
 			fsm.add(flee, notEdible, chase);
 
 			fsm.add(lair, noLairTime, chase);
@@ -153,14 +140,38 @@ public class Ghosts extends GhostController {
 			fsm.ready(block);
 
 			JFrame frame = new JFrame();
-			JPanel main = new JPanel();
-			main.setLayout(new BorderLayout());
-			main.add(graphObserver.getAsPanel(true, null), BorderLayout.CENTER);
-			main.add(cover_observer.getAsPanel(true, null), BorderLayout.WEST);
-			main.add(flee_observer.getAsPanel(true, null), BorderLayout.SOUTH);
-			main.add(chase_observer.getAsPanel(true, null), BorderLayout.EAST);
+			JPanel main = new JPanel(new GridBagLayout());
+			GridBagConstraints gbc = new GridBagConstraints();
+
+			gbc.gridx = 0;
+			gbc.gridy = 0;
+			gbc.gridwidth = 2;
+			gbc.weightx = 1.0;
+			gbc.weighty = 1.0;
+			gbc.fill = GridBagConstraints.BOTH;
+			main.add(graphObserver.getAsPanel(true, null), gbc);
+
+			gbc.gridx = 0;
+			gbc.gridy = 1;
+			gbc.gridwidth = 1;
+			gbc.weightx = 0.5;
+			gbc.weighty = 0.5;
+			main.add(cover_observer.getAsPanel(true, null), gbc);
+
+			gbc.gridx = 1;
+			gbc.gridy = 1;
+			gbc.weightx = 0.5;
+			gbc.weighty = 0.5;
+			main.add(flee_observer.getAsPanel(true, null), gbc);
+
 			frame.getContentPane().add(main);
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.pack();
+
+			Dimension size = frame.getSize();
+			size.width = (int) (size.width / 2.5);
+			size.height = (int) (size.height / 1.25);
+			frame.setSize(size);
 			frame.setVisible(true);
 
 			fsms.put(ghost, fsm);

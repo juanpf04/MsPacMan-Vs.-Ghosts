@@ -6,24 +6,24 @@ import es.ucm.fdi.ici.fsm.Transition;
 
 public class MsPacManNearPowerPillTransition implements Transition {
 
-	public static double thresold = 30;
-	
+	public static double NEAR_DISTANCE = 30;
+	static int num;
+	int id;
+
 	public MsPacManNearPowerPillTransition() {
 		super();
+		this.id = ++num;
 	}
-
 
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.getMinPacmanDistancePPill() < thresold;
+		return input.getMinPacmanDistancePPill() < NEAR_DISTANCE;
 	}
-
 
 	@Override
 	public String toString() {
-		return "MsPacman near PPill";
+		return "MsPacman near PPill " + this.id;
 	}
-	
-}
 
+}

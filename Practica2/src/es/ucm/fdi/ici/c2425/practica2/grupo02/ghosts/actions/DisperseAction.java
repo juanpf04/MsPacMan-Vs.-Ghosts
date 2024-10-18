@@ -1,8 +1,5 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import es.ucm.fdi.ici.Action;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInfo;
 import pacman.game.Constants.DM;
@@ -23,16 +20,16 @@ public class DisperseAction implements Action {
 	@Override
 	public MOVE execute(Game game) {
 		if (game.doesGhostRequireAction(ghost)) {
+			int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+			int pacmanIndex = game.getPacmanCurrentNodeIndex();
+			MOVE lastMove = game.getGhostLastMoveMade(ghost);
 
-			MOVE towardsPacman = game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost),
-					game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DM.PATH);
-			MOVE disperse = game.getApproximateNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(ghost),
-					this.info.getNearestGhost(ghost), game.getGhostLastMoveMade(ghost), DM.PATH);
+			MOVE awayFromPacman = game.getApproximateNextMoveAwayFromTarget(ghostIndex, pacmanIndex, lastMove, DM.PATH);
+			MOVE towardsPacman = game.getApproximateNextMoveTowardsTarget(ghostIndex, pacmanIndex, lastMove, DM.PATH);
+			MOVE disperse = game.getApproximateNextMoveAwayFromTarget(ghostIndex, this.info.getNearestGhost(ghost),
+					lastMove, DM.PATH);
 
-			return towardsPacman == disperse
-					? game.getApproximateNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(ghost),
-							game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(ghost), DM.PATH)
-					: disperse;
+			return towardsPacman == disperse ? awayFromPacman : disperse;
 		}
 
 		return MOVE.NEUTRAL;
