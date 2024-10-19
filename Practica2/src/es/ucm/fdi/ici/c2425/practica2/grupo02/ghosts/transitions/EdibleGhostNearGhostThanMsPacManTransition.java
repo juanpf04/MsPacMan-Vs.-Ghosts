@@ -19,7 +19,10 @@ public class EdibleGhostNearGhostThanMsPacManTransition implements Transition {
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfActivePills() < 10;
+		
+		
+        return true;
+
 	}
 
 	@Override

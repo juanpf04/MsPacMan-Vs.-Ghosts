@@ -69,28 +69,20 @@ public class Ghosts extends GhostController {
 			GraphFSMObserver flee_observer = new GraphFSMObserver(cfsm_flee.toString());
 			cfsm_flee.addObserver(flee_observer);
 
-			SimpleState fleePacMan = new SimpleState(new RunAwayAction(ghost));
-			SimpleState fleePPill = new SimpleState(new GoToPowePillAction(ghost, this.info));
+			SimpleState runAway = new SimpleState(new RunAwayAction(ghost));
+			SimpleState fleeToPPill = new SimpleState("Flee to PowerPill", new GoToPowePillAction(ghost, this.info));
 			SimpleState fleeDisperse = new SimpleState(new DisperseAction(ghost, this.info));
 			SimpleState fleeToGhost = new SimpleState("Flee to ghost", new GoToGhostAction(ghost, true, this.info));
 
-			Transition fleePacmanToDisperse = new PruebaTransition(ghost);
-			Transition fleePacmanToPPill = new PruebaTransition(ghost);
-			Transition fleePacmanToGhost = new PruebaTransition(ghost);
-			Transition fleeDisperseToPacman = new PruebaTransition(ghost);
-			Transition fleeDisperseToPPill = new PruebaTransition(ghost);
-			Transition fleePPillToPacman = new PruebaTransition(ghost);
-			Transition fleePPillToDisperse = new PruebaTransition(ghost);
+			cfsm_flee.add(runAway, new GhostDensityHighTransition(ghost), fleeDisperse);
+			cfsm_flee.add(runAway, new GhostCloserPowerPillThanMsPacManTransition(ghost), fleeToPPill);
+			cfsm_flee.add(runAway, new EdibleGhostNearGhostThanMsPacManTransition(ghost), fleeToGhost);
 
-			cfsm_flee.add(fleePacMan, fleePacmanToDisperse, fleeDisperse);
-			cfsm_flee.add(fleePacMan, fleePacmanToPPill, fleePPill);
-			cfsm_flee.add(fleePacMan, fleePacmanToGhost, fleeToGhost);
-			cfsm_flee.add(fleeDisperse, fleeDisperseToPacman, fleePacMan);
-			cfsm_flee.add(fleeDisperse, fleeDisperseToPPill, fleePPill);
-			cfsm_flee.add(fleePPill, fleePPillToPacman, fleePacMan);
-			cfsm_flee.add(fleePPill, fleePPillToDisperse, fleeDisperse);
+			cfsm_flee.add(fleeToPPill, new GhostDensityHighTransition(ghost), fleeDisperse);
 
-			cfsm_flee.ready(fleePacMan);
+			cfsm_flee.add(fleeDisperse, new GhostDensityNormalTransition(ghost), runAway);
+
+			cfsm_flee.ready(runAway);
 
 			CompoundState flee = new CompoundState("Flee", cfsm_flee);
 

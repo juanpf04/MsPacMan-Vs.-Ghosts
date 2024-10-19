@@ -7,7 +7,7 @@ import pacman.game.Constants.GHOST;
 
 public class GhostDensityNormalTransition implements Transition {
 
-	GHOST ghost;
+	private GHOST ghost;
 
 	public GhostDensityNormalTransition(GHOST ghost) {
 		super();
@@ -16,13 +16,13 @@ public class GhostDensityNormalTransition implements Transition {
 
 	@Override
 	public boolean evaluate(Input in) {
-		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfActivePills() < 10;
+		Transition transition = new GhostDensityHighTransition(this.ghost);
+		return !transition.evaluate(in);
 	}
 
 	@Override
 	public String toString() {
-		return "few pills";
+		return "Density normal";
 	}
 
 }

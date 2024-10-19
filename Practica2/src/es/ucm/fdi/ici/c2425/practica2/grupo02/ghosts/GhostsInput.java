@@ -134,4 +134,14 @@ public class GhostsInput extends Input {
 		return nextNode;
 	}
 
+	public double getDistanceToNearestPPill(GHOST ghost) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getGhostDensity(GHOST ghost) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

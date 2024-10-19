@@ -7,7 +7,7 @@ import pacman.game.Constants.GHOST;
 
 public class GhostCloserPowerPillThanMsPacManTransition implements Transition {
 
-	GHOST ghost;
+	private GHOST ghost;
 
 	public GhostCloserPowerPillThanMsPacManTransition(GHOST ghost) {
 		super();
@@ -17,12 +17,15 @@ public class GhostCloserPowerPillThanMsPacManTransition implements Transition {
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfActivePills() < 10;
+		Transition transition = new GhostEdibleTransition(this.ghost);
+
+		return !transition.evaluate(in)
+				&& input.getDistanceToNearestPPill(this.ghost) < input.getMinPacmanDistancePPill();
 	}
 
 	@Override
 	public String toString() {
-		return "few pills";
+		return "Closer to Power Pill Than MsPacMan";
 	}
 
 }
