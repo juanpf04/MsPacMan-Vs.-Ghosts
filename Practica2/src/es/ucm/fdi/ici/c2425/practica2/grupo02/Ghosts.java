@@ -51,13 +51,21 @@ public class Ghosts extends GhostController {
 			SimpleState coverPPill = new SimpleState("Cover PowerPill", new GoToPowePillAction(ghost, this.info));
 			SimpleState coverLastPills = new SimpleState(new CoverLastPillsAction(ghost));
 
-			Transition coverExitToPPill = new PruebaTransition(ghost);
-			Transition coverExitToPPillLast = new PruebaTransition(ghost);
-			Transition coverExitToEdibleGhost = new PruebaTransition(ghost);
+			cfsm_chase.add(chasePacMan, new NearestGhostEdibleToMsPacManInDangerTransition(ghost), coverEdibleGhost);
+			cfsm_chase.add(chasePacMan, new GhostCloserPowerPillThanMsPacManTransition(ghost), coverPPill);
+			cfsm_chase.add(chasePacMan, new GhostBehindMsPacManTransition(ghost), coverExit);
+			cfsm_chase.add(chasePacMan, new FewPillsTransition(ghost), coverLastPills);
 
-			cfsm_chase.add(coverExit, coverExitToPPill, coverPPill);
-			cfsm_chase.add(coverExit, coverExitToEdibleGhost, coverEdibleGhost);
-			cfsm_chase.add(coverExit, coverExitToPPillLast, coverLastPills);
+			cfsm_chase.add(coverExit, new NearestGhostEdibleToMsPacManInDangerTransition(ghost), coverEdibleGhost);
+			cfsm_chase.add(coverExit, new Transition(ghost), chasePacMan);
+
+			cfsm_chase.add(coverEdibleGhost, new GhostTooCloseMsPacManTransition(ghost), chasePacMan);
+			cfsm_chase.add(coverEdibleGhost, new Transition(ghost), chasePacMan);
+
+			cfsm_chase.add(coverLastPills, new GhostTooCloseMsPacManTransition(ghost), chasePacMan);
+			cfsm_chase.add(coverLastPills, new Transition(ghost), chasePacMan);
+
+			cfsm_chase.add(coverPPill, new PowerPillSafeTransition(ghost), chasePacMan);
 
 			cfsm_chase.ready(coverExit);
 
@@ -71,7 +79,7 @@ public class Ghosts extends GhostController {
 
 			SimpleState runAway = new SimpleState(new RunAwayAction(ghost));
 			SimpleState fleeToPPill = new SimpleState("Flee to PowerPill", new GoToPowePillAction(ghost, this.info));
-			SimpleState fleeDisperse = new SimpleState(new DisperseAction(ghost, this.info));
+			SimpleState fleeDisperse = new SimpleState(new DisperseAction(ghost));
 			SimpleState fleeToGhost = new SimpleState("Flee to ghost", new GoToGhostAction(ghost, true, this.info));
 
 			cfsm_flee.add(runAway, new GhostDensityHighTransition(ghost), fleeDisperse);

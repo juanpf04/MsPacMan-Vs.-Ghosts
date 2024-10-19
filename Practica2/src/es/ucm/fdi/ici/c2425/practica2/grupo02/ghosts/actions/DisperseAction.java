@@ -1,7 +1,10 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import es.ucm.fdi.ici.Action;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInfo;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -10,18 +13,30 @@ import pacman.game.Game;
 public class DisperseAction implements Action {
 
 	private GHOST ghost;
-	private GhostsInfo info;
-	private int quitar;
+	private Random rnd;
 
-	public DisperseAction(GHOST ghost, GhostsInfo info) {
+	public DisperseAction(GHOST ghost) {
 		this.ghost = ghost;
-		this.info = info;
+		this.rnd = new Random();
 	}
 
 	@Override
 	public MOVE execute(Game game) { // TODO
-		if (game.doesGhostRequireAction(ghost)) {
-			
+		if (game.doesGhostRequireAction(this.ghost)) {
+			int nodeIndex = game.getGhostCurrentNodeIndex(this.ghost);
+			MOVE lastMove = game.getGhostLastMoveMade(this.ghost);
+
+			MOVE move = game.getApproximateNextMoveAwayFromTarget(nodeIndex, game.getPacmanCurrentNodeIndex(), lastMove,
+					DM.PATH);
+
+			List<MOVE> possibleMoves = new ArrayList<MOVE>();
+
+			for (MOVE m : game.getPossibleMoves(nodeIndex, lastMove)) {
+				if (m != move)
+					possibleMoves.add(m);
+			}
+
+			return possibleMoves.get(rnd.nextInt(possibleMoves.size()));
 		}
 
 		return MOVE.NEUTRAL;
