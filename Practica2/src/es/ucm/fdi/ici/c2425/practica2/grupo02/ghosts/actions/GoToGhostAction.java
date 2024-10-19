@@ -28,7 +28,7 @@ public class GoToGhostAction implements Action {
 	@Override
 	public MOVE execute(Game game) {
 		Action action = new GoToAction(this.ghost,
-				this.isEdible ? this.info.getNearestGhost() : this.info.getNearestEdibleGhostToPacman());
+				this.isEdible ? this.info.nearestGhost : this.info.nearestEdibleGhostToPacman);
 		return action.execute(game);
 	}
 

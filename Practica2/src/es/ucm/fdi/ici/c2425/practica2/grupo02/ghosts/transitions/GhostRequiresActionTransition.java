@@ -8,6 +8,7 @@ import pacman.game.Constants.GHOST;
 public class GhostRequiresActionTransition implements Transition {
  
 	private GHOST ghost;
+	private int hacer;
 
 	public GhostRequiresActionTransition(GHOST ghost) {
 		super();

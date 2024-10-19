@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class GhostNotEdibleAndMsPacManFarPowerPillTransition implements Transition {
- 
+
 	private GHOST ghost;
 
 	public GhostNotEdibleAndMsPacManFarPowerPillTransition(GHOST ghost) {
@@ -24,7 +24,7 @@ public class GhostNotEdibleAndMsPacManFarPowerPillTransition implements Transiti
 
 	@Override
 	public String toString() {
-		return "Ghost not edible and MsPacman far PPill";
+		return "Not edible and MsPacman far PPill";
 	}
 
 }

@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class EdibleGhostNearGhostThanMsPacManTransition implements Transition {
- 
+
 	private GHOST ghost;
 
 	public EdibleGhostNearGhostThanMsPacManTransition(GHOST ghost) {
@@ -19,9 +19,8 @@ public class EdibleGhostNearGhostThanMsPacManTransition implements Transition {
 		GhostsInput input = (GhostsInput) in;
 		Transition transition = new GhostEdibleTransition(this.ghost);
 
-		return transition.evaluate(in)
-				&& input.getDistanceToNearestGhost(this.ghost) < input.getDistanceMsPacMan(this.ghost);
-
+		return transition.evaluate(in) && input.getGhostDistanceToNearestEdibleGhostToPacMan() < input
+				.getNearestEdibleGhostDistancetoMsPacMan();
 	}
 
 	@Override

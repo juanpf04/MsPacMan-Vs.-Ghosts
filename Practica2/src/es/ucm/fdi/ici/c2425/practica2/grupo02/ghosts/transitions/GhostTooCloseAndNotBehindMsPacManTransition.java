@@ -8,6 +8,7 @@ import pacman.game.Constants.GHOST;
 public class GhostTooCloseAndNotBehindMsPacManTransition implements Transition {
  
 	GHOST ghost;
+	private int hacer;
 
 	public GhostTooCloseAndNotBehindMsPacManTransition(GHOST ghost) {
 		super();

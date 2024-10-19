@@ -7,7 +7,11 @@ import pacman.game.Constants.GHOST;
 
 public class PowerPillSafeTransition implements Transition {
  
-	GHOST ghost;
+	private static final int THRESHOLD = 30;
+	
+	private GHOST ghost;
+	
+	private int hacer;
 
 	public PowerPillSafeTransition(GHOST ghost) {
 		super();
@@ -17,7 +21,7 @@ public class PowerPillSafeTransition implements Transition {
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfActivePills() < 10;
+		return input.getPPillShortestPathDistance(this.ghost) < THRESHOLD;
 	}
 
 	@Override

@@ -51,12 +51,12 @@ public class Ghosts extends GhostController {
 			SimpleState coverPPill = new SimpleState("Cover PowerPill", new GoToPowePillAction(ghost, this.info));
 			SimpleState coverLastPills = new SimpleState(new CoverLastPillsAction(ghost));
 
-			cfsm_chase.add(chasePacMan, new NearestGhostEdibleToMsPacManInDangerTransition(ghost), coverEdibleGhost);
+			cfsm_chase.add(chasePacMan, new NearestEdibleGhostToMsPacManInDangerTransition(ghost), coverEdibleGhost);
 			cfsm_chase.add(chasePacMan, new GhostCloserPowerPillThanMsPacManTransition(ghost), coverPPill);
 			cfsm_chase.add(chasePacMan, new GhostBehindMsPacManTransition(ghost), coverExit);
 			cfsm_chase.add(chasePacMan, new FewPillsTransition(ghost), coverLastPills);
 
-			cfsm_chase.add(coverExit, new NearestGhostEdibleToMsPacManInDangerTransition(ghost), coverEdibleGhost);
+			cfsm_chase.add(coverExit, new NearestEdibleGhostToMsPacManInDangerTransition(ghost), coverEdibleGhost);
 			cfsm_chase.add(coverExit, new GhostTooCloseAndNotBehindMsPacManTransition(ghost), chasePacMan);
 
 			cfsm_chase.add(coverEdibleGhost, new GhostTooCloseMsPacManTransition(ghost), chasePacMan);

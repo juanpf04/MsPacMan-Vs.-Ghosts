@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class GhostDensityHighTransition implements Transition {
- 
+
 	private static final double THRESHOLD = 1.2;
 
 	private GHOST ghost;

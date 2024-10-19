@@ -93,20 +93,8 @@ public class GhostsInput extends Input {
 
 	}
 
-	public boolean isBLINKYedible() {
-		return BLINKYedible;
-	}
-
-	public boolean isINKYedible() {
-		return INKYedible;
-	}
-
-	public boolean isPINKYedible() {
-		return PINKYedible;
-	}
-
-	public boolean isSUEedible() {
-		return SUEedible;
+	public GhostsInfo getInfo() {
+		return this.info;
 	}
 
 	public double getMsPacManMinDistancePPill() {
@@ -245,6 +233,21 @@ public class GhostsInput extends Input {
 	}
 
 	public long getDistanceFromMsPacManToEdibleGhost() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getPPillShortestPathDistance(GHOST ghost) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getGhostDistanceToNearestEdibleGhostToPacMan() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getNearestEdibleGhostDistancetoMsPacMan() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

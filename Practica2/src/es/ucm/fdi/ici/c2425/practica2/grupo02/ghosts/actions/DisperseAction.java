@@ -31,10 +31,9 @@ public class DisperseAction implements Action {
 
 			List<MOVE> possibleMoves = new ArrayList<MOVE>();
 
-			for (MOVE m : game.getPossibleMoves(ghostIndex, lastMove)) {
+			for (MOVE m : game.getPossibleMoves(ghostIndex, lastMove))
 				if (m != move)
 					possibleMoves.add(m);
-			}
 
 			return possibleMoves.get(this.rnd.nextInt(possibleMoves.size()));
 		}

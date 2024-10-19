@@ -18,8 +18,25 @@ public class CoverExitAction implements Action {
 
 	@Override
 	public MOVE execute(Game game) {
-		Action action = new GoToAction(this.ghost, this.info.getNearestExit(this.ghost));
+		Action action = new GoToAction(this.ghost, this.getNearestExit(game));
 		return action.execute(game);
+	}
+
+	private int getNearestExit(Game game) {
+		int ghostIndex = game.getGhostCurrentNodeIndex(this.ghost);
+
+		int exit = 0;
+		int minDistance = Integer.MAX_VALUE;
+
+		for (int e : this.info.exits) {
+			int distance = game.getShortestPathDistance(ghostIndex, e);
+			if (distance < minDistance) {
+				exit = e;
+				minDistance = distance;
+			}
+		}
+
+		return exit;
 	}
 
 	@Override

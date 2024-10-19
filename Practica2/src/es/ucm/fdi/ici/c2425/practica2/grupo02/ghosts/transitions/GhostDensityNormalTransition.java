@@ -1,12 +1,11 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions;
 
 import es.ucm.fdi.ici.Input;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class GhostDensityNormalTransition implements Transition {
- 
+
 	private GHOST ghost;
 
 	public GhostDensityNormalTransition(GHOST ghost) {

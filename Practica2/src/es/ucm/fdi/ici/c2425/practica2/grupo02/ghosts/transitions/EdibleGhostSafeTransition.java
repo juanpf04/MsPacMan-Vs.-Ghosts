@@ -6,9 +6,9 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class EdibleGhostSafeTransition implements Transition {
- 
+
 	private static final long THRESHOLD = 100;
-	
+
 	private GHOST ghost;
 
 	public EdibleGhostSafeTransition(GHOST ghost) {

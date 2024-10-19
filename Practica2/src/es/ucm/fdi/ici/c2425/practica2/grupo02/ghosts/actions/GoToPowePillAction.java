@@ -18,7 +18,7 @@ public class GoToPowePillAction implements Action {
 
 	@Override
 	public MOVE execute(Game game) {
-		Action action = new GoToAction(this.ghost, this.info.getNearestPPill(this.ghost));
+		Action action = new GoToAction(this.ghost, this.info.pacmanClosestPPill);
 		return action.execute(game);
 	}
 
