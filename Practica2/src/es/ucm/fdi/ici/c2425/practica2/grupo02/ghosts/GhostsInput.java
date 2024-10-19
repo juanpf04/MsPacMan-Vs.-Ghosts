@@ -5,6 +5,7 @@ import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
+import pacman.game.internal.Ghost;
 
 public class GhostsInput extends Input {
 
@@ -130,4 +131,54 @@ public class GhostsInput extends Input {
 		return nextNode;
 	}
 
+	public boolean isGhostBehindPacman(GHOST ghost) {
+		int pacman = game.getPacmanCurrentNodeIndex();
+		int pacmanNextJunction = getNextJunctionNode(pacman, game.getPacmanLastMoveMade());
+		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+
+		return game.getDistance(ghostIndex,pacmanNextJunction,DM.PATH) < game.getDistance(ghostIndex,pacman,DM.PATH);
+	}
+
+
+	public GHOST closestGhostToIndex(int index) {
+		double minDistance = Double.MAX_VALUE;
+		GHOST theChosenOne = GHOST.BLINKY;
+
+		for (GHOST ghost : GHOST.values()) {
+			double currDistance = game.getDistance(game.getGhostCurrentNodeIndex(ghost),index,DM.PATH);
+			if (minDistance > currDistance) {
+				minDistance = currDistance;
+				theChosenOne = ghost;
+			}
+		}
+
+		return theChosenOne;
+	}
+
+
+	public int getGeometricCenterOfActivePills() {
+		int[] pills = game.getActivePillsIndices();
+		return geometricCenterOfIndexlist(pills);
+	}
+
+
+	private int geometricCenterOfIndexlist(int[] list) {
+		int bestNode = -1;
+		double minDistanceSum = Double.MAX_VALUE;
+
+		for (int i : list) {
+			double currentDistanceSum = 0;
+			for (int j : list)
+				if (i != j)
+					currentDistanceSum += game.getDistance(i,j,DM.PATH);
+
+			// Check if this node has the smallest total distance
+			if (currentDistanceSum < minDistanceSum) {
+				minDistanceSum = currentDistanceSum;
+				bestNode = i;
+			}
+		}
+
+		return bestNode;
+	}
 }
