@@ -212,23 +212,32 @@ public class GhostsInput extends Input {
 	}
 
 	public boolean isGhostEdible(GHOST ghost) {
-		// TODO Auto-generated method stub
-		return false;
+		return game.isGhostEdible(ghost);
 	}
 
-	public int getDistanceMsPacMan(GHOST ghost) {
-		// TODO Auto-generated method stub
-		return 0;
+	public double getDistanceMsPacMan(GHOST ghost) {
+		return game.getDistance(game.getGhostCurrentNodeIndex(ghost),game.getPacmanCurrentNodeIndex(),DM.PATH);
 	}
 
 	public boolean doesGhostRequiresAction(GHOST ghost) {
-		// TODO Auto-generated method stub
-		return false;
+		return game.doesGhostRequireAction(ghost);
 	}
 
-	public int getDistanceToNearestGhost(GHOST ghost) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getDistanceToNearestGhost(GHOST g) {
+		int index = game.getGhostCurrentNodeIndex(g);
+		double minDistance = Double.MAX_VALUE;
+		int result = -1;
+
+		for (GHOST ghost : GHOST.values()) {
+			int curr = game.getGhostCurrentNodeIndex(ghost);
+			double ghostDistance = game.getDistance(curr, index, DM.PATH);
+			if (minDistance > ghostDistance) {
+				minDistance = ghostDistance;
+				result = curr;
+			}
+		}
+
+		return result;
 	}
 
 }
