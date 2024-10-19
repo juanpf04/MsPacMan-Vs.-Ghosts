@@ -16,7 +16,7 @@ public class SeveralSavePaths implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return input.moreThanOneSavePath();
+        return input.pacmanRequieresAction() ? input.moreThanOneSavePath() : false;
     }
 
     @Override

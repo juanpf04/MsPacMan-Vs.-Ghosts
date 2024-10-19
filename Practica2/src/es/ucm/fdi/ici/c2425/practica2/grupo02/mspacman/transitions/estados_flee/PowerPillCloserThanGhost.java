@@ -8,7 +8,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 public class PowerPillCloserThanGhost implements Transition {
 
     private String state;
-    private static final int RANGE = 30;
+    private static final int RANGE = 80;
 
     public PowerPillCloserThanGhost(String state){
         super();
@@ -18,7 +18,7 @@ public class PowerPillCloserThanGhost implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return input.powerPillCloserThanGhost(RANGE);
+        return input.pacmanRequieresAction() ? input.powerPillCloserThanGhost(RANGE) : false;
     }
 
     @Override

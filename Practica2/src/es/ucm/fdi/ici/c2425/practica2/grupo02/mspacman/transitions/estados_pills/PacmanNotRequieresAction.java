@@ -9,7 +9,7 @@ public class PacmanNotRequieresAction implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return !input.pacmanRequieresAction();
+        return input.pacmanRequieresAction() ? !input.pacmanRequieresAction() : false;
     }
     
 }

@@ -4,12 +4,12 @@ import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.MsPacManInput;
 import es.ucm.fdi.ici.fsm.Transition;
 
-public class SafetyPacmanTransition implements Transition {
+public class EdibleTimeActiveTransition implements Transition{
 
     @Override
     public boolean evaluate(Input in) {
-         MsPacManInput input = (MsPacManInput) in;
-         return input.pacmanRequieresAction() ? !input.getClosestNotEdibleGhost(80) : false;
+       MsPacManInput input = (MsPacManInput) in;
+       return input.edibleTimeYet();
     }
-
+    
 }
