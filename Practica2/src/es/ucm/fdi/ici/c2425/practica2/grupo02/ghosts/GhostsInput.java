@@ -109,7 +109,7 @@ public class GhostsInput extends Input {
 		return SUEedible;
 	}
 
-	public double getMinPacmanDistancePPill() {
+	public double getMsPacManMinDistancePPill() {
 		return minPacmanDistancePPill;
 	}
 
@@ -185,7 +185,7 @@ public class GhostsInput extends Input {
 
 		return bestNode;
 	}
-	public double getDistanceToNearestPPill(GHOST ghost) {
+	public double getDistanceToMsPacManNearestPPill(GHOST ghost) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

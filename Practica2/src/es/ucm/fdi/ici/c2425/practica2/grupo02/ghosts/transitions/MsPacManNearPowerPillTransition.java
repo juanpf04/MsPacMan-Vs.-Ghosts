@@ -18,7 +18,7 @@ public class MsPacManNearPowerPillTransition implements Transition {
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.getMinPacmanDistancePPill() < NEAR_DISTANCE;
+		return input.getMsPacManMinDistancePPill() < NEAR_DISTANCE;
 	}
 
 	@Override

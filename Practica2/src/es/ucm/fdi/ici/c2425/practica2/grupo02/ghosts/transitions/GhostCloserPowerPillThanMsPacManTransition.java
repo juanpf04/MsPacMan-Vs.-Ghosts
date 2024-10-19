@@ -20,7 +20,7 @@ public class GhostCloserPowerPillThanMsPacManTransition implements Transition {
 		Transition transition = new GhostEdibleTransition(this.ghost);
 
 		return !transition.evaluate(in)
-				&& input.getDistanceToNearestPPill(this.ghost) < input.getMinPacmanDistancePPill();
+				&& input.getDistanceToMsPacManNearestPPill(this.ghost) < input.getMsPacManMinDistancePPill();
 	}
 
 	@Override

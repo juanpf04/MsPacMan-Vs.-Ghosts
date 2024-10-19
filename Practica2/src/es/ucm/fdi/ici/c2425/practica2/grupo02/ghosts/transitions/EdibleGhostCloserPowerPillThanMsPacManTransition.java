@@ -20,7 +20,7 @@ public class EdibleGhostCloserPowerPillThanMsPacManTransition implements Transit
 		GhostsInput input = (GhostsInput) in;
 		Transition transition = new GhostEdibleTransition(ghost);
 		return transition.evaluate(in)
-				&& input.getMinPacmanDistancePPill() > input.getMinPacmanDistancePPill(this.ghost);
+				&& input.getMsPacManMinDistancePPill() > 0;
 	}
 
 	@Override
