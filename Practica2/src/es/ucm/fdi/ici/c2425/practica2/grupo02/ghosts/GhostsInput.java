@@ -19,10 +19,15 @@ public class GhostsInput extends Input {
 	public GhostsInput(Game game, GhostsInfo info) {
 		super(game);
 		this.info = info;
+		this.parseInput();
 	}
 
 	@Override
 	public void parseInput() {
+
+		if (this.info == null)
+			return;
+
 		this.BLINKYedible = game.isGhostEdible(GHOST.BLINKY);
 		this.INKYedible = game.isGhostEdible(GHOST.INKY);
 		this.PINKYedible = game.isGhostEdible(GHOST.PINKY);
@@ -44,7 +49,7 @@ public class GhostsInput extends Input {
 
 			// ghost distances to pacman
 			for (GHOST ghost : GHOST.values()) {
-				double ghostDistance = game.getDistance(game.getGhostCurrentNodeIndex(ghost),ppill,DM.PATH);
+				double ghostDistance = game.getDistance(game.getGhostCurrentNodeIndex(ghost), ppill, DM.PATH);
 				if (this.info.getDistanceToNearestPPill(ghost) > ghostDistance) {
 					this.info.setDistanceToNearestPPill(ghost, ghostDistance);
 					this.info.setNearestPPill(ghost, ppill);
@@ -56,8 +61,8 @@ public class GhostsInput extends Input {
 		info.setNearestEdibleGhostToPacman(-1);
 		for (GHOST ghost : GHOST.values()) {
 			int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
-			double ghostDistance = game.getDistance(ghostIndex,pacman,DM.PATH);
-			info.setDistanceGhostToPacman(ghost,ghostDistance);
+			double ghostDistance = game.getDistance(ghostIndex, pacman, DM.PATH);
+			info.setDistanceGhostToPacman(ghost, ghostDistance);
 			if (game.isGhostEdible(ghost)) {
 				if (info.getNearestEdibleGhostToPacman() > ghostDistance) {
 					info.setNearestEdibleGhostToPacman(ghostIndex);
@@ -74,7 +79,7 @@ public class GhostsInput extends Input {
 			for (GHOST ghost : GHOST.values()) {
 				if (!game.isGhostEdible(ghost)) {
 					int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
-					double currDistance = game.getDistance(ghostIndex,nearestEdibleGhost,DM.PATH);
+					double currDistance = game.getDistance(ghostIndex, nearestEdibleGhost, DM.PATH);
 
 					if (currDistance < ghostDistance) {
 						closestGhost = ghostIndex;
@@ -84,7 +89,6 @@ public class GhostsInput extends Input {
 			}
 		}
 		this.info.setNearestGhost(closestGhost);
-
 
 	}
 
@@ -117,14 +121,14 @@ public class GhostsInput extends Input {
 	}
 
 	public int getNextJunctionNode(int node, MOVE move) {
-		int nextNode = this.game.getNeighbour(node,move);
+		int nextNode = this.game.getNeighbour(node, move);
 		int curr = node;
 		MOVE currMove = move;
 
-		while(!game.isJunction(nextNode)) {
+		while (!game.isJunction(nextNode)) {
 			curr = nextNode;
-			currMove = this.game.getPossibleMoves(curr,currMove)[0];
-			nextNode = this.game.getNeighbour(curr,currMove);
+			currMove = this.game.getPossibleMoves(curr, currMove)[0];
+			nextNode = this.game.getNeighbour(curr, currMove);
 		}
 
 		return nextNode;

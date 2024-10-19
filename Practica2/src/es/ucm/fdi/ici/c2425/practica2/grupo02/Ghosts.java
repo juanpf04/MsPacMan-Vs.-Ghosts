@@ -24,14 +24,14 @@ import pacman.game.Game;
 
 public class Ghosts extends GhostController {
 
-	EnumMap<GHOST, FSM> fsms;
-	GhostsInfo info;
+	private EnumMap<GHOST, FSM> fsms;
+	private GhostsInfo info;
 
 	public Ghosts() {
 		setName("Fantasmikos");
 
-		info = new GhostsInfo();
-		fsms = new EnumMap<GHOST, FSM>(GHOST.class);
+		this.info = new GhostsInfo();
+		this.fsms = new EnumMap<GHOST, FSM>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
 			FSM fsm = new FSM(ghost.name());
 
@@ -98,25 +98,16 @@ public class Ghosts extends GhostController {
 
 			SimpleState lair = new SimpleState(new LairAction());
 
-			Transition lairTime = new LairTimeTransition(ghost);
-			Transition lairTime2 = new LairTimeTransition(ghost);
-			Transition noLairTime = new GhostRequiresActionTransition(ghost);
-			Transition edible = new GhostEdibleTransition(ghost);
-			Transition pacmanNearToPPill = new MsPacManNearPowerPillTransition();
-			Transition notEdible = new GhostNotEdibleAndMsPacManFarPowerPillTransition(ghost);
-			Transition nearToPacMan = new GhostNearMsPacManTransition(ghost);
+			fsm.add(chase, new GhostEdibleTransition(ghost), flee);
+			fsm.add(chase, new MsPacManNearPowerPillTransition(), flee);
+			fsm.add(chase, new LairTimeTransition(ghost), lair);
 
-			fsm.add(chase, edible, flee);
-			fsm.add(chase, pacmanNearToPPill, flee);
-			fsm.add(chase, nearToPacMan, chasePacMan);
-			fsm.add(chase, lairTime, lair);
+			fsm.add(flee, new GhostNotEdibleAndMsPacManFarPowerPillTransition(ghost), chase);
+			fsm.add(flee, new LairTimeTransition(ghost), lair);
 
-			fsm.add(flee, lairTime2, lair);
-			fsm.add(flee, notEdible, chasePacMan);
+			fsm.add(lair, new GhostRequiresActionTransition(ghost), chase);
 
-			fsm.add(lair, noLairTime, chasePacMan);
-
-			fsm.ready(chase);
+			fsm.ready(lair);
 
 			// --------------------------------------------
 
@@ -157,7 +148,7 @@ public class Ghosts extends GhostController {
 
 			// --------------------------------------------
 
-			fsms.put(ghost, fsm);
+			this.fsms.put(ghost, fsm);
 		}
 	}
 
@@ -170,10 +161,10 @@ public class Ghosts extends GhostController {
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
 		EnumMap<GHOST, MOVE> result = new EnumMap<GHOST, MOVE>(GHOST.class);
 
-		GhostsInput in = new GhostsInput(game, info);
+		GhostsInput in = new GhostsInput(game, this.info);
 
 		for (GHOST ghost : GHOST.values()) {
-			FSM fsm = fsms.get(ghost);
+			FSM fsm = this.fsms.get(ghost);
 			MOVE move = fsm.run(in);
 			result.put(ghost, move);
 		}
