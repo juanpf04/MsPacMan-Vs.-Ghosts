@@ -15,9 +15,9 @@ public class GoToGhostAction implements Action {
 	/**
 	 * Go to ghost action
 	 * 
-	 * @param ghost    ghost to go to
+	 * @param ghost    ghost who will go to
 	 * @param info     ghosts info
-	 * @param isEdible true if the ghost to go to is edible
+	 * @param isEdible true if the ghost who will go to is edible
 	 */
 	public GoToGhostAction(GHOST ghost, boolean isEdible, GhostsInfo info) {
 		this.ghost = ghost;

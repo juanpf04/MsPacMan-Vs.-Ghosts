@@ -1,5 +1,6 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -85,7 +86,8 @@ public class Ghosts extends GhostController {
 			cfsm_flee.add(runAway, new GhostCloserPowerPillThanMsPacManTransition(ghost), fleeToPPill);
 			cfsm_flee.add(runAway, new EdibleGhostNearGhostThanMsPacManTransition(ghost), fleeToGhost);
 
-			//cfsm_flee.add(fleeToPPill, new GhostDensityHighTransition(ghost), fleeDisperse);
+			// cfsm_flee.add(fleeToPPill, new GhostDensityHighTransition(ghost),
+			// fleeDisperse);
 
 			cfsm_flee.add(fleeDisperse, new GhostDensityNormalTransition(ghost), runAway);
 
@@ -110,39 +112,49 @@ public class Ghosts extends GhostController {
 
 			// --------------------------------------------
 
+//			JFrame frame = new JFrame();
+//			JPanel main = new JPanel(new GridBagLayout());
+//			GridBagConstraints gbc = new GridBagConstraints();
+//
+//			gbc.gridx = 0;
+//			gbc.gridy = 0;
+//			gbc.gridwidth = 2;
+//			gbc.weightx = 1.0;
+//			gbc.weighty = 1.0;
+//			gbc.fill = GridBagConstraints.BOTH;
+//			main.add(graphObserver.getAsPanel(true, null), gbc);
+//
+//			gbc.gridx = 0;
+//			gbc.gridy = 1;
+//			gbc.gridwidth = 1;
+//			gbc.weightx = 0.5;
+//			gbc.weighty = 0.5;
+//			main.add(chase_observer.getAsPanel(true, null), gbc);
+//
+//			gbc.gridx = 1;
+//			gbc.gridy = 1;
+//			gbc.weightx = 0.5;
+//			gbc.weighty = 0.5;
+//			main.add(flee_observer.getAsPanel(true, null), gbc);
+//
+//			frame.getContentPane().add(main);
+//			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//			frame.pack();
+//
+//			Dimension size = frame.getSize();
+//			size.width = (int) (size.width / 2.5);
+//			size.height = (int) (size.height / 1.25);
+//			frame.setSize(size);
+//			frame.setVisible(true);
+
 			JFrame frame = new JFrame();
-			JPanel main = new JPanel(new GridBagLayout());
-			GridBagConstraints gbc = new GridBagConstraints();
-
-			gbc.gridx = 0;
-			gbc.gridy = 0;
-			gbc.gridwidth = 2;
-			gbc.weightx = 1.0;
-			gbc.weighty = 1.0;
-			gbc.fill = GridBagConstraints.BOTH;
-			main.add(graphObserver.getAsPanel(true, null), gbc);
-
-			gbc.gridx = 0;
-			gbc.gridy = 1;
-			gbc.gridwidth = 1;
-			gbc.weightx = 0.5;
-			gbc.weighty = 0.5;
-			main.add(chase_observer.getAsPanel(true, null), gbc);
-
-			gbc.gridx = 1;
-			gbc.gridy = 1;
-			gbc.weightx = 0.5;
-			gbc.weighty = 0.5;
-			main.add(flee_observer.getAsPanel(true, null), gbc);
-
+			JPanel main = new JPanel();
+			main.setLayout(new BorderLayout());
+			main.add(graphObserver.getAsPanel(true, null), BorderLayout.CENTER);
+			main.add(flee_observer.getAsPanel(true, null), BorderLayout.WEST);
+			main.add(chase_observer.getAsPanel(true, null), BorderLayout.EAST);
 			frame.getContentPane().add(main);
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			frame.pack();
-
-			Dimension size = frame.getSize();
-			size.width = (int) (size.width / 2.5);
-			size.height = (int) (size.height / 1.25);
-			frame.setSize(size);
 			frame.setVisible(true);
 
 			// --------------------------------------------

@@ -21,22 +21,22 @@ public class DisperseAction implements Action {
 	}
 
 	@Override
-	public MOVE execute(Game game) { // TODO
+	public MOVE execute(Game game) {
 		if (game.doesGhostRequireAction(this.ghost)) {
-			int nodeIndex = game.getGhostCurrentNodeIndex(this.ghost);
+			int ghostIndex = game.getGhostCurrentNodeIndex(this.ghost);
 			MOVE lastMove = game.getGhostLastMoveMade(this.ghost);
 
-			MOVE move = game.getApproximateNextMoveAwayFromTarget(nodeIndex, game.getPacmanCurrentNodeIndex(), lastMove,
-					DM.PATH);
+			MOVE move = game.getApproximateNextMoveAwayFromTarget(ghostIndex, game.getPacmanCurrentNodeIndex(),
+					lastMove, DM.PATH);
 
 			List<MOVE> possibleMoves = new ArrayList<MOVE>();
 
-			for (MOVE m : game.getPossibleMoves(nodeIndex, lastMove)) {
+			for (MOVE m : game.getPossibleMoves(ghostIndex, lastMove)) {
 				if (m != move)
 					possibleMoves.add(m);
 			}
 
-			return possibleMoves.get(rnd.nextInt(possibleMoves.size()));
+			return possibleMoves.get(this.rnd.nextInt(possibleMoves.size()));
 		}
 
 		return MOVE.NEUTRAL;

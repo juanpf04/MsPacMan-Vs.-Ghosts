@@ -55,6 +55,7 @@ public class GhostsInfo {
 		return this.distanceToNearestPPill.get(ghost);
 	}
 
+	
 	// setters
 
 	public void setNearestGhost(int node) {
