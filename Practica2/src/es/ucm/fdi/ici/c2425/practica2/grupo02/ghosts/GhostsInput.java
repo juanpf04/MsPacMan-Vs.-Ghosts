@@ -226,4 +226,9 @@ public class GhostsInput extends Input {
 		return false;
 	}
 
+	public int getDistanceToNearestGhost(GHOST ghost) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }
