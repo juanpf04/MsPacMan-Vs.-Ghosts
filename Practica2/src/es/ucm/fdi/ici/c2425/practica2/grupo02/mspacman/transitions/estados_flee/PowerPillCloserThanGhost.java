@@ -8,7 +8,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 public class PowerPillCloserThanGhost implements Transition {
 
     private String state;
-    private static final int RANGE = 80;
+    private static final int RANGE = 40;
 
     public PowerPillCloserThanGhost(String state){
         super();

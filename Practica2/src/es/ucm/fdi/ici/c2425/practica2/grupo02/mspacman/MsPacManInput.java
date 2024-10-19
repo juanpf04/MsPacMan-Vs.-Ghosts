@@ -47,7 +47,7 @@ public class MsPacManInput extends Input {
 		}
 		public boolean pacmanEatPowerPill(int powerPills){
 
-			if(this.getGame().getNumberOfActivePowerPills() < powerPills){
+			if(this.getGame().getNumberOfActivePowerPills() < powerPills && edibleGhostClose()){
 				powerPills = this.getGame().getNumberOfActivePowerPills();
 				return true;
 			}
@@ -557,4 +557,6 @@ public class MsPacManInput extends Input {
 	
 			return ghostCount;
 		}
+		
+		
 	}

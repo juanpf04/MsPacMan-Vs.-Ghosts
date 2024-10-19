@@ -9,7 +9,7 @@ public class EdibleGhostClose implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return input.pacmanRequieresAction() ? input.edibleGhostClose() : false;
+        return input.edibleGhostClose() ;
     }
 
 }
