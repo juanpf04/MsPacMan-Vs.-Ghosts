@@ -7,7 +7,9 @@ import pacman.game.Constants.GHOST;
 
 public class GhostTooCloseMsPacManTransition implements Transition {
 
-	GHOST ghost;
+	private static int THRESHOLD = 30;
+	
+	private GHOST ghost;
 
 	public GhostTooCloseMsPacManTransition(GHOST ghost) {
 		super();
@@ -17,7 +19,7 @@ public class GhostTooCloseMsPacManTransition implements Transition {
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfActivePills() < 10;
+		return input.getDistanceMsPacMan(ghost) < THRESHOLD;
 	}
 
 	@Override

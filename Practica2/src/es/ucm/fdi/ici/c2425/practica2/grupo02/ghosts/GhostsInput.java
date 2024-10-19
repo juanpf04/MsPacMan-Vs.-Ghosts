@@ -140,16 +140,16 @@ public class GhostsInput extends Input {
 		int pacmanNextJunction = getNextJunctionNode(pacman, game.getPacmanLastMoveMade());
 		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
 
-		return game.getDistance(ghostIndex,pacmanNextJunction,DM.PATH) < game.getDistance(ghostIndex,pacman,DM.PATH);
+		return game.getDistance(ghostIndex, pacmanNextJunction, DM.PATH) < game.getDistance(ghostIndex, pacman,
+				DM.PATH);
 	}
-
 
 	public GHOST closestGhostToIndex(int index) {
 		double minDistance = Double.MAX_VALUE;
 		GHOST theChosenOne = GHOST.BLINKY;
 
 		for (GHOST ghost : GHOST.values()) {
-			double currDistance = game.getDistance(game.getGhostCurrentNodeIndex(ghost),index,DM.PATH);
+			double currDistance = game.getDistance(game.getGhostCurrentNodeIndex(ghost), index, DM.PATH);
 			if (minDistance > currDistance) {
 				minDistance = currDistance;
 				theChosenOne = ghost;
@@ -159,12 +159,10 @@ public class GhostsInput extends Input {
 		return theChosenOne;
 	}
 
-
 	public int getGeometricCenterOfActivePills() {
 		int[] pills = game.getActivePillsIndices();
 		return geometricCenterOfIndexlist(pills);
 	}
-
 
 	private int geometricCenterOfIndexlist(int[] list) {
 		int bestNode = -1;
@@ -174,7 +172,7 @@ public class GhostsInput extends Input {
 			double currentDistanceSum = 0;
 			for (int j : list)
 				if (i != j)
-					currentDistanceSum += game.getDistance(i,j,DM.PATH);
+					currentDistanceSum += game.getDistance(i, j, DM.PATH);
 
 			// Check if this node has the smallest total distance
 			if (currentDistanceSum < minDistanceSum) {
@@ -185,6 +183,7 @@ public class GhostsInput extends Input {
 
 		return bestNode;
 	}
+
 	public double getDistanceToMsPacManNearestPPill(GHOST ghost) {
 		// TODO Auto-generated method stub
 		return 0;
@@ -193,6 +192,21 @@ public class GhostsInput extends Input {
 	public int getGhostDensity(GHOST ghost) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public boolean isGhostEdible(GHOST ghost) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public int getDistanceMsPacMan(GHOST ghost) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public boolean doesGhostRequiresAction(GHOST ghost) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

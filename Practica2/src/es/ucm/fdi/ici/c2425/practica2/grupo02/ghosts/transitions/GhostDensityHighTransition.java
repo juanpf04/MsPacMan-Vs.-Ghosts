@@ -7,7 +7,10 @@ import pacman.game.Constants.GHOST;
 
 public class GhostDensityHighTransition implements Transition {
 
+	private static final double THRESHOLD = 1.2;
+
 	private GHOST ghost;
+
 	private static int num;
 	private int id;
 
@@ -20,7 +23,7 @@ public class GhostDensityHighTransition implements Transition {
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.getGhostDensity(this.ghost) > 1;
+		return input.getGhostDensity(this.ghost) > THRESHOLD;
 	}
 
 	@Override

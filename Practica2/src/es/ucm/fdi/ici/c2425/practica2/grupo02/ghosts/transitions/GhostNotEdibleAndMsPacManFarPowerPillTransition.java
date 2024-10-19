@@ -7,16 +7,17 @@ import pacman.game.Constants.GHOST;
 
 public class GhostNotEdibleAndMsPacManFarPowerPillTransition implements Transition {
 
-	GHOST ghost;
+	private GHOST ghost;
+
 	public GhostNotEdibleAndMsPacManFarPowerPillTransition(GHOST ghost) {
 		super();
 		this.ghost = ghost;
 	}
-	
+
 	@Override
 	public boolean evaluate(Input in) {
-		GhostsInput input = (GhostsInput)in;
-		GhostEdibleTransition edible = new GhostEdibleTransition(ghost);
+		GhostsInput input = (GhostsInput) in;
+		GhostEdibleTransition edible = new GhostEdibleTransition(this.ghost);
 		MsPacManNearPowerPillTransition near = new MsPacManNearPowerPillTransition();
 		return !edible.evaluate(input) && !near.evaluate(input);
 	}
@@ -26,6 +27,4 @@ public class GhostNotEdibleAndMsPacManFarPowerPillTransition implements Transiti
 		return "Ghost not edible and MsPacman far PPill";
 	}
 
-	
-	
 }

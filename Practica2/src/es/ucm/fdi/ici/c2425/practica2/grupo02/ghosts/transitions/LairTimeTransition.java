@@ -7,9 +7,9 @@ import pacman.game.Constants.GHOST;
 
 public class LairTimeTransition implements Transition {
 
-	GHOST ghost;
-	static int num;
-	int id;
+	private GHOST ghost;
+	private static int num;
+	private int id;
 
 	public LairTimeTransition(GHOST ghost) {
 		super();
@@ -20,7 +20,7 @@ public class LairTimeTransition implements Transition {
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.isGhostInLair(ghost);
+		return input.isGhostInLair(this.ghost);
 	}
 
 	@Override

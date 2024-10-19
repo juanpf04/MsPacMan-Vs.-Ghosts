@@ -17,12 +17,13 @@ public class FewPillsTransition implements Transition {
 	@Override
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfActivePills() < 10 && ghost.equals(input.closestGhostToIndex(input.getGeometricCenterOfActivePills()));
+		return input.getNumberOfActivePills() < 10
+				&& ghost.equals(input.closestGhostToIndex(input.getGeometricCenterOfActivePills()));
 	}
 
 	@Override
 	public String toString() {
-		return "few pills";
+		return "Few pills";
 	}
 
 }
