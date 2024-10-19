@@ -8,6 +8,7 @@ import pacman.game.Game;
 public class CoverLastPillsAction implements Action {
 
 	private GHOST ghost;
+	private int implementation;
 
 	public CoverLastPillsAction(GHOST ghost) {
 		this.ghost = ghost;

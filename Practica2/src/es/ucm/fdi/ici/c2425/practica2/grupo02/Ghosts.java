@@ -47,23 +47,15 @@ public class Ghosts extends GhostController {
 			SimpleState chasePacMan = new SimpleState(new ChaseMsPacManAction(ghost));
 			SimpleState coverExit = new SimpleState(new CoverExitAction(ghost, this.info));
 			SimpleState coverEdibleGhost = new SimpleState("Cover edible ghost",
-					new GoToGhostAction(ghost, this.info, false));
-
+					new GoToGhostAction(ghost, false, this.info));
 			SimpleState coverPPill = new SimpleState("Cover PowerPill", new GoToPowePillAction(ghost, this.info));
-
 			SimpleState coverLastPills = new SimpleState(new CoverLastPillsAction(ghost));
 
-			Transition coverExitToPPill1 = new PruebaTransition(ghost);
-			Transition coverExitToPPill2 = new PruebaTransition(ghost);
-			Transition coverExitToPPill3 = new PruebaTransition(ghost);
-			Transition coverExitToPPill4 = new PruebaTransition(ghost);
+			Transition coverExitToPPill = new PruebaTransition(ghost);
 			Transition coverExitToPPillLast = new PruebaTransition(ghost);
 			Transition coverExitToEdibleGhost = new PruebaTransition(ghost);
 
-			cfsm_chase.add(coverExit, coverExitToPPill1, coverPPill1);
-			cfsm_chase.add(coverExit, coverExitToPPill2, coverPPill2);
-			cfsm_chase.add(coverExit, coverExitToPPill3, coverPPill3);
-			cfsm_chase.add(coverExit, coverExitToPPill4, coverPPill4);
+			cfsm_chase.add(coverExit, coverExitToPPill, coverPPill);
 			cfsm_chase.add(coverExit, coverExitToEdibleGhost, coverEdibleGhost);
 			cfsm_chase.add(coverExit, coverExitToPPillLast, coverLastPills);
 
@@ -80,7 +72,7 @@ public class Ghosts extends GhostController {
 			SimpleState fleePacMan = new SimpleState(new RunAwayAction(ghost));
 			SimpleState fleePPill = new SimpleState(new GoToPowePillAction(ghost, this.info));
 			SimpleState fleeDisperse = new SimpleState(new DisperseAction(ghost, this.info));
-			SimpleState fleeToGhost = new SimpleState(new GoToGhostAction(ghost, this.info));
+			SimpleState fleeToGhost = new SimpleState("Flee to ghost", new GoToGhostAction(ghost, true, this.info));
 
 			Transition fleePacmanToDisperse = new PruebaTransition(ghost);
 			Transition fleePacmanToPPill = new PruebaTransition(ghost);
@@ -104,7 +96,7 @@ public class Ghosts extends GhostController {
 
 			// --------------------------------------------
 
-			SimpleState lair = new SimpleState(new LairAction(ghost));
+			SimpleState lair = new SimpleState(new LairAction());
 
 			Transition lairTime = new LairTimeTransition(ghost);
 			Transition lairTime2 = new LairTimeTransition(ghost);

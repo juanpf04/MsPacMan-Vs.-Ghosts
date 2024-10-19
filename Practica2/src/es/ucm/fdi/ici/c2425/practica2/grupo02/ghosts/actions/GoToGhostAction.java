@@ -12,10 +12,17 @@ public class GoToGhostAction implements Action {
 	private GhostsInfo info;
 	private boolean isEdible;
 
-	public GoToGhostAction(GHOST ghost, GhostsInfo info, boolean isEdible) {
+	/**
+	 * Go to ghost action
+	 * 
+	 * @param ghost    ghost to go to
+	 * @param info     ghosts info
+	 * @param isEdible true if the ghost to go to is edible
+	 */
+	public GoToGhostAction(GHOST ghost, boolean isEdible, GhostsInfo info) {
 		this.ghost = ghost;
-		this.info = info;
 		this.isEdible = isEdible;
+		this.info = info;
 	}
 
 	@Override
