@@ -44,8 +44,11 @@ public class MsPacMan extends PacmanController {
 		Transition dangerFromPills = new PacmanInDangerTransition("from Pills");
 		Transition dangerFromChase = new PacmanInDangerTransition("from Chase");
 		Transition safety = new SafetyPacmanTransition();
+		Transition dieFromChase = new PacManDiedTransition("from Chase");
+		Transition dieFromPills = new PacManDiedTransition("from Pills");
 		Transition noEdibleTime = new WithoutEdibleTimeForChaseTransition();
 		Transition eatPowerPill = new PacmanEatPowerPillTransition();
+		Transition edibleTimeYet = new EdibleTimeActiveTransition();
 
 		// --------------------------------------------
 
@@ -123,8 +126,13 @@ public class MsPacMan extends PacmanController {
 		// --------------------------------------------
 
 		fsm.add(pills, dangerFromPills, flee);
+		fsm.add(pills, edibleTimeYet, chase);
+		
 		fsm.add(chase, dangerFromChase, flee);
 		fsm.add(chase, noEdibleTime, pills);
+		fsm.add(chase, dieFromChase, pills);
+
+		fsm.add(flee, dieFromPills, pills);
 		fsm.add(flee, safety, pills);
 		fsm.add(flee, eatPowerPill, chase);
 

@@ -10,7 +10,8 @@ public class SafetyPathFleeAction implements Action{
     @Override
     public MOVE execute(Game game) {
         MsPacManInput input = new MsPacManInput(game);
-        return input.pacmanRequieresAction() ? input.moveToSafetyPath() : MOVE.NEUTRAL;
+        double media = input.getMediaDistaciaSegura();
+        return input.pacmanRequieresAction() ? input.moveToSafetyPath(media, true) : MOVE.NEUTRAL;
     }
 
     @Override
