@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class GhostTooCloseMsPacManTransition implements Transition {
-
+ 
 	private static int THRESHOLD = 30;
 
 	private GHOST ghost;

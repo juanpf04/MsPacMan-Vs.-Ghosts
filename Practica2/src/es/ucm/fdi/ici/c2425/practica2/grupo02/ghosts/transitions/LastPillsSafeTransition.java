@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class LastPillsSafeTransition implements Transition {
-
+ 
 	GHOST ghost;
 
 	public LastPillsSafeTransition(GHOST ghost) {

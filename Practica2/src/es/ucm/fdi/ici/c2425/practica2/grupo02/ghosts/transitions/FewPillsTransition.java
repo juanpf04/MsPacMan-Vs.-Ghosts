@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class FewPillsTransition implements Transition {
-
+ 
 	private GHOST ghost;
 
 	public FewPillsTransition(GHOST ghost) {

@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class EdibleGhostNearGhostThanMsPacManTransition implements Transition {
-
+ 
 	private GHOST ghost;
 
 	public EdibleGhostNearGhostThanMsPacManTransition(GHOST ghost) {

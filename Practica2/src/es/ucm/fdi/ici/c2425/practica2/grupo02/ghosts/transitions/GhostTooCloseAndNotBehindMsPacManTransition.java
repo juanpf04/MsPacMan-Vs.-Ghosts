@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class GhostTooCloseAndNotBehindMsPacManTransition implements Transition {
-
+ 
 	GHOST ghost;
 
 	public GhostTooCloseAndNotBehindMsPacManTransition(GHOST ghost) {

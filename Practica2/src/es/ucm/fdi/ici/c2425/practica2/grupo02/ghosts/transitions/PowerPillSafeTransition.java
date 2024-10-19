@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class PowerPillSafeTransition implements Transition {
-
+ 
 	GHOST ghost;
 
 	public PowerPillSafeTransition(GHOST ghost) {

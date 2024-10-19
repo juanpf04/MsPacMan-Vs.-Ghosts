@@ -6,7 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class NearestGhostEdibleToMsPacManInDangerTransition implements Transition {
-
+ 
 	GHOST ghost;
 	static int num;
 	int id;
