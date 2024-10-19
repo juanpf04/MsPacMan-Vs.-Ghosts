@@ -185,14 +185,33 @@ public class GhostsInput extends Input {
 
 		return bestNode;
 	}
+
+
 	public double getDistanceToMsPacManNearestPPill(GHOST ghost) {
-		// TODO Auto-generated method stub
-		return 0;
+		return game.getDistance(game.getGhostCurrentNodeIndex(ghost),this.closestPPillToPacman,DM.PATH);
 	}
 
-	public int getGhostDensity(GHOST ghost) {
-		// TODO Auto-generated method stub
-		return 0;
+
+	/**
+	 * Calculates ghost density at a certain point using an exponential density
+	 * function. Range is between 0 (very dispersed) and 1.2+ (very dense)
+	 * 
+	 * @param ghost index will be point of density evaluation
+	 * @return numerical value for ghost density
+	 */
+	public double getGhostDensity(GHOST g) {
+		double density = 0.0;
+		int position = game.getGhostCurrentNodeIndex(g);
+
+		for (GHOST ghost : GHOST.values()) {
+			double distance = game.getEuclideanDistance(game.getGhostCurrentNodeIndex(ghost), position);
+
+			if (distance < 20)
+				density += Math.exp(-0.1 * distance); // Exponentially decaying contribution
+
+		}
+
+		return density;
 	}
 
 }
