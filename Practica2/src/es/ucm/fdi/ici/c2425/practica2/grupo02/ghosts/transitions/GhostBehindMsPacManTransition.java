@@ -22,7 +22,7 @@ public class GhostBehindMsPacManTransition implements Transition {
 
 	@Override
 	public String toString() {
-		return "few pills";
+		return "Behind MsPacMan";
 	}
 
 }

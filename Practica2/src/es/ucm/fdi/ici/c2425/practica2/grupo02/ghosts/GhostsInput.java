@@ -185,9 +185,8 @@ public class GhostsInput extends Input {
 	}
 
 	public double getDistanceToMsPacManNearestPPill(GHOST ghost) {
-		return game.getDistance(game.getGhostCurrentNodeIndex(ghost),this.closestPPillToPacman,DM.PATH);
+		return game.getDistance(game.getGhostCurrentNodeIndex(ghost), this.closestPPillToPacman, DM.PATH);
 	}
-
 
 	/**
 	 * Calculates ghost density at a certain point using an exponential density
@@ -216,7 +215,7 @@ public class GhostsInput extends Input {
 	}
 
 	public double getDistanceMsPacMan(GHOST ghost) {
-		return game.getDistance(game.getGhostCurrentNodeIndex(ghost),game.getPacmanCurrentNodeIndex(),DM.PATH);
+		return game.getDistance(game.getGhostCurrentNodeIndex(ghost), game.getPacmanCurrentNodeIndex(), DM.PATH);
 	}
 
 	public boolean doesGhostRequiresAction(GHOST ghost) {
@@ -238,6 +237,16 @@ public class GhostsInput extends Input {
 		}
 
 		return result;
+	}
+
+	public int getNumberOfEdibleGhosts() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public long getDistanceFromMsPacManToEdibleGhost() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

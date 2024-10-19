@@ -15,7 +15,6 @@ import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.*;
 import es.ucm.fdi.ici.fsm.CompoundState;
 import es.ucm.fdi.ici.fsm.FSM;
 import es.ucm.fdi.ici.fsm.SimpleState;
-import es.ucm.fdi.ici.fsm.Transition;
 import es.ucm.fdi.ici.fsm.observers.GraphFSMObserver;
 import pacman.controllers.GhostController;
 import pacman.game.Constants.GHOST;
@@ -57,13 +56,13 @@ public class Ghosts extends GhostController {
 			cfsm_chase.add(chasePacMan, new FewPillsTransition(ghost), coverLastPills);
 
 			cfsm_chase.add(coverExit, new NearestGhostEdibleToMsPacManInDangerTransition(ghost), coverEdibleGhost);
-			cfsm_chase.add(coverExit, new Transition(ghost), chasePacMan);
+			cfsm_chase.add(coverExit, new GhostTooCloseAndNotBehindMsPacManTransition(ghost), chasePacMan);
 
 			cfsm_chase.add(coverEdibleGhost, new GhostTooCloseMsPacManTransition(ghost), chasePacMan);
-			cfsm_chase.add(coverEdibleGhost, new Transition(ghost), chasePacMan);
+			cfsm_chase.add(coverEdibleGhost, new EdibleGhostSafeTransition(ghost), chasePacMan);
 
 			cfsm_chase.add(coverLastPills, new GhostTooCloseMsPacManTransition(ghost), chasePacMan);
-			cfsm_chase.add(coverLastPills, new Transition(ghost), chasePacMan);
+			cfsm_chase.add(coverLastPills, new LastPillsSafeTransition(ghost), chasePacMan);
 
 			cfsm_chase.add(coverPPill, new PowerPillSafeTransition(ghost), chasePacMan);
 
@@ -86,7 +85,7 @@ public class Ghosts extends GhostController {
 			cfsm_flee.add(runAway, new GhostCloserPowerPillThanMsPacManTransition(ghost), fleeToPPill);
 			cfsm_flee.add(runAway, new EdibleGhostNearGhostThanMsPacManTransition(ghost), fleeToGhost);
 
-			cfsm_flee.add(fleeToPPill, new GhostDensityHighTransition(ghost), fleeDisperse);
+			//cfsm_flee.add(fleeToPPill, new GhostDensityHighTransition(ghost), fleeDisperse);
 
 			cfsm_flee.add(fleeDisperse, new GhostDensityNormalTransition(ghost), runAway);
 

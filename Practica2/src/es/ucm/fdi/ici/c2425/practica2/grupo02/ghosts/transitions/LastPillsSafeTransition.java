@@ -5,22 +5,24 @@ import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
-public class PacmanTooCloseFromEdibleGhostTransition implements Transition {
-    private GHOST ghost;
+public class LastPillsSafeTransition implements Transition {
 
-	public PacmanTooCloseFromEdibleGhostTransition(GHOST ghost) {
+	GHOST ghost;
+
+	public LastPillsSafeTransition(GHOST ghost) {
 		super();
 		this.ghost = ghost;
 	}
 
 	@Override
 	public boolean evaluate(Input in) {
-        GhostsInput input = (GhostsInput) in;
-		return false;
+		GhostsInput input = (GhostsInput) in;
+		return input.getNumberOfActivePills() < 10;
 	}
 
 	@Override
 	public String toString() {
-		return "Pacman too close, was protecting edible ghost before";
+		return "Last pills safe";
 	}
+
 }

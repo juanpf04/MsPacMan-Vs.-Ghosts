@@ -8,10 +8,13 @@ import pacman.game.Constants.GHOST;
 public class NearestGhostEdibleToMsPacManInDangerTransition implements Transition {
 
 	GHOST ghost;
+	static int num;
+	int id;
 
 	public NearestGhostEdibleToMsPacManInDangerTransition(GHOST ghost) {
 		super();
 		this.ghost = ghost;
+		this.id = ++num;
 	}
 
 	@Override
@@ -22,7 +25,7 @@ public class NearestGhostEdibleToMsPacManInDangerTransition implements Transitio
 
 	@Override
 	public String toString() {
-		return "few pills";
+		return "Edible ghost in danger" + this.id;
 	}
 
 }

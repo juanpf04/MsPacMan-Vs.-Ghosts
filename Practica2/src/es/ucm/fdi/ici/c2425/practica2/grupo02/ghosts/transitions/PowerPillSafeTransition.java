@@ -22,7 +22,7 @@ public class PowerPillSafeTransition implements Transition {
 
 	@Override
 	public String toString() {
-		return "few pills";
+		return "Power pill safe";
 	}
 
 }

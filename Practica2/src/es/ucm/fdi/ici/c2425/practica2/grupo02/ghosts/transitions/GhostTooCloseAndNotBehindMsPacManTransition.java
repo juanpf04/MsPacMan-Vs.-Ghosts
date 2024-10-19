@@ -5,11 +5,11 @@ import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
-public class PowerPillNearMsPacManTransition implements Transition {
+public class GhostTooCloseAndNotBehindMsPacManTransition implements Transition {
 
 	GHOST ghost;
 
-	public PowerPillNearMsPacManTransition(GHOST ghost) {
+	public GhostTooCloseAndNotBehindMsPacManTransition(GHOST ghost) {
 		super();
 		this.ghost = ghost;
 	}
@@ -22,7 +22,7 @@ public class PowerPillNearMsPacManTransition implements Transition {
 
 	@Override
 	public String toString() {
-		return "few pills";
+		return "Close and not behind MsPacMan";
 	}
 
 }

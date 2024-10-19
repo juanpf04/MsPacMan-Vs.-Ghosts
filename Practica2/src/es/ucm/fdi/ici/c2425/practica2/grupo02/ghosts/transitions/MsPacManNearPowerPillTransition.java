@@ -6,14 +6,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 
 public class MsPacManNearPowerPillTransition implements Transition {
 
-	public static double THRESHOLD = 30;
-	private static int num;
-	private int id;
-
-	public MsPacManNearPowerPillTransition() {
-		super();
-		this.id = ++num;
-	}
+	public static double THRESHOLD = 50;
 
 	@Override
 	public boolean evaluate(Input in) {
@@ -23,7 +16,7 @@ public class MsPacManNearPowerPillTransition implements Transition {
 
 	@Override
 	public String toString() {
-		return "MsPacman near PPill " + this.id;
+		return "MsPacman near PPill";
 	}
 
 }

@@ -7,7 +7,7 @@ import pacman.game.Constants.GHOST;
 
 public class FewPillsTransition implements Transition {
 
-	GHOST ghost;
+	private GHOST ghost;
 
 	public FewPillsTransition(GHOST ghost) {
 		super();
@@ -18,7 +18,7 @@ public class FewPillsTransition implements Transition {
 	public boolean evaluate(Input in) {
 		GhostsInput input = (GhostsInput) in;
 		return input.getNumberOfActivePills() < 10
-				&& ghost.equals(input.closestGhostToIndex(input.getGeometricCenterOfActivePills()));
+				&& this.ghost.equals(input.closestGhostToIndex(input.getGeometricCenterOfActivePills()));
 	}
 
 	@Override
