@@ -5,25 +5,40 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SafePaths {
-    private Map<MOVE, Integer> safePaths;
+    private static Map<MOVE, Integer> safePaths;
+    private static Map<MOVE, Integer> pillsForPath;
 
     public SafePaths() {
-        this.safePaths = new HashMap<>();
+        SafePaths.safePaths = new HashMap<>();
+        SafePaths.pillsForPath = new HashMap<>();
     }
 
-    public void addSafePath(MOVE move, int nPills) {
-        this.safePaths.put(move,nPills);
+    public static void addSafePath(MOVE move, int score) {
+        safePaths.put(move, score);
     }
 
-    public Map<MOVE, Integer> getSafePaths() {
-        return this.safePaths;
+    public static void addPillsForPath(MOVE move, int pills) {
+        pillsForPath.put(move, pills);
     }
 
-    public boolean isEmpty() {
-        return this.safePaths.isEmpty();
+    public static Map<MOVE, Integer> getSafePaths() {
+        return safePaths;
+    }
+
+    public static Map<MOVE, Integer> getPillsForPath() {
+        return pillsForPath;
+    }
+
+    public static boolean isEmpty() {
+        return safePaths.isEmpty();
+    }
+
+
+    public static void clear() {
+        safePaths.clear();
     }
 
     public int size() {
-        return this.safePaths.size();
+       return safePaths.size();
     }
 }

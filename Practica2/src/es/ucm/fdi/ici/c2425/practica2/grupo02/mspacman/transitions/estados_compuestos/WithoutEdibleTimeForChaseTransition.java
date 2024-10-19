@@ -11,6 +11,6 @@ public class WithoutEdibleTimeForChaseTransition implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return input.pacmanRequieresAction() ? input.withoutEdibleTime() : false;
+        return input.withoutEdibleTime() ;
     }
 }

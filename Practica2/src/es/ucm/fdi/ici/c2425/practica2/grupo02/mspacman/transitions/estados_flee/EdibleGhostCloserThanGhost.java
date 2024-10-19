@@ -9,7 +9,7 @@ public class EdibleGhostCloserThanGhost implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return input.pacmanRequieresAction() ? input.edibleGhostNearestThanGhost(80) : false;
+        return input.edibleGhostNearestThanGhost(80);
     }
 
 }

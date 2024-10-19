@@ -18,7 +18,7 @@ public class PowerPillCloserThanGhost implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return input.pacmanRequieresAction() ? input.powerPillCloserThanGhost(RANGE) : false;
+        return input.powerPillCloserThanGhost(RANGE);
     }
 
     @Override

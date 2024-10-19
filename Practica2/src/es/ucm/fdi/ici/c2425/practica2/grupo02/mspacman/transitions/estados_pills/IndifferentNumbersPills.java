@@ -9,7 +9,7 @@ public class IndifferentNumbersPills implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput  input = (MsPacManInput) in;
-        return input.pacmanRequieresAction() ? input.sameNumberOfPills() : false;
+        return  input.sameNumberOfPills();
     }
     
 }

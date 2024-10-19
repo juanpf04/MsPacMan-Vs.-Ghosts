@@ -15,7 +15,7 @@ public class MoreGhostsChaseAction implements Action{
         //importar que sea seguro o no ya que damos por hecho que lo es hasta que detectamos un fantasma cerca
         //y pasamos a flee
         
-        return input.pacmanRequieresAction() ? input.pathWithMoreEdibleGhosts() : MOVE.NEUTRAL;
+        return  input.pathWithMoreEdibleGhosts();
     }
 
     

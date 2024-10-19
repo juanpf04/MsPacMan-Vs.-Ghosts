@@ -9,7 +9,7 @@ public class EvaluatePills implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput  input = (MsPacManInput) in;
-        return input.pacmanRequieresAction() ? input.sameNumberOfEdibleGhostInEachPath() : false;
+        return input.sameNumberOfEdibleGhostInEachPath();
     }
     
 }

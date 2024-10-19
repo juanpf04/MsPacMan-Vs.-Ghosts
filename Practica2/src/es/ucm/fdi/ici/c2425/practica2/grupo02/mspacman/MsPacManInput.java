@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
+import java.util.Set;
+
 import java.util.AbstractMap.SimpleEntry;
 
 import es.ucm.fdi.ici.Input;
@@ -17,7 +19,16 @@ import pacman.game.Game;
 public class MsPacManInput extends Input {
 
 	private static final int SAFE_DISTANCE = 20;
-    private static final int SEARCH_DEPTH = 13; // Profundidad de búsqueda para evaluar caminos
+    private static final int SEARCH_DEPTH = 10; // Profundidad de búsqueda para evaluar caminos
+
+    private static final int WEIGHT_SECURITY = 3;
+    private static final int WEIGHT_LENGTH = 1;
+    private static final int WEIGHT_PILLS = 2;
+    private static final int WEIGHT_EDIBLE_GHOSTS = 1;
+    private static final int WEIGHT_POWER_PILLS_FLEE = 5;
+    private static final int WEIGHT_POWER_PILLS_PILLS = 1;
+    private static final int WEIGHT_EDIBLE_GHOST_PROXIMITY = 5;
+	private static final int WEIGHT_NON_EDIBLE_GHOST_PROXIMITY = -5;
 
 	private MsPacManInfo info;
 	private SafePaths safePaths;
@@ -25,7 +36,6 @@ public class MsPacManInput extends Input {
 	public MsPacManInput(Game game) {
 		super(game);
 		info = new MsPacManInfo(game);
-		safePaths = new SafePaths();
 	}
 
 	@Override
@@ -60,48 +70,30 @@ public class MsPacManInput extends Input {
 		
 		//ESTADO PILLS--------------------------------------------------------------------------------------------------------------
 		public boolean sameNumberOfPills() {
-			int currentNode = this.getGame().getPacmanCurrentNodeIndex();
-			MOVE currentMove = (MOVE) this.getGame().getPacmanLastMoveMade();
+			boolean sol = false;
+			int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
+			MOVE[] possibleMoves = this.getGame().getPossibleMoves(pacmanNode, info.getPacmanLastMoveMade());
 
-			Map<MOVE, Integer> numberPills = new HashMap<MOVE, Integer>();
-
-			MOVE[] moves = (MOVE[]) this.getGame().getPossibleMoves(currentNode, currentMove);
-
-			for(MOVE move: moves){
-				currentMove = move;
-				int nPills = 0;
-				int endNode = this.getGame().getNeighbour(currentNode, currentMove);
-
-				while(endNode != -1 &&!this.getGame().isJunction(endNode)){
-					
-					if(this.getGame().isPillStillAvailable(endNode)) nPills++;
-
-					currentNode = endNode;
-					currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
-					endNode = this.game.getNeighbour(currentNode, currentMove);
-
-				}
-				numberPills.put(move, nPills);
-				nPills = 0;
-			}
-
-			
-			if(numberPills.isEmpty())
-				return false;
-
-			// Obtener el primer valor
-			Iterator<Integer> iterator = numberPills.values().iterator();
-			int firstValue = iterator.next();
-
-			// Comparar todos los valores con el primer valor
-			while (iterator.hasNext()) {
-				if (iterator.next() != firstValue) {//Si en algun momento, algun valor es diferente, hay mas g en ese camino
-					return false;
+			int nPills = -1;
+			for(MOVE move: possibleMoves){
+				
+				if(SafePaths.getSafePaths().containsKey(move)){
+					if(nPills != -1 && SafePaths.getPillsForPath().get(move) == nPills){
+						sol = true;
+					} 
+					else if(nPills == -1){
+						nPills = SafePaths.getPillsForPath().get(move);
+					}
+					else if(SafePaths.getPillsForPath().isEmpty()){
+						sol = false;
+					}
+					else{
+						sol = false;
+					}
 				}
 			}
 
-			return true;
-
+			return sol;
 		}
 		public boolean moreThanOneSavePath() {
 			return this.safePaths.size() > 1;
@@ -178,7 +170,7 @@ public class MsPacManInput extends Input {
 	
 		//ESTADO PILLS----------------------------------------------------------------------------------------------------------
 		public MOVE chooseAny() {
-			return !safePaths.isEmpty() ? safePaths.getSafePaths().keySet().iterator().next():MOVE.NEUTRAL;
+			return !SafePaths.isEmpty() ? SafePaths.getSafePaths().keySet().iterator().next():MOVE.NEUTRAL;
 		}
 		
 		//ESTADO CHASE / FLEE---------------------------------------------------------------------------------------------------
@@ -186,20 +178,25 @@ public class MsPacManInput extends Input {
 		//Usado en chase / flee
 		public MOVE pathWithMoreEdibleGhosts() {
 			int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
-			Map<MOVE, Integer> edibleGhostsCounts = new HashMap<>();
+			SafePaths.clear();
 
-			for (MOVE move : this.safePaths.getSafePaths().keySet()) {
-				int edibleGhostCount = evaluatePathEdibleGhosts(pacmanNode, move, SEARCH_DEPTH);
-				edibleGhostsCounts.put(move, edibleGhostCount);
+			MOVE bestMove = MOVE.NEUTRAL;
+
+			MOVE[] possibleMoves = this.getGame().getPossibleMoves(pacmanNode, info.getPacmanLastMoveMade());
+			for (MOVE move : possibleMoves) {
+				int ghostScore = evaluatePathEdibleGhosts(pacmanNode, move, SEARCH_DEPTH);
+				
+				if (ghostScore > 0) { // Considera un camino si tiene una puntuación de fantasmas comestibles positiva
+					SafePaths.addSafePath(move, ghostScore);
+				}
 			}
 
-			// Seleccionar el camino con el mayor número de píldoras
-			MOVE bestMove = MOVE.NEUTRAL;
-			int maxPillCount = Integer.MIN_VALUE;
+			int maxScore = Integer.MIN_VALUE;
 
-			for (Map.Entry<MOVE, Integer> entry : edibleGhostsCounts.entrySet()) {
-				if (entry.getValue() > maxPillCount) {
-					maxPillCount = entry.getValue();
+			for (Map.Entry<MOVE, Integer> entry : SafePaths.getSafePaths().entrySet()) {
+				int score = entry.getValue();
+				if (score > maxScore) {
+					maxScore = score;
 					bestMove = entry.getKey();
 				}
 			}
@@ -225,20 +222,25 @@ public class MsPacManInput extends Input {
 		}
 		public MOVE moveToSafetyGhost() {
 			int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
-			Map<MOVE, Integer> safetyGhostsCounts = new HashMap<>();
+			SafePaths.clear();
 
-			for (MOVE move : safePaths.getSafePaths().keySet()) {
-				int safetyGhostCount = evaluatePathWithSafetyGhosts(pacmanNode, move, SEARCH_DEPTH);
-				safetyGhostsCounts.put(move, safetyGhostCount);
+			MOVE bestMove = MOVE.NEUTRAL;
+
+			MOVE[] possibleMoves = this.getGame().getPossibleMoves(pacmanNode, info.getPacmanLastMoveMade());
+			for (MOVE move : possibleMoves) {
+				int ghostScore = evaluatePathSafetyGhost(pacmanNode, move, SEARCH_DEPTH);
+				
+				if (ghostScore > 0) { // Considera un camino si tiene una puntuación de seguridad positiva
+					SafePaths.addSafePath(move, ghostScore);
+				}
 			}
 
-			// Seleccionar el camino con el mayor número de píldoras
-			MOVE bestMove = MOVE.NEUTRAL;
-			int maxPillCount = Integer.MIN_VALUE;
+			int maxScore = Integer.MIN_VALUE;
 
-			for (Map.Entry<MOVE, Integer> entry : safetyGhostsCounts.entrySet()) {
-				if (entry.getValue() > maxPillCount) {
-					maxPillCount = entry.getValue();
+			for (Map.Entry<MOVE, Integer> entry : SafePaths.getSafePaths().entrySet()) {
+				int score = entry.getValue();
+				if (score > maxScore) {
+					maxScore = score;
 					bestMove = entry.getKey();
 				}
 			}
@@ -248,22 +250,31 @@ public class MsPacManInput extends Input {
 		
 		//ESTADO FLEE------------------------------------------------------------------------------------------------------------
 		//Usado en flee y pills
-		public MOVE pathWithMorePills() {
+		public MOVE pathWithMorePills(boolean state) {
 			int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
-			Map<MOVE, Integer> pathPillCounts = new HashMap<>();
+			MOVE bestMove = MOVE.NEUTRAL;
 
-			for (MOVE move : safePaths.getSafePaths().keySet()) {
-				int pillCount = evaluatePathPills(pacmanNode, move, SEARCH_DEPTH);
-				pathPillCounts.put(move, pillCount);
+			Set<MOVE> safeMovesSet = SafePaths.getSafePaths().keySet();
+			SafePaths.clear();
+
+			MOVE[] possibleMoves = this.getGame().getPossibleMoves(pacmanNode, info.getPacmanLastMoveMade());
+			for (MOVE move : possibleMoves) {
+				
+				if(safeMovesSet.contains(move)){
+					int pillScore = evaluatePathPills(pacmanNode, move, SEARCH_DEPTH, state);
+					
+					if (pillScore > 0) { // Considera un camino si tiene una puntuación de píldoras positiva
+						SafePaths.addSafePath(move, pillScore);
+					}
+				}
 			}
 
-			// Seleccionar el camino con el mayor número de píldoras
-			MOVE bestMove = MOVE.NEUTRAL;
-			int maxPillCount = Integer.MIN_VALUE;
+			int maxScore = Integer.MIN_VALUE;
 
-			for (Map.Entry<MOVE, Integer> entry : pathPillCounts.entrySet()) {
-				if (entry.getValue() > maxPillCount) {
-					maxPillCount = entry.getValue();
+			for (Map.Entry<MOVE, Integer> entry : SafePaths.getSafePaths().entrySet()) {
+				int score = entry.getValue();
+				if (score > maxScore) {
+					maxScore = score;
 					bestMove = entry.getKey();
 				}
 			}
@@ -289,22 +300,31 @@ public class MsPacManInput extends Input {
 		}
 		
 		//Usado en flee y pills
-		public MOVE moveToSafetyPath(double range, boolean state) {
+		public MOVE moveToSafetyPath(boolean state) {
 			int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
-			this.safePaths = new SafePaths();
+			SafePaths.clear();
+
 			MOVE bestMove = MOVE.NEUTRAL;
-			int bestSafetyScore = Integer.MIN_VALUE;
 
 			MOVE[] possiblesMoves = this.getGame().getPossibleMoves(pacmanNode, info.getPacmanLastMoveMade());
 			for (MOVE move : possiblesMoves) {
 				int safetyScore = evaluatePathSafety(pacmanNode, move, SEARCH_DEPTH, state);
 				
-				if (safetyScore > bestSafetyScore) { // Estudia que camino tiene mejor puntuacion
-					bestMove = move;
-					bestSafetyScore = safetyScore;
-					this.safePaths.addSafePath(bestMove, bestSafetyScore);
+				if (safetyScore > 0) { // Considera un camino seguro si tiene una puntuación de seguridad positiva
+                	SafePaths.addSafePath(move, safetyScore);
 				}
-			}
+            }
+
+			
+			 int maxScore = Integer.MIN_VALUE;
+	 
+			 for (Map.Entry<MOVE, Integer> entry : SafePaths.getSafePaths().entrySet()) {
+				 int score = entry.getValue();
+				 if (score > maxScore) {
+					 maxScore = score;
+					 bestMove = entry.getKey();
+				 }
+			 }
 
 			return bestMove;
 		}
@@ -396,167 +416,158 @@ public class MsPacManInput extends Input {
 	
 		//BUSQUEDA EN PROFUNDIDAD IMPLEMENTADA CON PILAS PARA EL CAMINO MAS SEGURO
 		private int evaluatePathSafety(int startNode, MOVE move, int depth, boolean state) {
-			//Pila que lleva el nodo actual y la profundidad de la busqueda
-			Stack<SimpleEntry<Integer, Integer>> stack = new Stack<>();
-
-			stack.push(new SimpleEntry<>(startNode, 0));
+			 int currentNode = startNode;
 			int safetyScore = 0;
+			int pathLength = 0;
+			int edibleGhostCount = 0;
+			int nPills = 0;
 
-			//Estudiamos el camino hasta la profundidad dada
-			while (!stack.isEmpty()) {
-				SimpleEntry<Integer, Integer> current = stack.pop();
-				int currentNode = current.getKey();
-				int currentDepth = current.getValue();
-
-				if (currentDepth > depth) {
-					continue;
+			for (int i = 0; i < depth; i++) {
+				currentNode = this.getGame().getNeighbour(currentNode, move);
+				if (currentNode == -1) {
+					break; // No hay más nodos en esta dirección
 				}
 
 				// Evaluar la seguridad del nodo actual
-				safetyScore += evaluateNodeSafety(currentNode, currentDepth);
-				if(state && this.getGame().isPowerPillStillAvailable(currentNode)){
-					safetyScore += this.getGame().getShortestPathDistance(startNode, currentNode) * 100000;
+				safetyScore += evaluateNodeSafety(currentNode);
+
+				// Contar la longitud del camino
+				pathLength++;
+
+				if(this.getGame().isPillStillAvailable(currentNode)){
+					nPills++;
 				}
-				else if(this.getGame().isPowerPillStillAvailable(currentNode)){
-					safetyScore -= this.getGame().getShortestPathDistance(startNode, currentNode) * 50;
-				}
-				// Seguimos con la busqueda 
-				for (MOVE nextMove : this.getGame().getPossibleMoves(currentNode)) {
-					int nextNode = this.getGame().getNeighbour(currentNode, nextMove);
-					if (nextNode != -1) {
-						stack.push(new SimpleEntry<>(nextNode, currentDepth + 1));
+				// Contar los fantasmas comestibles cercanos
+				for (GHOST ghost : GHOST.values()) {
+					if (this.getGame().getGhostEdibleTime(ghost) > 0) {
+						int ghostNode = this.getGame().getGhostCurrentNodeIndex(ghost);
+						int distance = this.getGame().getShortestPathDistance(currentNode, ghostNode);
+						if (distance < SAFE_DISTANCE) {
+							edibleGhostCount++;
+						}
 					}
 				}
 			}
 
-			return safetyScore;
+			SafePaths.addPillsForPath(move, nPills);
+			// Calcular la puntuación total ponderada
+			int totalScore = (WEIGHT_SECURITY * safetyScore) + (WEIGHT_LENGTH * pathLength) + (WEIGHT_EDIBLE_GHOSTS * edibleGhostCount);
+
+			return totalScore;
 		}
 	
-		private int evaluateNodeSafety(int node, int depth) {
+		private int evaluateNodeSafety(int node) {
 			int safetyScore = 0;
 
 			for (GHOST ghost : GHOST.values()) {
-
-				if (this.getGame().getGhostEdibleTime(ghost) == 0 && this.getGame().getGhostLairTime(ghost) == 0) { // Fantasma no comestible
+				if (this.getGame().getGhostEdibleTime(ghost) == 0) { // Fantasma no comestible
 					int ghostNode = this.getGame().getGhostCurrentNodeIndex(ghost);
 					int distance = this.getGame().getShortestPathDistance(node, ghostNode);
 					
 					if (distance < SAFE_DISTANCE) {
-						safetyScore -= distance; // Penalizar nodos cercanos a fantasmas
+						safetyScore -= (SAFE_DISTANCE - distance); // Penalizar nodos cercanos a fantasmas
 					}
-					
 				}
 			}
 
-			safetyScore += depth; //Valorar la longtud del camino, asi se devolvera el mas seguro y el mas largo
         	return safetyScore;
 		}
 
 		//BUSQUEDA EN PROFUNDIDAD IMPLEMENTADA PARA PILLS
-		private int evaluatePathPills(int startNode, MOVE move, int depth) {
-			Stack<SimpleEntry<Integer, Integer>> stack = new Stack<>();
-			stack.push(new SimpleEntry<>(startNode, 0));
+		private int evaluatePathPills(int startNode, MOVE move, int depth, boolean state) {
+			int currentNode = startNode;
 			int pillCount = 0;
-	
-			while (!stack.isEmpty()) {
-				SimpleEntry<Integer, Integer> current = stack.pop();
-				int currentNode = current.getKey();
-				int currentDepth = current.getValue();
-	
-				if (currentDepth > depth) {
-					continue;
+			int powerPillCount = 0;
+
+			for (int i = 0; i < depth; i++) {
+				currentNode = this.getGame().getNeighbour(currentNode, move);
+				if (currentNode == -1) {
+					break; // No hay más nodos en esta dirección
 				}
-	
+
 				// Contar las píldoras en el nodo actual
 				if (this.getGame().getPillIndex(currentNode) != -1 && this.getGame().isPillStillAvailable(this.getGame().getPillIndex(currentNode))) {
 					pillCount++;
 				}
-				else if(this.getGame().getPillIndex(currentNode) != -1 && this.getGame().isPowerPillStillAvailable(this.getGame().getPillIndex(currentNode))){
-					pillCount -= 2;
-				}
-	
-				// Explorar los vecinos
-				for (MOVE nextMove : this.getGame().getPossibleMoves(currentNode)) {
-					int nextNode = this.getGame().getNeighbour(currentNode, nextMove);
-					if (nextNode != -1) {
-						stack.push(new SimpleEntry<>(nextNode, currentDepth + 1));
-					}
+
+				// Contar las power pills en el nodo actual
+				if (this.getGame().getPowerPillIndex(currentNode) != -1 && this.getGame().isPowerPillStillAvailable(this.getGame().getPowerPillIndex(currentNode))) {
+					powerPillCount++;
 				}
 			}
-	
-			return pillCount;
+
+			// Calcular la puntuación total ponderada teniendo en cuenta si estamos en flee o en pills (state)
+			int totalScore = (WEIGHT_PILLS * pillCount) + (state ? WEIGHT_POWER_PILLS_FLEE : WEIGHT_POWER_PILLS_PILLS) * powerPillCount;
+
+			return totalScore;
 		}
 	
 		//BUSQUEDA EN PROFUNDIDAD PARA LOS FANTASMAS COMESTIBLES
 		private int evaluatePathEdibleGhosts(int startNode, MOVE move, int depth){
-			Stack<SimpleEntry<Integer, Integer>> stack = new Stack<>();
-			stack.push(new SimpleEntry<>(startNode, 0));
-			int ghostCount = 0;
-	
-			while (!stack.isEmpty()) {
-				SimpleEntry<Integer, Integer> current = stack.pop();
-				int currentNode = current.getKey();
-				int currentDepth = current.getValue();
-	
-				if (currentDepth > depth) {
-					continue;
+			int currentNode = startNode;
+			int edibleGhostCount = 0;
+			int proximityScore = 0;
+
+			for (int i = 0; i < depth; i++) {
+				currentNode = this.getGame().getNeighbour(currentNode, move);
+				if (currentNode == -1) {
+					break; // No hay más nodos en esta dirección
 				}
-	
-				// Contar los fantasmas comestibles en el nodo actual
+
+				// Contar los fantasmas comestibles cercanos
 				for (GHOST ghost : GHOST.values()) {
-					if (this.getGame().isGhostEdible(ghost) && this.getGame().getGhostCurrentNodeIndex(ghost) == currentNode) {
-						ghostCount++;
-					}
-				}
-	
-				// Explorar los vecinos
-				for (MOVE nextMove : this.getGame().getPossibleMoves(currentNode)) {
-					int nextNode = this.getGame().getNeighbour(currentNode, nextMove);
-					if (nextNode != -1) {
-						stack.push(new SimpleEntry<>(nextNode, currentDepth + 1));
+					if (this.getGame().getGhostEdibleTime(ghost) > 0) {
+						int ghostNode = this.getGame().getGhostCurrentNodeIndex(ghost);
+						int distance = this.getGame().getShortestPathDistance(currentNode, ghostNode);
+						
+						if (distance < SAFE_DISTANCE) {
+							edibleGhostCount++;
+							proximityScore += (SAFE_DISTANCE - distance); // Mayor proximidad, mayor puntuación
+						}
 					}
 				}
 			}
-	
-			return ghostCount;
+
+			// Calcular la puntuación total ponderada
+			int totalScore = (WEIGHT_EDIBLE_GHOSTS * edibleGhostCount) + (WEIGHT_EDIBLE_GHOST_PROXIMITY * proximityScore);
+
+			return totalScore;
 		}
 
 		//BUSQUEDA EN PROFUNDIDAD PARA LOS FANTASMAS COMESTBILES MAS SEGUROS
-		private int evaluatePathWithSafetyGhosts(int startNode, MOVE move, int depth){
-			Stack<SimpleEntry<Integer, Integer>> stack = new Stack<>();
-			stack.push(new SimpleEntry<>(startNode, 0));
-			int ghostCount = 0;
+		private int evaluatePathSafetyGhost(int startNode, MOVE move, int depth) {
+			int currentNode = startNode;
+			int safetyScore = 0;
+			int nonEdibleGhostProximityScore = 0;
 	
-			while (!stack.isEmpty()) {
-				SimpleEntry<Integer, Integer> current = stack.pop();
-				int currentNode = current.getKey();
-				int currentDepth = current.getValue();
-	
-				if (currentDepth > depth) {
-					continue;
+			for (int i = 0; i < depth; i++) {
+				currentNode = this.getGame().getNeighbour(currentNode, move);
+				if (currentNode == -1) {
+					break; // No hay más nodos en esta dirección
 				}
 	
-				// Contar los fantasmas comestibles en el nodo actual
+				// Evaluar la seguridad del nodo actual
+				safetyScore += evaluateNodeSafety(currentNode);
+	
+				// Contar la proximidad a los fantasmas no comestibles
 				for (GHOST ghost : GHOST.values()) {
-					if (!this.getGame().isGhostEdible(ghost) && this.getGame().getGhostCurrentNodeIndex(ghost) == currentNode) {
-						ghostCount-= 2;
-					}
-					else if(this.getGame().getGhostCurrentNodeIndex(ghost) == currentNode){
-						ghostCount++;
-					}
-				}
-	
-				// Explorar los vecinos
-				for (MOVE nextMove : this.getGame().getPossibleMoves(currentNode)) {
-					int nextNode = this.getGame().getNeighbour(currentNode, nextMove);
-					if (nextNode != -1) {
-						stack.push(new SimpleEntry<>(nextNode, currentDepth + 1));
+					if (this.getGame().getGhostEdibleTime(ghost) == 0) { // Fantasma no comestible
+						int ghostNode = this.getGame().getGhostCurrentNodeIndex(ghost);
+						int distance = this.getGame().getShortestPathDistance(currentNode, ghostNode);
+						
+						if (distance < SAFE_DISTANCE) {
+							nonEdibleGhostProximityScore += (SAFE_DISTANCE - distance); // Mayor proximidad, mayor penalización
+						}
 					}
 				}
 			}
 	
-			return ghostCount;
+			// Calcular la puntuación total ponderada
+			int totalScore = (WEIGHT_SECURITY * safetyScore) + (WEIGHT_NON_EDIBLE_GHOST_PROXIMITY * nonEdibleGhostProximityScore);
+	
+			return totalScore;
 		}
+	
 		
 		
-	}
+}

@@ -10,6 +10,7 @@ import es.ucm.fdi.ici.fsm.CompoundState;
 import es.ucm.fdi.ici.fsm.FSM;
 import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.MsPacManInput;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.SafePaths;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.chase_actions.*;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.flee_actions.*;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman.actions.pills_actions.*;
@@ -33,7 +34,7 @@ public class MsPacMan extends PacmanController {
 
 	public MsPacMan() {
 		setName("JPacman");
-
+		new SafePaths();
 		fsm = new FSM("MsPacMan");
 
 		GraphFSMObserver observer = new GraphFSMObserver(fsm.toString());
