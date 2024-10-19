@@ -1,10 +1,8 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.mspacman;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -19,7 +17,7 @@ import pacman.game.Game;
 public class MsPacManInput extends Input {
 
 	private static final int SAFE_DISTANCE = 20;
-    private static final int SEARCH_DEPTH = 10; // Profundidad de búsqueda para evaluar caminos
+    private static final int SEARCH_DEPTH = 13; // Profundidad de búsqueda para evaluar caminos
 
 	private MsPacManInfo info;
 	private SafePaths safePaths;
@@ -28,7 +26,6 @@ public class MsPacManInput extends Input {
 		super(game);
 		info = new MsPacManInfo(game);
 		safePaths = new SafePaths();
-
 	}
 
 	@Override
@@ -48,15 +45,14 @@ public class MsPacManInput extends Input {
 			}
 			return false;
 		}
-		public boolean pacmanEatPowerPill(){
-			boolean sol = false;
+		public boolean pacmanEatPowerPill(int powerPills){
 
-			int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
-			for(int PowerPill: this.getGame().getActivePowerPillsIndices()){
-				sol = pacmanNode == PowerPill || Math.abs(pacmanNode - PowerPill) <= 4;
+			if(this.getGame().getNumberOfActivePowerPills() < powerPills){
+				powerPills = this.getGame().getNumberOfActivePowerPills();
+				return true;
 			}
 
-			return sol;
+			return false;
 		}
 		public boolean getClosestNotEdibleGhost(int range) {
 			return getEveryTypeClosestGhostDistance(range) != Integer.MAX_VALUE;
@@ -293,7 +289,7 @@ public class MsPacManInput extends Input {
 		}
 		
 		//Usado en flee y pills
-		public MOVE moveToSafetyPath(double range) {
+		public MOVE moveToSafetyPath(double range, boolean state) {
 			int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
 			this.safePaths = new SafePaths();
 			MOVE bestMove = MOVE.NEUTRAL;
@@ -301,7 +297,7 @@ public class MsPacManInput extends Input {
 
 			MOVE[] possiblesMoves = this.getGame().getPossibleMoves(pacmanNode, info.getPacmanLastMoveMade());
 			for (MOVE move : possiblesMoves) {
-				int safetyScore = evaluatePathSafety(pacmanNode, move, SEARCH_DEPTH);
+				int safetyScore = evaluatePathSafety(pacmanNode, move, SEARCH_DEPTH, state);
 				
 				if (safetyScore > bestSafetyScore) { // Estudia que camino tiene mejor puntuacion
 					bestMove = move;
@@ -316,14 +312,6 @@ public class MsPacManInput extends Input {
 		
 	//METODOS AUXILIARES DE LA CLASE------------------------------------------------------------------------------------------
 
-		//Inicializa un conjunto con los nodos de los fantasmas no comestibles
-		private void initGhost(Set<Integer> ghosts){
-			for(GHOST ghost: GHOST.values()){
-				if(!this.getGame().isGhostEdible(ghost))
-				ghosts.add(this.getGame().getGhostCurrentNodeIndex(ghost));
-			}
-		}
-
 		//Devuelve la distancia minima a CUALQUIER FANTASMA
 		private double getEveryTypeClosestGhostDistance(int range){
 			int pacmanNode = this.getGame().getPacmanCurrentNodeIndex();
@@ -333,7 +321,7 @@ public class MsPacManInput extends Input {
 			for(GHOST ghost: GHOST.values()){
 				int distancia = this.getGame().getShortestPathDistance(pacmanNode, this.getGame().getGhostCurrentNodeIndex(ghost));
 				int distance = Math.min(min_distance,distancia);
-					min_distance = distance <= range ? distance : min_distance;
+					min_distance = distance <= range && this.getGame().getGhostLairTime(ghost) == 0? distance : min_distance;
 			}
 
 			return min_distance;
@@ -380,49 +368,6 @@ public class MsPacManInput extends Input {
 
 			return min_distance;
 		}
-	
-		//Estudia los caminos seguros y los almacenamos
-		private void studySecurePaths(){
-			this.safePaths = new SafePaths();
-
-			MsPacManInfo info = new MsPacManInfo(this.getGame());
-			int currentNode = info.getPacmanCurrentNodeIndex();
-
-			MOVE[] moves = this.getGame().getPossibleMoves(currentNode, info.getPacmanLastMoveMade());
-			Map<MOVE, Integer[]> paths = new HashMap<>();
-
-			Set<Integer> ghosts = new HashSet<>();
-			initGhost(ghosts);
-
-			for (MOVE move : moves) {
-				MOVE currentMove = move;
-				int endNode = this.getGame().getNeighbour(currentNode, currentMove);
-				int ghostCount = 0;
-				int longitud = 0;
-
-				while(endNode != -1 && !this.getGame().isJunction(endNode)){
-
-					if (ghosts.contains(endNode)) {
-						ghostCount++;
-					}
-
-					currentNode = endNode;
-					currentMove = this.game.getPossibleMoves(currentNode, currentMove)[0];
-					endNode = this.game.getNeighbour(currentNode, currentMove);
-					longitud++;
-				}
-				
-				Integer[] path = {ghostCount, longitud};
-				paths.put(move, path);
-			}
-
-			// Filtrar los caminos seguros
-			for (Map.Entry<MOVE, Integer[]> entry : paths.entrySet()) {
-				if (entry.getValue()[0] == 0) { // Considera un camino seguro si no hay fantasmas
-					safePaths.addSafePath(entry.getKey(), 0);
-				}
-			}
-		}
 
 		//Devuelve la media de la distancia de la distancia del pacman a cada fantasma por tick de simulacion
 		public double getMediaDistaciaSegura() {
@@ -450,7 +395,7 @@ public class MsPacManInput extends Input {
 		}
 	
 		//BUSQUEDA EN PROFUNDIDAD IMPLEMENTADA CON PILAS PARA EL CAMINO MAS SEGURO
-		private int evaluatePathSafety(int startNode, MOVE move, int depth) {
+		private int evaluatePathSafety(int startNode, MOVE move, int depth, boolean state) {
 			//Pila que lleva el nodo actual y la profundidad de la busqueda
 			Stack<SimpleEntry<Integer, Integer>> stack = new Stack<>();
 
@@ -469,7 +414,12 @@ public class MsPacManInput extends Input {
 
 				// Evaluar la seguridad del nodo actual
 				safetyScore += evaluateNodeSafety(currentNode, currentDepth);
-
+				if(state && this.getGame().isPowerPillStillAvailable(currentNode)){
+					safetyScore += this.getGame().getShortestPathDistance(startNode, currentNode) * 100000;
+				}
+				else if(this.getGame().isPowerPillStillAvailable(currentNode)){
+					safetyScore -= this.getGame().getShortestPathDistance(startNode, currentNode) * 50;
+				}
 				// Seguimos con la busqueda 
 				for (MOVE nextMove : this.getGame().getPossibleMoves(currentNode)) {
 					int nextNode = this.getGame().getNeighbour(currentNode, nextMove);
@@ -487,13 +437,14 @@ public class MsPacManInput extends Input {
 
 			for (GHOST ghost : GHOST.values()) {
 
-				if (this.getGame().getGhostEdibleTime(ghost) == 0) { // Fantasma no comestible
+				if (this.getGame().getGhostEdibleTime(ghost) == 0 && this.getGame().getGhostLairTime(ghost) == 0) { // Fantasma no comestible
 					int ghostNode = this.getGame().getGhostCurrentNodeIndex(ghost);
 					int distance = this.getGame().getShortestPathDistance(node, ghostNode);
 					
 					if (distance < SAFE_DISTANCE) {
-						safetyScore -= (SAFE_DISTANCE - distance); // Penalizar nodos cercanos a fantasmas
+						safetyScore -= distance; // Penalizar nodos cercanos a fantasmas
 					}
+					
 				}
 			}
 
@@ -519,6 +470,9 @@ public class MsPacManInput extends Input {
 				// Contar las píldoras en el nodo actual
 				if (this.getGame().getPillIndex(currentNode) != -1 && this.getGame().isPillStillAvailable(this.getGame().getPillIndex(currentNode))) {
 					pillCount++;
+				}
+				else if(this.getGame().getPillIndex(currentNode) != -1 && this.getGame().isPowerPillStillAvailable(this.getGame().getPillIndex(currentNode))){
+					pillCount -= 2;
 				}
 	
 				// Explorar los vecinos

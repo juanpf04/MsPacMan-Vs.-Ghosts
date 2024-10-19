@@ -12,7 +12,7 @@ public class SafeLongestPathPillsAction implements Action {
     public MOVE execute(Game game) {
         MsPacManInput input = new MsPacManInput(game);
         double media = input.getMediaDistaciaSegura();
-        return input.pacmanRequieresAction() ? input.moveToSafetyPath(media) : MOVE.NEUTRAL;
+        return input.pacmanRequieresAction() ? input.moveToSafetyPath(media, false) : MOVE.NEUTRAL;
     }
 
     @Override

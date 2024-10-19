@@ -6,10 +6,16 @@ import es.ucm.fdi.ici.fsm.Transition;
 
 public class PacmanEatPowerPillTransition implements Transition{
 
+    private int nPowerPills = 0;
+
+    public PacmanEatPowerPillTransition(){
+        this.nPowerPills = 4;
+    }
+
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return input.pacmanEatPowerPill();
+        return input.pacmanEatPowerPill(nPowerPills);
     }
 
 }
