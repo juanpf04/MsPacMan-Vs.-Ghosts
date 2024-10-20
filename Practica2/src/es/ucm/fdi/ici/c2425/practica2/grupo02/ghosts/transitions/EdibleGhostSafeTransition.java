@@ -2,6 +2,7 @@ package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions;
 
 import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
@@ -18,8 +19,8 @@ public class EdibleGhostSafeTransition implements Transition {
 
 	@Override
 	public boolean evaluate(Input in) {
-		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfEdibleGhosts() == 0 || input.getDistanceFromMsPacManToEdibleGhost() < THRESHOLD;
+		GhostsInfo info = ((GhostsInput) in).getInfo();
+		return info.edibleGhosts == 0 || info.distancesFromGhostToEdibleGhost.get(this.ghost) < THRESHOLD;
 	}
 
 	@Override

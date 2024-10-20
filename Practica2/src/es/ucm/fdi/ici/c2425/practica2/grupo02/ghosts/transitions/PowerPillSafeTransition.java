@@ -2,16 +2,15 @@ package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions;
 
 import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class PowerPillSafeTransition implements Transition {
- 
+
 	private static final int THRESHOLD = 30;
-	
+
 	private GHOST ghost;
-	
-	private int hacer;
 
 	public PowerPillSafeTransition(GHOST ghost) {
 		super();
@@ -20,8 +19,8 @@ public class PowerPillSafeTransition implements Transition {
 
 	@Override
 	public boolean evaluate(Input in) {
-		GhostsInput input = (GhostsInput) in;
-		return input.getPPillShortestPathDistance(this.ghost) < THRESHOLD;
+		GhostsInfo info = ((GhostsInput) in).getInfo();
+		return info.distancesFromGhostToPPill.get(this.ghost) < THRESHOLD;
 	}
 
 	@Override

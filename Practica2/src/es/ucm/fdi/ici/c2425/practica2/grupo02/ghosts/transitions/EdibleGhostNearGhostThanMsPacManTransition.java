@@ -2,6 +2,7 @@ package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions;
 
 import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
@@ -16,11 +17,12 @@ public class EdibleGhostNearGhostThanMsPacManTransition implements Transition {
 
 	@Override
 	public boolean evaluate(Input in) {
-		GhostsInput input = (GhostsInput) in;
+		GhostsInfo info = ((GhostsInput) in).getInfo();
+		Transition requireAction = new GhostRequiresActionTransition(this.ghost);
 		Transition transition = new GhostEdibleTransition(this.ghost);
 
-		return transition.evaluate(in) && input.getGhostDistanceToNearestEdibleGhostToPacMan() < input
-				.getNearestEdibleGhostDistancetoMsPacMan();
+		return requireAction.evaluate(in) && transition.evaluate(in) && info.distancesFromEdibleGhostToGhost
+				.get(this.ghost) < info.distancesFromPacmanToGhost.get(this.ghost);
 	}
 
 	@Override

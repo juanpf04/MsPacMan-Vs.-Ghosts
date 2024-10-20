@@ -2,17 +2,17 @@ package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions;
 
 import es.ucm.fdi.ici.Input;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class NearestEdibleGhostToMsPacManInDangerTransition implements Transition {
 
-	private static final int THRESHOLD = 100;
+	private static final int THRESHOLD = 200;
 
 	private GHOST ghost;
 	private static int num;
 	private int id;
-	private int hacer;
 
 	public NearestEdibleGhostToMsPacManInDangerTransition(GHOST ghost) {
 		super();
@@ -22,10 +22,11 @@ public class NearestEdibleGhostToMsPacManInDangerTransition implements Transitio
 
 	@Override
 	public boolean evaluate(Input in) {
-		GhostsInput input = (GhostsInput) in;
-		int distance = input.getPacManShortestPathDistance(ghost);
-		return input.anyGhostEdible() && distance < THRESHOLD
-				&& distance > input.getNearestGhostShortestPathDistance(ghost);
+		GhostsInfo info = ((GhostsInput) in).getInfo();
+		Transition requireAction = new GhostRequiresActionTransition(this.ghost);
+		int distance = info.distanceFromPacmanToNearestEdibleGhost;
+		return requireAction.evaluate(in) && info.edibleGhosts > 0 && distance < THRESHOLD
+				&& distance > info.distancesFromGhostToEdibleGhost.get(this.ghost);
 	}
 
 	@Override

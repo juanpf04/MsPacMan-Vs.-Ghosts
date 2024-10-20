@@ -1,14 +1,12 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions;
 
 import es.ucm.fdi.ici.Input;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.fsm.Transition;
 import pacman.game.Constants.GHOST;
 
 public class GhostTooCloseAndNotBehindMsPacManTransition implements Transition {
- 
-	GHOST ghost;
-	private int hacer;
+
+	private GHOST ghost;
 
 	public GhostTooCloseAndNotBehindMsPacManTransition(GHOST ghost) {
 		super();
@@ -17,8 +15,10 @@ public class GhostTooCloseAndNotBehindMsPacManTransition implements Transition {
 
 	@Override
 	public boolean evaluate(Input in) {
-		GhostsInput input = (GhostsInput) in;
-		return input.getNumberOfActivePills() < 10;
+		Transition transition = new GhostRequiresActionTransition(this.ghost);
+		Transition transition1 = new GhostTooCloseMsPacManTransition(this.ghost);
+		Transition transition2 = new GhostBehindMsPacManTransition(this.ghost);
+		return transition.evaluate(in) && transition1.evaluate(in) && !transition2.evaluate(in);
 	}
 
 	@Override

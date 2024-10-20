@@ -10,7 +10,6 @@ import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
-import pacman.game.internal.Ghost;
 
 public class GhostsInput extends Input {
 
@@ -27,15 +26,23 @@ public class GhostsInput extends Input {
 
 		// Node of nearest edible ghost to pacman. Returns -1 if no ghost is edbile.
 		public int nearestEdibleGhostToPacman;
-		public int nearestEdibleGhostToPacmanDistance;
+		public int distanceFromPacmanToNearestEdibleGhost;
 
 		// nearest not edible ghost to nearest edible ghost to pacman
 		public int nearestGhost;
 
 		public List<Integer> exits;
 
+		// Distance from ghost to nearest pill
+		public Map<GHOST, Integer> distancesFromGhostToPill;
+		// Distance from ghost to nearest power pill of pacman
+		public Map<GHOST, Integer> distancesFromGhostToPPill;
 		public Map<GHOST, Integer> distancesFromGhostToPacman;
 		public Map<GHOST, Integer> distancesFromPacmanToGhost;
+
+		// Distance from ghost to nearest edible ghost to pacman
+		public Map<GHOST, Integer> distancesFromGhostToEdibleGhost;
+		public Map<GHOST, Integer> distancesFromEdibleGhostToGhost;
 
 		public Map<GHOST, Boolean> isGhostBehindPacman;
 		public Map<GHOST, Boolean> isGhostEdible;
@@ -52,6 +59,8 @@ public class GhostsInput extends Input {
 			this.isGhostEdible = new HashMap<>();
 			this.isGhostInLair = new HashMap<>();
 			this.doesGhostRequireAction = new HashMap<>();
+			this.distancesFromGhostToPill = new HashMap<>();
+			this.distancesFromGhostToPPill = new HashMap<>();
 			this.distancesFromGhostToPacman = new HashMap<>();
 			this.distancesFromPacmanToGhost = new HashMap<>();
 			this.ghostDensity = new HashMap<>();
@@ -94,7 +103,8 @@ public class GhostsInput extends Input {
 
 		// -------------------------------------------
 
-		this.info.nearestEdibleGhostToPacmanDistance = Integer.MAX_VALUE;
+		this.info.distanceFromPacmanToNearestEdibleGhost = Integer.MAX_VALUE;
+		int nearestEdibleGhost = -1;
 		this.info.edibleGhosts = 0;
 
 		for (GHOST ghost : GHOST.values()) {
@@ -120,33 +130,14 @@ public class GhostsInput extends Input {
 			if (ghostEdible) {
 				this.info.edibleGhosts++;
 
-				if (this.info.nearestEdibleGhostToPacmanDistance > distanceFromGhostToPacman) {
+				if (this.info.distanceFromPacmanToNearestEdibleGhost > distanceFromGhostToPacman) {
 					this.info.nearestEdibleGhostToPacman = ghostIndex;
 				}
 			}
 
 			// -------------------------------------------
 
-			
-			
-			
-			
 			// -------------------------------------------
-
-			double density = 0.0;
-			int position = game.getGhostCurrentNodeIndex(g);
-
-			for (GHOST g : GHOST.values()) {
-				// -------------------------------------------
-				double distance = game.getEuclideanDistance(game.getGhostCurrentNodeIndex(ghost), position);
-
-				if (distance < 20)
-					density += Math.exp(-0.1 * distance); // Exponentially decaying contribution
-
-				// -------------------------------------------
-			}
-
-			return density;
 
 			// -------------------------------------------
 		}
@@ -154,7 +145,6 @@ public class GhostsInput extends Input {
 		// -------------------------------------------
 
 		// if there is an edible ghost, set node of not edible ghost closest to them
-		int nearestEdibleGhost = this.info.getNearestEdibleGhostToPacman();
 		int closestGhost = -1;
 		if (nearestEdibleGhost != -1) {
 			double ghostDistance = Integer.MAX_VALUE;
@@ -171,7 +161,7 @@ public class GhostsInput extends Input {
 				}
 			}
 		}
-		this.info.setNearestGhost(closestGhost);
+		this.info.nearestGhost = closestGhost;
 
 	}
 
@@ -208,7 +198,7 @@ public class GhostsInput extends Input {
 		return theChosenOne;
 	}
 
-	public int getGeometricCenterOfActivePills() {
+	private int getGeometricCenterOfActivePills() {
 		int[] pills = game.getActivePillsIndices();
 		return geometricCenterOfIndexlist(pills);
 	}
@@ -233,10 +223,6 @@ public class GhostsInput extends Input {
 		return bestNode;
 	}
 
-	public double getDistanceToMsPacManNearestPPill(GHOST ghost) {
-		return game.getDistance(game.getGhostCurrentNodeIndex(ghost), this.closestPPillToPacman, DM.PATH);
-	}
-
 	/**
 	 * Calculates ghost density at a certain point using an exponential density
 	 * function. Range is between 0 (very dispersed) and 1.2+ (very dense)
@@ -244,12 +230,11 @@ public class GhostsInput extends Input {
 	 * @param ghost index will be point of density evaluation
 	 * @return numerical value for ghost density
 	 */
-	public double getGhostDensity(GHOST g) {
+	private double getGhostDensity(int node) {
 		double density = 0.0;
-		int position = game.getGhostCurrentNodeIndex(g);
 
 		for (GHOST ghost : GHOST.values()) {
-			double distance = game.getEuclideanDistance(game.getGhostCurrentNodeIndex(ghost), position);
+			double distance = game.getEuclideanDistance(game.getGhostCurrentNodeIndex(ghost), node);
 
 			if (distance < 20)
 				density += Math.exp(-0.1 * distance); // Exponentially decaying contribution
@@ -259,7 +244,7 @@ public class GhostsInput extends Input {
 		return density;
 	}
 
-	public int getDistanceToNearestGhost(GHOST g) {
+	private int getDistanceToNearestGhost(GHOST g) {
 		int index = game.getGhostCurrentNodeIndex(g);
 		double minDistance = Double.MAX_VALUE;
 		int result = -1;

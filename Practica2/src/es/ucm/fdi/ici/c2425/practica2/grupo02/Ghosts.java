@@ -51,7 +51,7 @@ public class Ghosts extends GhostController {
 			cfsm_chase.add(chasePacMan, new NearestEdibleGhostToMsPacManInDangerTransition(ghost), coverEdibleGhost);
 			cfsm_chase.add(chasePacMan, new GhostCloserPowerPillThanMsPacManTransition(ghost), coverPPill);
 			cfsm_chase.add(chasePacMan, new GhostBehindMsPacManTransition(ghost), coverExit);
-			cfsm_chase.add(chasePacMan, new FewPillsTransition(ghost), coverLastPills);
+			cfsm_chase.add(chasePacMan, new FewPillsTransition(), coverLastPills);
 
 			cfsm_chase.add(coverExit, new NearestEdibleGhostToMsPacManInDangerTransition(ghost), coverEdibleGhost);
 			cfsm_chase.add(coverExit, new GhostTooCloseAndNotBehindMsPacManTransition(ghost), chasePacMan);

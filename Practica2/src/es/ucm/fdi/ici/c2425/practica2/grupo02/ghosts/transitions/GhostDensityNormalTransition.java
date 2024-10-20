@@ -15,8 +15,9 @@ public class GhostDensityNormalTransition implements Transition {
 
 	@Override
 	public boolean evaluate(Input in) {
+		Transition requireAction = new GhostRequiresActionTransition(this.ghost);
 		Transition transition = new GhostDensityHighTransition(this.ghost);
-		return !transition.evaluate(in);
+		return requireAction.evaluate(in) && !transition.evaluate(in);
 	}
 
 	@Override
