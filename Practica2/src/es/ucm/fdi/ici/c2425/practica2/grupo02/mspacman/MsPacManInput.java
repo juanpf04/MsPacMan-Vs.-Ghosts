@@ -45,7 +45,14 @@ public class MsPacManInput extends Input {
 
 		//ESTADOS COMPUESTOS---------------------------------------------------------------------------------------------------------
 		public boolean edibleTimeYet() {
-			return !withoutEdibleTime();
+
+			for(GHOST ghost: GHOST.values()){
+				if(this.getGame().getGhostEdibleTime(ghost) > 0 && this.getGame().getGhostLairTime(ghost) == 0){
+					return true;
+				}
+			}
+
+			return false;
 		}
 		public boolean pacmanEatPowerPill(int powerPills){
 
@@ -150,7 +157,17 @@ public class MsPacManInput extends Input {
 	
 		//ESTADO PILLS----------------------------------------------------------------------------------------------------------
 		public MOVE chooseAny() {
-			return !SafePaths.isEmpty() ? SafePaths.getSafePaths().keySet().iterator().next():MOVE.NEUTRAL;
+			if (!SafePaths.isEmpty()) {
+				Map<MOVE, Integer> safePathsMap = SafePaths.getSafePaths();
+				if (!safePathsMap.isEmpty()) {
+					return safePathsMap.keySet().iterator().next();
+				} else {
+					System.out.println("SafePaths map is empty.");
+				}
+			} else {
+				System.out.println("SafePaths is empty.");
+			}
+			return MOVE.NEUTRAL;
 		}
 		
 		//ESTADO CHASE / FLEE---------------------------------------------------------------------------------------------------
