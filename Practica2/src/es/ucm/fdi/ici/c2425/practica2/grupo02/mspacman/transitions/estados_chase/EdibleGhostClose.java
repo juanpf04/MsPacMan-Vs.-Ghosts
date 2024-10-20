@@ -12,4 +12,9 @@ public class EdibleGhostClose implements Transition {
         return input.edibleGhostClose() ;
     }
 
+    @Override
+    public String toString() {
+        return "Edible Ghost Close";
+    }
+
 }

@@ -9,7 +9,11 @@ public class SafetyPacmanTransition implements Transition {
     @Override
     public boolean evaluate(Input in) {
          MsPacManInput input = (MsPacManInput) in;
-         return !input.getClosestNotEdibleGhost(80);
+         return !input.getClosestNotEdibleGhost(40);
+    }
+    @Override
+    public String toString() {
+        return "Safety Pacman";
     }
 
 }

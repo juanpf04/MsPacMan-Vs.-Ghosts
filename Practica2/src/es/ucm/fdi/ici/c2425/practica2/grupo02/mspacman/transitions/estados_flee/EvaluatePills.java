@@ -12,4 +12,8 @@ public class EvaluatePills implements Transition {
         return input.sameNumberOfEdibleGhostInEachPath();
     }
     
+    @Override
+    public String toString() {
+        return "Evaluate Pills";
+    }
 }

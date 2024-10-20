@@ -44,9 +44,9 @@ public class MsPacMan extends PacmanController {
 
 		Transition dangerFromPills = new PacmanInDangerTransition("from Pills");
 		Transition dangerFromChase = new PacmanInDangerTransition("from Chase");
-		Transition safety = new SafetyPacmanTransition();
 		Transition dieFromChase = new PacManDiedTransition("from Chase");
-		Transition dieFromPills = new PacManDiedTransition("from Pills");
+		Transition dieFromFlee = new PacManDiedTransition("from Pills");
+		Transition safety = new SafetyPacmanTransition();
 		Transition noEdibleTime = new WithoutEdibleTimeForChaseTransition();
 		Transition eatPowerPill = new PacmanEatPowerPillTransition();
 		Transition edibleTimeYet = new EdibleTimeActiveTransition();
@@ -57,15 +57,15 @@ public class MsPacMan extends PacmanController {
         GraphFSMObserver pills_observer = new GraphFSMObserver(cfsm_pills.toString());
         cfsm_pills.addObserver(pills_observer);
 
-        SimpleState safePills = new SimpleState("safe longest path", new SafeLongestPathPillsAction());
+        SimpleState safePills = new SimpleState("safe path", new SafeLongestPathPillsAction());
         SimpleState morePills = new SimpleState("more pills", new MorePillsPillsAction());
         SimpleState chooseAny = new SimpleState("choose any", new ChooseAnyPillsAction());
 
-        Transition severalPaths1 = new SafetyPacmanTransition();
+        Transition severalPaths = new SafetyPacmanTransition();
         Transition sameNumberOfPills = new IndifferentNumbersPills();
         Transition pathSelected = new PathSelected();
 
-        cfsm_pills.add(safePills, severalPaths1, morePills);
+        cfsm_pills.add(safePills, severalPaths, morePills);
         cfsm_pills.add(morePills, sameNumberOfPills, chooseAny);
 		cfsm_pills.add(chooseAny, pathSelected, safePills);
 
@@ -124,7 +124,7 @@ public class MsPacMan extends PacmanController {
 		fsm.add(chase, noEdibleTime, pills);
 		fsm.add(chase, dieFromChase, pills);
 
-		fsm.add(flee, dieFromPills, pills);
+		fsm.add(flee, dieFromFlee, pills);
 		fsm.add(flee, safety, pills);
 		fsm.add(flee, eatPowerPill, chase);
 

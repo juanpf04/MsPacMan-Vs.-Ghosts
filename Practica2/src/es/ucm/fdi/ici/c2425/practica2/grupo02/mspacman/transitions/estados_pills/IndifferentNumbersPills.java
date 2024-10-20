@@ -11,5 +11,10 @@ public class IndifferentNumbersPills implements Transition {
         MsPacManInput  input = (MsPacManInput) in;
         return  input.sameNumberOfPills();
     }
+
+    @Override
+    public String toString() {
+        return "Indifferent Numbers Pills";
+    }
     
 }

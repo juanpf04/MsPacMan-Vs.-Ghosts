@@ -18,4 +18,9 @@ public class PacmanEatPowerPillTransition implements Transition{
         return input.pacmanEatPowerPill(nPowerPills);
     }
 
+    @Override
+    public String toString() {
+        return "Pacman Eat Power Pill";
+    }
+
 }

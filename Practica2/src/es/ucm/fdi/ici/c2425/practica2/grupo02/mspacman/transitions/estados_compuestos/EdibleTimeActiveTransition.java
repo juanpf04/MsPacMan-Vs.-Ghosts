@@ -12,4 +12,8 @@ public class EdibleTimeActiveTransition implements Transition{
        return input.edibleTimeYet();
     }
     
+    @Override
+    public String toString() {
+        return "Edible Time Active";
+    }
 }

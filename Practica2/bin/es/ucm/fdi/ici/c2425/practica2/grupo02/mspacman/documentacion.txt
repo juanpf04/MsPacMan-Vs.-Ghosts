@@ -1,10 +1,3 @@
-CAMBIOS
-
-TRANSICIONES:
-He añadido todas las transiciones. Tengo que revisar el código y tras revisarlo optimizarlo
-ya que muchas funciones utilizan la misma función de recorrer tanto caminos como fantasmas.
-Lo malo es que dentro de esos recorridos se compruebas cosas distintas.
-
 
 ACCIONES
 He añadido una clase SafePaths, la cual se encarga de almacenar para cada tick de simulacion
@@ -25,25 +18,10 @@ Se me han colado algunos movimientos que no deberían ir ahi pero lo cambiare.
 
 ---------------------------------------------------------------------------------------------------------------
 
-He implementado las acciones de pacman según nuestra maquina de estados. Como en las transiciones, me queda
-revisar el codigo por si me he rayado calculando algo o no he tenido algo en cuenta, y despues de eso ver como
-reutilizar el codigo de las busquedas/hacerlo más eficiente.
-
-Tengo dudas ya que para el estudio de los caminos me gustaría utilizar el backtracking de la Práctica1, pero
-al tener que realizar varios estudios ya que en cada accion se estudia una cosa concreta y no varias para 
-luego determinar el mejor movimienot, sería muy ineficiente usarlo para cada acción. Por ahora el estudio
-que estoy haciendo es iterativo, y por tanto, su profundidad es de un nodo.
-
-CUESTIONES
-
-No se muy bien como funcionan las acciones grandes que engloban las pequeñas, ya que no hacen nada como tal, 
-solo engloban un conjunto de acciones. 
+Para las acciones, he implementado una búsqueda en profundidad (concretamente de 50 nodos), de forma iterativa, de forma que va pasando
+por cada nodo en uno de los movimientos posibles de pacman, puntuando ese camino teniendo en factores la seguridad del camino, el numero 
+de pills, si hay un PowerPill o no (dependiendo del estado, lo valora positiva o negativamente). De esta forma Pacman realiza mejores
+busquedas. Las busquedas de estos caminos son de x nodos desde el movimiento inicial, hasta que ya se hayan estudiado todos
+o lleguemos a un nodo = -1
 
 
-
-
-
-
-CAMBIOS--------------------------------------
-He quitado la transicion en el estado Pills de +pills a safety longest path ya que no tiene sentido que vuelva a evaluar los caminos que ya
-han sido calificados como seguros. 

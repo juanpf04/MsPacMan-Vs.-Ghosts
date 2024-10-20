@@ -9,7 +9,11 @@ public class EdibleGhostCloserThanGhost implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-        return input.edibleGhostNearestThanGhost(80);
+        return input.edibleGhostNearestThanGhost(40);
     }
 
+    @Override
+    public String toString() {
+        return "Edible Ghost Closer Than Ghost";
+    }
 }

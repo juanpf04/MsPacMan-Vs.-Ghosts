@@ -10,6 +10,10 @@ public class PathSelected implements Transition{
        return true;
     }
 
+    @Override
+    public String toString() {
+        return "Path Selected";
+    }
     
 
 }
