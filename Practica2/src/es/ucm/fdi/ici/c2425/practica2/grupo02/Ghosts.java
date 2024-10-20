@@ -1,10 +1,6 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02;
 
-import java.awt.BorderLayout;
 import java.util.EnumMap;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
@@ -13,8 +9,6 @@ import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.*;
 import es.ucm.fdi.ici.fsm.CompoundState;
 import es.ucm.fdi.ici.fsm.FSM;
 import es.ucm.fdi.ici.fsm.SimpleState;
-import es.ucm.fdi.ici.fsm.observers.ConsoleFSMObserver;
-import es.ucm.fdi.ici.fsm.observers.GraphFSMObserver;
 import pacman.controllers.GhostController;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -33,15 +27,12 @@ public class Ghosts extends GhostController {
 		for (GHOST ghost : GHOST.values()) {
 			FSM fsm = new FSM(ghost.name());
 
-//			fsm.addObserver(new ConsoleFSMObserver(ghost.name()));
-
 			// --------------------------------------------
 
 			FSM cfsm_chase = new FSM("CHASE");
-//			cfsm_chase.addObserver(new ConsoleFSMObserver(ghost.name()));
 
 			SimpleState chasePacMan = new SimpleState("chase pacman", new ChaseMsPacManAction(ghost));
-			SimpleState coverExit = new SimpleState("cover exit", new DisperseAction(ghost));
+			SimpleState coverExit = new SimpleState(new CoverExitAction(ghost, this.info));
 			SimpleState coverEdibleGhost = new SimpleState("Cover edible ghost",
 					new GoToGhostAction(ghost, false, this.info));
 			SimpleState coverPPill = new SimpleState("Cover PowerPill", new GoToPowePillAction(ghost, this.info));
@@ -70,7 +61,6 @@ public class Ghosts extends GhostController {
 			// --------------------------------------------
 
 			FSM cfsm_flee = new FSM("FLEE");
-//			cfsm_flee.addObserver(new ConsoleFSMObserver(ghost.name()));
 
 			SimpleState runAway = new SimpleState(new RunAwayAction(ghost));
 			SimpleState fleeToPPill = new SimpleState("Flee to PowerPill", new GoToPowePillAction(ghost, this.info));
@@ -80,8 +70,6 @@ public class Ghosts extends GhostController {
 			cfsm_flee.add(runAway, new GhostDensityHighTransition(ghost), fleeDisperse);
 			cfsm_flee.add(runAway, new GhostCloserPowerPillThanMsPacManTransition(ghost), fleeToPPill);
 			cfsm_flee.add(runAway, new EdibleGhostNearGhostThanMsPacManTransition(ghost), fleeToGhost);
-
-			cfsm_flee.add(fleeToPPill, new GhostDensityHighTransition(ghost), fleeDisperse);
 
 			cfsm_flee.add(fleeDisperse, new GhostDensityNormalTransition(ghost), runAway);
 
