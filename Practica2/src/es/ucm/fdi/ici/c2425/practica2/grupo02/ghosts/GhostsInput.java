@@ -127,7 +127,7 @@ public class GhostsInput extends Input {
 			// distance maps
 			if (!this.info.isGhostInLair.get(ghost) && pacmanNextJunction >= 0) {
 				int pillCenter = getGeometricCenterOfActivePills();
-				int distanceFromGhostToPillCenter = game.getShortestPathDistance(ghostIndex, pillCenter, ghostMove); // FIXME
+				int distanceFromGhostToPillCenter = pillCenter == -1 ? 0: game.getShortestPathDistance(ghostIndex, pillCenter, ghostMove);
 				int distanceFromGhostToPPill = game.getShortestPathDistance(ghostIndex, this.info.closestPPillToPacman,
 						ghostMove);
 				int distanceFromGhostToPacman = this.game.getShortestPathDistance(ghostIndex, pacmanIndex, ghostMove);
@@ -299,20 +299,4 @@ public class GhostsInput extends Input {
 		return density;
 	}
 
-	private int getIndexOfNearestGhost(GHOST g) {
-		int index = game.getGhostCurrentNodeIndex(g);
-		double minDistance = Double.MAX_VALUE;
-		int result = -1;
-
-		for (GHOST ghost : GHOST.values()) {
-			int curr = game.getGhostCurrentNodeIndex(ghost);
-			double ghostDistance = game.getDistance(curr, index, DM.PATH);
-			if (minDistance > ghostDistance && curr != index) {
-				minDistance = ghostDistance;
-				result = curr;
-			}
-		}
-
-		return result;
-	}
 }
