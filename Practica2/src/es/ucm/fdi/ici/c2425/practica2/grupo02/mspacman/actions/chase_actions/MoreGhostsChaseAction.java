@@ -10,10 +10,6 @@ public class MoreGhostsChaseAction implements Action{
     @Override
     public MOVE execute(Game game) {
         MsPacManInput input = new MsPacManInput(game);
-        //El new ese lo he puesto para que no salga error, pero tengo que mirarlo
-        //Ya que en chase simplemente comprobamos el camino con mas fantasmas comestibles sin
-        //importar que sea seguro o no ya que damos por hecho que lo es hasta que detectamos un fantasma cerca
-        //y pasamos a flee
         
         return  input.pathWithMoreEdibleGhosts();
     }

@@ -63,14 +63,10 @@ public class MsPacMan extends PacmanController {
 
         Transition severalPaths1 = new SafetyPacmanTransition();
         Transition sameNumberOfPills = new IndifferentNumbersPills();
-        //Transition pathWithMaximumNumberPills = new MaximumPillsPath();
         Transition pathSelected = new PathSelected();
-        Transition pacmanNotRequieresAction = new PacmanNotRequieresAction();
 
-        cfsm_pills.add(safePills, pacmanNotRequieresAction, safePills);
         cfsm_pills.add(safePills, severalPaths1, morePills);
         cfsm_pills.add(morePills, sameNumberOfPills, chooseAny);
-		//cfsm_pills.add(morePills, pathWithMaximumNumberPills, safePills);
 		cfsm_pills.add(chooseAny, pathSelected, safePills);
 
 		cfsm_pills.ready(safePills);
@@ -109,17 +105,12 @@ public class MsPacMan extends PacmanController {
 		cfsm_chase.addObserver(chase_observer);
 
 		SimpleState moreGhosts = new SimpleState("more ghosts", new MoreGhostsChaseAction());
-		SimpleState nearestGhost = new SimpleState("nearest ghost", new NearestGhostChaseAction());
 		SimpleState safetyGhost = new SimpleState("safety ghost", new SafetyGhostChaseAction());
 		
 		Transition withoutTimeFromMoreGhost = new ShortEdibleTime("From more ghosts");
-		Transition withoutTimeFromSafetyGhost = new ShortEdibleTime("From safety ghosts");
-		Transition edibleGhostClose = new EdibleGhostCloserThanGhost();
 
 
-		cfsm_chase.add(moreGhosts, withoutTimeFromMoreGhost, nearestGhost);
-		cfsm_chase.add(moreGhosts, edibleGhostClose, safetyGhost);
-		cfsm_chase.add(safetyGhost, withoutTimeFromSafetyGhost, nearestGhost);
+		cfsm_chase.add(moreGhosts, withoutTimeFromMoreGhost, safetyGhost);
 
 		cfsm_chase.ready(moreGhosts);
 		CompoundState chase = new CompoundState("chase", cfsm_chase);

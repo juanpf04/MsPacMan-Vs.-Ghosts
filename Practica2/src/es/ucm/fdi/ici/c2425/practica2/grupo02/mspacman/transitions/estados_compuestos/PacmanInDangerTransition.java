@@ -6,9 +6,8 @@ import es.ucm.fdi.ici.fsm.Transition;
 
 public class PacmanInDangerTransition implements Transition {
 
-    private final static int RANGE_PILLS = 40;
-    private final static int RANGE_CHASE = 40;
     private String state;
+
     public PacmanInDangerTransition(String state){
         super();
         this.state = state;
@@ -16,16 +15,7 @@ public class PacmanInDangerTransition implements Transition {
     @Override
     public boolean evaluate(Input in) {
         MsPacManInput input = (MsPacManInput) in;
-
-        if(input.pacmanRequieresAction()){
-            if (this.state.equals("from Pills")) {
-                return input.getClosestNotEdibleGhost(RANGE_PILLS);
-            } else if (this.state.equals("from Chase")) {
-                return input.getClosestNotEdibleGhost(RANGE_CHASE);
-            }
-        }
-
-        return false;
+        return input.getClosestNotEdibleGhost(40);
     }
 
     @Override
