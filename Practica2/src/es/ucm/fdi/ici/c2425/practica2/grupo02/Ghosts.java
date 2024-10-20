@@ -1,15 +1,12 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.util.EnumMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInfo;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions.*;
 import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.*;

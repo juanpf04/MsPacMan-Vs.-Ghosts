@@ -1,7 +1,7 @@
 package es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.actions;
 
 import es.ucm.fdi.ici.Action;
-import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInfo;
+import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.GhostsInput.GhostsInfo;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
