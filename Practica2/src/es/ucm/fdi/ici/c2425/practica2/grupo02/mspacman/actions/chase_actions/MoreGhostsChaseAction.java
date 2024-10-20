@@ -11,7 +11,7 @@ public class MoreGhostsChaseAction implements Action{
     public MOVE execute(Game game) {
         MsPacManInput input = new MsPacManInput(game);
         
-        return  input.pathWithMoreEdibleGhosts();
+        return  input.moveToNearestEdibleGhost();
     }
 
     

@@ -107,10 +107,10 @@ public class MsPacMan extends PacmanController {
 		SimpleState moreGhosts = new SimpleState("more ghosts", new MoreGhostsChaseAction());
 		SimpleState safetyGhost = new SimpleState("safety ghost", new SafetyGhostChaseAction());
 		
-		Transition withoutTimeFromMoreGhost = new ShortEdibleTime("From more ghosts");
+		Transition withoutTimeFromMoreGhostFromGhosts = new ShortEdibleTime("From more ghosts");
 
 
-		cfsm_chase.add(moreGhosts, withoutTimeFromMoreGhost, safetyGhost);
+		cfsm_chase.add(moreGhosts, withoutTimeFromMoreGhostFromGhosts, safetyGhost);
 
 		cfsm_chase.ready(moreGhosts);
 		CompoundState chase = new CompoundState("chase", cfsm_chase);
