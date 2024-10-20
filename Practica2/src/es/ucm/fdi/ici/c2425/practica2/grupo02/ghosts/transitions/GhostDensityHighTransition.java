@@ -8,7 +8,7 @@ import pacman.game.Constants.GHOST;
 
 public class GhostDensityHighTransition implements Transition {
 
-	private static final double THRESHOLD = 1.2;
+	private static final double THRESHOLD = 1.4;
 
 	private GHOST ghost;
 

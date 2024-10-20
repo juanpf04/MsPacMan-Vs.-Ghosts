@@ -8,7 +8,7 @@ import pacman.game.Constants.GHOST;
 
 public class NearestEdibleGhostToMsPacManInDangerTransition implements Transition {
 
-	private static final int THRESHOLD = 200;
+	private static final int THRESHOLD = 70;
 
 	private GHOST ghost;
 	private static int num;

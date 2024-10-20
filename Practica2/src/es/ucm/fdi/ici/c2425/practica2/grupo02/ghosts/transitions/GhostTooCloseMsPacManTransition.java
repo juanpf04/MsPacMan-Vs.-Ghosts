@@ -8,7 +8,7 @@ import pacman.game.Constants.GHOST;
 
 public class GhostTooCloseMsPacManTransition implements Transition {
 
-	private static int THRESHOLD = 30;
+	private static int THRESHOLD = 50;
 
 	private GHOST ghost;
 	private static int num;

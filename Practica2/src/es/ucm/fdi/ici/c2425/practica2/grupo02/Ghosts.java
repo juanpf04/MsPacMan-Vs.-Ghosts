@@ -13,6 +13,7 @@ import es.ucm.fdi.ici.c2425.practica2.grupo02.ghosts.transitions.*;
 import es.ucm.fdi.ici.fsm.CompoundState;
 import es.ucm.fdi.ici.fsm.FSM;
 import es.ucm.fdi.ici.fsm.SimpleState;
+import es.ucm.fdi.ici.fsm.observers.ConsoleFSMObserver;
 import es.ucm.fdi.ici.fsm.observers.GraphFSMObserver;
 import pacman.controllers.GhostController;
 import pacman.game.Constants.GHOST;
@@ -32,17 +33,15 @@ public class Ghosts extends GhostController {
 		for (GHOST ghost : GHOST.values()) {
 			FSM fsm = new FSM(ghost.name());
 
-			GraphFSMObserver graphObserver = new GraphFSMObserver(ghost.name());
-			fsm.addObserver(graphObserver);
+//			fsm.addObserver(new ConsoleFSMObserver(ghost.name()));
 
 			// --------------------------------------------
 
 			FSM cfsm_chase = new FSM("CHASE");
-			GraphFSMObserver chase_observer = new GraphFSMObserver(cfsm_chase.toString());
-			cfsm_chase.addObserver(chase_observer);
+//			cfsm_chase.addObserver(new ConsoleFSMObserver(ghost.name()));
 
-			SimpleState chasePacMan = new SimpleState(new ChaseMsPacManAction(ghost));
-			SimpleState coverExit = new SimpleState(new CoverExitAction(ghost, this.info));
+			SimpleState chasePacMan = new SimpleState("chase pacman", new ChaseMsPacManAction(ghost));
+			SimpleState coverExit = new SimpleState("cover exit", new DisperseAction(ghost));
 			SimpleState coverEdibleGhost = new SimpleState("Cover edible ghost",
 					new GoToGhostAction(ghost, false, this.info));
 			SimpleState coverPPill = new SimpleState("Cover PowerPill", new GoToPowePillAction(ghost, this.info));
@@ -64,15 +63,14 @@ public class Ghosts extends GhostController {
 
 			cfsm_chase.add(coverPPill, new PowerPillSafeTransition(ghost), chasePacMan);
 
-			cfsm_chase.ready(coverExit);
+			cfsm_chase.ready(chasePacMan);
 
 			CompoundState chase = new CompoundState("Chase", cfsm_chase);
 
 			// --------------------------------------------
 
 			FSM cfsm_flee = new FSM("FLEE");
-			GraphFSMObserver flee_observer = new GraphFSMObserver(cfsm_flee.toString());
-			cfsm_flee.addObserver(flee_observer);
+//			cfsm_flee.addObserver(new ConsoleFSMObserver(ghost.name()));
 
 			SimpleState runAway = new SimpleState(new RunAwayAction(ghost));
 			SimpleState fleeToPPill = new SimpleState("Flee to PowerPill", new GoToPowePillAction(ghost, this.info));
@@ -83,8 +81,7 @@ public class Ghosts extends GhostController {
 			cfsm_flee.add(runAway, new GhostCloserPowerPillThanMsPacManTransition(ghost), fleeToPPill);
 			cfsm_flee.add(runAway, new EdibleGhostNearGhostThanMsPacManTransition(ghost), fleeToGhost);
 
-			// cfsm_flee.add(fleeToPPill, new GhostDensityHighTransition(ghost),
-			// fleeDisperse);
+			cfsm_flee.add(fleeToPPill, new GhostDensityHighTransition(ghost), fleeDisperse);
 
 			cfsm_flee.add(fleeDisperse, new GhostDensityNormalTransition(ghost), runAway);
 
@@ -96,6 +93,8 @@ public class Ghosts extends GhostController {
 
 			SimpleState lair = new SimpleState(new LairAction());
 
+			fsm.add(lair, new GhostRequiresActionTransition(ghost), chase);
+
 			fsm.add(chase, new GhostEdibleTransition(ghost), flee);
 			fsm.add(chase, new MsPacManNearPowerPillTransition(), flee);
 			fsm.add(chase, new LairTimeTransition(ghost), lair);
@@ -103,58 +102,7 @@ public class Ghosts extends GhostController {
 			fsm.add(flee, new GhostNotEdibleAndMsPacManFarPowerPillTransition(ghost), chase);
 			fsm.add(flee, new LairTimeTransition(ghost), lair);
 
-			fsm.add(lair, new GhostRequiresActionTransition(ghost), chase);
-
 			fsm.ready(lair);
-
-			// --------------------------------------------
-
-//			JFrame frame = new JFrame();
-//			JPanel main = new JPanel(new GridBagLayout());
-//			GridBagConstraints gbc = new GridBagConstraints();
-//
-//			gbc.gridx = 0;
-//			gbc.gridy = 0;
-//			gbc.gridwidth = 2;
-//			gbc.weightx = 1.0;
-//			gbc.weighty = 1.0;
-//			gbc.fill = GridBagConstraints.BOTH;
-//			main.add(graphObserver.getAsPanel(true, null), gbc);
-//
-//			gbc.gridx = 0;
-//			gbc.gridy = 1;
-//			gbc.gridwidth = 1;
-//			gbc.weightx = 0.5;
-//			gbc.weighty = 0.5;
-//			main.add(chase_observer.getAsPanel(true, null), gbc);
-//
-//			gbc.gridx = 1;
-//			gbc.gridy = 1;
-//			gbc.weightx = 0.5;
-//			gbc.weighty = 0.5;
-//			main.add(flee_observer.getAsPanel(true, null), gbc);
-//
-//			frame.getContentPane().add(main);
-//			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//			frame.pack();
-//
-//			Dimension size = frame.getSize();
-//			size.width = (int) (size.width / 2.5);
-//			size.height = (int) (size.height / 1.25);
-//			frame.setSize(size);
-//			frame.setVisible(true);
-
-			JFrame frame = new JFrame();
-			JPanel main = new JPanel();
-			main.setLayout(new BorderLayout());
-			main.add(graphObserver.getAsPanel(true, null), BorderLayout.CENTER);
-			main.add(flee_observer.getAsPanel(true, null), BorderLayout.WEST);
-			main.add(chase_observer.getAsPanel(true, null), BorderLayout.EAST);
-			frame.getContentPane().add(main);
-			frame.pack();
-			frame.setVisible(true);
-
-			// --------------------------------------------
 
 			this.fsms.put(ghost, fsm);
 		}

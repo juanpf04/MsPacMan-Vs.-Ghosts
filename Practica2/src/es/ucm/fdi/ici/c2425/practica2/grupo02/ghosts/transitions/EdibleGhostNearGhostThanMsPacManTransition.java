@@ -21,8 +21,9 @@ public class EdibleGhostNearGhostThanMsPacManTransition implements Transition {
 		Transition requireAction = new GhostRequiresActionTransition(this.ghost);
 		Transition transition = new GhostEdibleTransition(this.ghost);
 
-		if ( info.distancesFromEdibleGhostToGhost
-		.get(this.ghost) == null || info.distancesFromPacmanToGhost.get(this.ghost) == null) return false;
+		if (info.distancesFromEdibleGhostToGhost.get(this.ghost) == null
+				|| info.distancesFromPacmanToGhost.get(this.ghost) == null)
+			return false;
 
 		return requireAction.evaluate(in) && transition.evaluate(in) && info.distancesFromEdibleGhostToGhost
 				.get(this.ghost) < info.distancesFromPacmanToGhost.get(this.ghost);

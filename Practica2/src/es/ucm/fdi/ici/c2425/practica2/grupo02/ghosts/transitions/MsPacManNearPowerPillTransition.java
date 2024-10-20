@@ -7,7 +7,7 @@ import es.ucm.fdi.ici.fsm.Transition;
 
 public class MsPacManNearPowerPillTransition implements Transition {
 
-	private static double THRESHOLD = 50;
+	private static double THRESHOLD = 40;
 
 	@Override
 	public boolean evaluate(Input in) {

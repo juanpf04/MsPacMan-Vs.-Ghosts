@@ -8,7 +8,7 @@ import pacman.game.Constants.GHOST;
 
 public class EdibleGhostSafeTransition implements Transition {
 
-	private static final long THRESHOLD = 100;
+	private static final long THRESHOLD = 30;
 
 	private GHOST ghost;
 
