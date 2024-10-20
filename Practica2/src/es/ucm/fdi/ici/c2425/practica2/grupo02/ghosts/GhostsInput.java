@@ -19,39 +19,40 @@ public class GhostsInput extends Input {
 	 */
 	public static class GhostsInfo {
 
-		public int minDistanceFromPacmanToPPill;
-		public int closestPPillToPacman;
+		public int minDistanceFromPacmanToPPill; //done
+		public int closestPPillToPacman; // done
 
-		public int[] activePills;
+		public int[] activePills; // done
+		public int[] activePowerPills; //done
 
 		// Node of nearest edible ghost to pacman. Returns -1 if no ghost is edbile.
-		public int nearestEdibleGhostToPacman;
-		public int distanceFromPacmanToNearestEdibleGhost;
+		public int nearestEdibleGhostToPacman; // done
+		public int distanceFromPacmanToNearestEdibleGhost; // done
 
 		// nearest not edible ghost to nearest edible ghost to pacman
-		public int nearestGhost;
+		public int nearestGhost; //done
 
-		public List<Integer> exits;
+		public List<Integer> exits; // done
 
-		// Distance from ghost to nearest pill
-		public Map<GHOST, Integer> distancesFromGhostToPill;
+		// Distance from ghost to center of pills
+		public Map<GHOST, Integer> distancesFromGhostToPill; // done
 		// Distance from ghost to nearest power pill of pacman
-		public Map<GHOST, Integer> distancesFromGhostToPPill;
-		public Map<GHOST, Integer> distancesFromGhostToPacman;
-		public Map<GHOST, Integer> distancesFromPacmanToGhost;
+		public Map<GHOST, Integer> distancesFromGhostToPPill; // done
+		public Map<GHOST, Integer> distancesFromGhostToPacman; // done
+		public Map<GHOST, Integer> distancesFromPacmanToGhost; // done
 
 		// Distance from ghost to nearest edible ghost to pacman
-		public Map<GHOST, Integer> distancesFromGhostToEdibleGhost;
-		public Map<GHOST, Integer> distancesFromEdibleGhostToGhost;
+		public Map<GHOST, Integer> distancesFromGhostToEdibleGhost; //done
+		public Map<GHOST, Integer> distancesFromEdibleGhostToGhost; //done
 
-		public Map<GHOST, Boolean> isGhostBehindPacman;
-		public Map<GHOST, Boolean> isGhostEdible;
-		public Map<GHOST, Boolean> isGhostInLair;
-		public Map<GHOST, Boolean> doesGhostRequireAction;
+		public Map<GHOST, Boolean> isGhostBehindPacman; // done
+		public Map<GHOST, Boolean> isGhostEdible; // done
+		public Map<GHOST, Boolean> isGhostInLair; // done
+		public Map<GHOST, Boolean> doesGhostRequireAction; // done
 
-		public Map<GHOST, Double> ghostDensity; // Density of ghosts around a certain ghost
+		public Map<GHOST, Double> ghostDensity; // Density of ghosts around a certain ghost // done
 
-		public int edibleGhosts;
+		public int edibleGhosts; //done
 
 		public GhostsInfo() {
 			this.exits = new ArrayList<>();
@@ -86,8 +87,8 @@ public class GhostsInput extends Input {
 		int pacmanIndex = this.game.getPacmanCurrentNodeIndex();
 		MOVE pacmanMove = this.game.getPacmanLastMoveMade();
 		int pacmanNextJunction = this.getNextJunctionNode(pacmanIndex, pacmanMove);
-		int[] activePills = this.game.getActivePillsIndices();
-		int[] activePowerPills = this.game.getActivePowerPillsIndices();
+		this.info.activePills = this.game.getActivePillsIndices();
+		this.info.activePowerPills = this.game.getActivePowerPillsIndices();
 
 		// -------------------------------------------
 
@@ -104,17 +105,33 @@ public class GhostsInput extends Input {
 		// -------------------------------------------
 
 		this.info.distanceFromPacmanToNearestEdibleGhost = Integer.MAX_VALUE;
-		int nearestEdibleGhost = -1;
+		this.info.nearestEdibleGhostToPacman = -1;
 		this.info.edibleGhosts = 0;
+		GHOST nearestEdibleGhost = GHOST.BLINKY; // will be either overwritten or not used
 
 		for (GHOST ghost : GHOST.values()) {
 			int ghostIndex = this.game.getGhostCurrentNodeIndex(ghost);
 			MOVE ghostMove = this.game.getGhostLastMoveMade(ghost);
-			boolean ghostEdible = this.game.getGhostEdibleTime(ghost) > 0;
-			boolean ghostInLair = this.game.getGhostLairTime(ghost) > 0;
-			boolean ghostRequiresAction = this.game.doesGhostRequireAction(ghost);
+
+			// state maps
+			this.info.isGhostEdible.put(ghost,this.game.getGhostEdibleTime(ghost) > 0);
+			this.info.isGhostInLair.put(ghost,this.game.getGhostLairTime(ghost) > 0);
+			this.info.doesGhostRequireAction.put(ghost,this.game.doesGhostRequireAction(ghost));
+
+			// distance maps
+			int pillCenter = getGeometricCenterOfActivePills();
+			int distanceFromGhostToPillCenter = game.getShortestPathDistance(ghostIndex,pillCenter,ghostMove);
+			int distanceFromGhostToPPill = game.getShortestPathDistance(ghostIndex,this.info.closestPPillToPacman,ghostMove);
 			int distanceFromGhostToPacman = this.game.getShortestPathDistance(ghostIndex, pacmanIndex, ghostMove);
 			int distanceFromPacmanToGhost = this.game.getShortestPathDistance(pacmanIndex, ghostIndex, pacmanMove);
+
+			this.info.distancesFromGhostToPPill.put(ghost,distanceFromGhostToPPill);
+			this.info.distancesFromGhostToPacman.put(ghost,distanceFromGhostToPacman);
+			this.info.distancesFromPacmanToGhost.put(ghost,distanceFromPacmanToGhost);
+			this.info.distancesFromGhostToPill.put(ghost,distanceFromGhostToPillCenter);
+
+			// other
+			this.info.ghostDensity.put(ghost,getGhostDensity(game.getGhostCurrentNodeIndex(ghost)));
 
 			// -------------------------------------------
 
@@ -123,15 +140,21 @@ public class GhostsInput extends Input {
 
 			this.info.isGhostBehindPacman.put(ghost, ghostBehindPacman);
 
+			this.info.exits.clear();
+			for (int i : getExits()) {
+				this.info.exits.add(i);
+			}
+
 			// -------------------------------------------
 
-			this.info.distancesFromGhostToPacman.put(ghost, distanceFromGhostToPacman);
-			this.info.distancesFromPacmanToGhost.put(ghost, distanceFromPacmanToGhost);
-			if (ghostEdible) {
+
+			if (this.info.isGhostEdible.get(ghost)) {
 				this.info.edibleGhosts++;
 
 				if (this.info.distanceFromPacmanToNearestEdibleGhost > distanceFromGhostToPacman) {
+					nearestEdibleGhost = ghost;
 					this.info.nearestEdibleGhostToPacman = ghostIndex;
+					this.info.distanceFromPacmanToNearestEdibleGhost = distanceFromGhostToPacman;
 				}
 			}
 
@@ -146,13 +169,17 @@ public class GhostsInput extends Input {
 
 		// if there is an edible ghost, set node of not edible ghost closest to them
 		int closestGhost = -1;
-		if (nearestEdibleGhost != -1) {
+		this.info.distancesFromGhostToEdibleGhost.clear();
+		this.info.distancesFromEdibleGhostToGhost.clear();
+		if (this.info.nearestEdibleGhostToPacman != -1) {
 			double ghostDistance = Integer.MAX_VALUE;
 
 			for (GHOST ghost : GHOST.values()) {
 				if (!game.isGhostEdible(ghost)) {
 					int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
-					double currDistance = game.getDistance(ghostIndex, nearestEdibleGhost, DM.PATH);
+					double currDistance = game.getDistance(ghostIndex, this.info.nearestEdibleGhostToPacman, DM.PATH);
+					this.info.distancesFromGhostToEdibleGhost.put(ghost,(int) currDistance);
+					this.info.distancesFromEdibleGhostToGhost.put(nearestEdibleGhost,(int) currDistance);
 
 					if (currDistance < ghostDistance) {
 						closestGhost = ghostIndex;
@@ -167,6 +194,21 @@ public class GhostsInput extends Input {
 
 	public GhostsInfo getInfo() {
 		return this.info;
+	}
+
+	/**
+	 * Looks into
+	 * @return
+	 */
+	private int[] getExits() {
+		int nextJunction = getNextJunctionNode(game.getPacmanCurrentNodeIndex(),game.getPacmanLastMoveMade());
+		MOVE[] nextMoves = game.getPossibleMoves(nextJunction);
+		int[] nextNextJunctions = new int[nextMoves.length];
+		int iterator = 0;
+		for (MOVE move : nextMoves) {
+			nextNextJunctions[iterator] = getNextJunctionNode(game.getNeighbour(nextJunction,move),move);
+		}
+		return nextNextJunctions;
 	}
 
 	private int getNextJunctionNode(int node, MOVE move) {
@@ -244,7 +286,7 @@ public class GhostsInput extends Input {
 		return density;
 	}
 
-	private int getDistanceToNearestGhost(GHOST g) {
+	private int getIndexOfNearestGhost(GHOST g) {
 		int index = game.getGhostCurrentNodeIndex(g);
 		double minDistance = Double.MAX_VALUE;
 		int result = -1;
@@ -252,7 +294,7 @@ public class GhostsInput extends Input {
 		for (GHOST ghost : GHOST.values()) {
 			int curr = game.getGhostCurrentNodeIndex(ghost);
 			double ghostDistance = game.getDistance(curr, index, DM.PATH);
-			if (minDistance > ghostDistance) {
+			if (minDistance > ghostDistance && curr != index) {
 				minDistance = ghostDistance;
 				result = curr;
 			}
