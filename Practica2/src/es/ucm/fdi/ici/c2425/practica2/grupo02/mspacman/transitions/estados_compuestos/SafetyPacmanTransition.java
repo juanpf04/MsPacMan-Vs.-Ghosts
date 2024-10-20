@@ -15,5 +15,6 @@ public class SafetyPacmanTransition implements Transition {
     public String toString() {
         return "Safety Pacman";
     }
+    
 
 }
