@@ -17,7 +17,7 @@ import pacman.game.Game;
 public class MsPacManInput extends Input {
 
 	private static final int SAFE_DISTANCE = 20;
-    private static final int SEARCH_DEPTH = 20; // Profundidad de búsqueda para evaluar caminos
+    private static final int SEARCH_DEPTH = 40; // Profundidad de búsqueda para evaluar caminos
 	private static final int SEARCH_DEPTH_FAR = 30;
 
     private static final int WEIGHT_SECURITY = 3;
