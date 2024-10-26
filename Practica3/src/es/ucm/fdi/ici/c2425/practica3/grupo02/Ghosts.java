@@ -1,12 +1,12 @@
-package es.ucm.fdi.ici.c2425.practica3.grupoYY;
+package es.ucm.fdi.ici.c2425.practica3.grupo02;
 
 import java.io.File;
 import java.util.EnumMap;
 import java.util.HashMap;
 
-import es.ucm.fdi.ici.c2425.practica3.grupoYY.ghosts.GhostsInput;
-import es.ucm.fdi.ici.c2425.practica3.grupoYY.ghosts.actions.ChaseAction;
-import es.ucm.fdi.ici.c2425.practica3.grupoYY.ghosts.actions.RunAwayAction;
+import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.GhostsInput;
+import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.ChaseAction;
+import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.RunAwayAction;
 import es.ucm.fdi.ici.rules.RuleEngine;
 import es.ucm.fdi.ici.rules.RulesAction;
 import es.ucm.fdi.ici.rules.RulesInput;

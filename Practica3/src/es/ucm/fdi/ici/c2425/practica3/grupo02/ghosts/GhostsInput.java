@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica3.grupoYY.ghosts;
+package es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts;
 
 import java.util.Collection;
 import java.util.Vector;

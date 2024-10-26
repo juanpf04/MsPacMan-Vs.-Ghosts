@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica5.grupoYY.CBRengine;
+package es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine;
 
 import java.util.ArrayList;
 import java.util.Collection;

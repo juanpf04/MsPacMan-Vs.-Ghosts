@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica3.grupoYY;
+package es.ucm.fdi.ici.c2425.practica3.grupo02;
 
 import java.io.File;
 import java.util.Iterator;

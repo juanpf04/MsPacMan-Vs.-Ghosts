@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica3.grupoYY.ghosts.actions;
+package es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions;
 
 import es.ucm.fdi.ici.rules.RulesAction;
 import jess.Fact;

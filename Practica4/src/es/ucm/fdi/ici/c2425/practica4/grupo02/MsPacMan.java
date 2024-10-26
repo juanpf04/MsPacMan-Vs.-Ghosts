@@ -1,14 +1,14 @@
-package es.ucm.fdi.ici.c2425.practica4.grupoYY;
+package es.ucm.fdi.ici.c2425.practica4.grupo02;
 
 import java.io.File;
 import java.util.HashMap;
 
 import es.ucm.fdi.ici.Action;
-import es.ucm.fdi.ici.c2425.practica4.grupoYY.mspacman.MaxActionSelector;
-import es.ucm.fdi.ici.c2425.practica4.grupoYY.mspacman.MsPacManFuzzyMemory;
-import es.ucm.fdi.ici.c2425.practica4.grupoYY.mspacman.MsPacManInput;
-import es.ucm.fdi.ici.c2425.practica4.grupoYY.mspacman.actions.GoToPPillAction;
-import es.ucm.fdi.ici.c2425.practica4.grupoYY.mspacman.actions.RunAwayAction;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.MaxActionSelector;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.MsPacManFuzzyMemory;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.MsPacManInput;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.actions.GoToPPillAction;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.actions.RunAwayAction;
 import es.ucm.fdi.ici.fuzzy.ActionSelector;
 import es.ucm.fdi.ici.fuzzy.FuzzyEngine;
 import es.ucm.fdi.ici.fuzzy.observers.ConsoleFuzzyEngineObserver;

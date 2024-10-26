@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica4.grupoYY.mspacman;
+package es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman;
 
 import java.util.HashMap;
 import java.util.Map.Entry;

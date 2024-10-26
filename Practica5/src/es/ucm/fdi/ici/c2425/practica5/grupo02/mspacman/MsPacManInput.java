@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica5.grupoYY.mspacman;
+package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRQuery;
 import es.ucm.fdi.ici.cbr.CBRInput;
