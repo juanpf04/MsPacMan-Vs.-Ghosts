@@ -12,7 +12,8 @@ public class Retetest {
 	public static void main(String args[]) {
 		String RULES_PATH = "es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"practica3"+File.separator+"demorules"+File.separator;
 		String RULES_FILE = "rulestest.clp";
-		String rulesFile = String.format("%s%s", RULES_PATH, RULES_FILE);
+		String altPath = "Practica3\\src\\es\\ucm\\fdi\\ici\\c2425\\practica3\\grupo02\\";
+		String rulesFile = String.format("%s%s", altPath, RULES_FILE);
 		Rete jess = new Rete();
 		try {
 			jess.batch(rulesFile);

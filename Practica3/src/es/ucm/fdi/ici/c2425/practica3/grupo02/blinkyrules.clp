@@ -1,18 +1,14 @@
 ;FACTS ASSERTED BY GAME INPUT
 (deftemplate BLINKY
-	(slot edible (type SYMBOL)))
-	
-(deftemplate INKY
-	(slot edible (type SYMBOL)))
-	
-(deftemplate PINKY
-	(slot edible (type SYMBOL)))
-
-(deftemplate SUE
-	(slot edible (type SYMBOL)))
+	(slot edible (type SYMBOL))
+	(slot distanceMSPACMANNearestPPill (type NUMBER))
+	(slot distanceMSPACMAN (type NUMBER))
+	(slot lairTime (type NUMBER))
+	(slot edibleTime (type NUMBER))
+	(slot lastMoveMade (type SYMBOL)))
 	
 (deftemplate MSPACMAN 
-    (slot mindistancePPill (type NUMBER)) )
+    (slot mindistancePPill (type NUMBER)))
     
 ;DEFINITION OF THE ACTION FACT
 (deftemplate ACTION
@@ -31,6 +27,20 @@
 	)
 )
 
+(defrule BLINKYgoesToPPillCloserThanMSPACMAN
+	(BLINKY (edible false) (distanceMSPACMANNearestPPill ?d1)) 
+	(MSPACMAN (mindistancePPill ?d2)) 
+	(test (< ?d1 ?d2)) ; blinky closer to mspacman closest ppill than mspacman
+	=>  
+	(assert 
+		(ACTION 
+			(id BLINKYgoesToNearestPPillToPacman) 
+			(info "MSPacMan cerca PPill, Blinky mas cerca") 
+			(priority 50) 
+		)
+	)
+)
+
 (defrule BLINKYrunsAway
 	(BLINKY (edible true)) 
 	=>  
@@ -45,6 +55,4 @@
 	(BLINKY (edible false)) 
 	=> 
 	(assert (ACTION (id BLINKYchases) (info "No comestible --> perseguir")  (priority 10) ))
-)	
-	
-	
+)
