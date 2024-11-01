@@ -9,7 +9,6 @@ import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.ChaseAction;
 import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.RunAwayAction;
 import es.ucm.fdi.ici.rules.RuleEngine;
 import es.ucm.fdi.ici.rules.RulesAction;
-import es.ucm.fdi.ici.rules.RulesInput;
 import es.ucm.fdi.ici.rules.observers.ConsoleRuleEngineObserver;
 import pacman.controllers.GhostController;
 import pacman.game.Constants.GHOST;
@@ -30,27 +29,15 @@ public class Ghosts extends GhostController {
 
 		map = new HashMap<String, RulesAction>();
 		// Fill Actions
-		RulesAction BLINKYchases = new ChaseAction(GHOST.BLINKY);
-		RulesAction INKYchases = new ChaseAction(GHOST.INKY);
-		RulesAction PINKYchases = new ChaseAction(GHOST.PINKY);
-		RulesAction SUEchases = new ChaseAction(GHOST.SUE);
-		RulesAction BLINKYrunsAway = new RunAwayAction(GHOST.BLINKY);
-		RulesAction INKYrunsAway = new RunAwayAction(GHOST.INKY);
-		RulesAction PINKYrunsAway = new RunAwayAction(GHOST.PINKY);
-		RulesAction SUErunsAway = new RunAwayAction(GHOST.SUE);
 
-		map.put("BLINKYchases", BLINKYchases);
-		map.put("INKYchases", INKYchases);
-		map.put("PINKYchases", PINKYchases);
-		map.put("SUEchases", SUEchases);
-		map.put("BLINKYrunsAway", BLINKYrunsAway);
-		map.put("INKYrunsAway", INKYrunsAway);
-		map.put("PINKYrunsAway", PINKYrunsAway);
-		map.put("SUErunsAway", SUErunsAway);
+		for (GHOST ghost : GHOST.values()) {
+			map.put("chase", new ChaseAction(ghost));
+			map.put("runAway", new RunAwayAction(ghost));
+		}
 
 		ghostRuleEngines = new EnumMap<GHOST, RuleEngine>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
-			String rulesFile = String.format("%s%srules.clp", RULES_PATH, ghost.name().toLowerCase());
+			String rulesFile = String.format("%sghostsrules.clp", RULES_PATH);
 			RuleEngine engine = new RuleEngine(ghost.name(), rulesFile, map);
 			ghostRuleEngines.put(ghost, engine);
 
@@ -70,17 +57,18 @@ public class Ghosts extends GhostController {
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
 
 		// Process input
-		RulesInput input = new GhostsInput(game);
-		// load facts
-		// reset the rule engines
-		for (RuleEngine engine : ghostRuleEngines.values()) {
-			engine.reset();
-			engine.assertFacts(input.getFacts());
-		}
+		GhostsInput input = new GhostsInput(game);
 
 		EnumMap<GHOST, MOVE> result = new EnumMap<GHOST, MOVE>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
 			RuleEngine engine = ghostRuleEngines.get(ghost);
+
+			// reset the rule engine
+			engine.reset();
+			// load facts
+			engine.assertFacts(input.getFacts(ghost));
+
+			// run the engine
 			MOVE move = engine.run(game);
 			result.put(ghost, move);
 		}
