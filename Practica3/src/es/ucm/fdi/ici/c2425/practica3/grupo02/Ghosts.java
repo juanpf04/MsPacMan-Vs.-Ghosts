@@ -8,7 +8,6 @@ import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.*;
 import es.ucm.fdi.ici.rules.RuleEngine;
 import es.ucm.fdi.ici.rules.RulesAction;
-import es.ucm.fdi.ici.rules.RulesInput;
 import es.ucm.fdi.ici.rules.observers.ConsoleRuleEngineObserver;
 import pacman.controllers.GhostController;
 import pacman.game.Constants.GHOST;
@@ -43,7 +42,7 @@ public class Ghosts extends GhostController {
 
 		this.ghostRuleEngines = new EnumMap<GHOST, RuleEngine>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
-			String rulesFile = String.format("%s%srules.clp", RULES_PATH, ghost.name().toLowerCase());
+			String rulesFile = String.format("%sghostsrules.clp", RULES_PATH);
 			RuleEngine engine = new RuleEngine(ghost.name(), rulesFile, this.map);
 			this.ghostRuleEngines.put(ghost, engine);
 
@@ -63,17 +62,18 @@ public class Ghosts extends GhostController {
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
 
 		// Process input
-		RulesInput input = new GhostsInput(game);
-		// load facts
-		// reset the rule engines
-		for (RuleEngine engine : this.ghostRuleEngines.values()) {
-			engine.reset();
-			engine.assertFacts(input.getFacts());
-		}
+		GhostsInput input = new GhostsInput(game);
 
 		EnumMap<GHOST, MOVE> result = new EnumMap<GHOST, MOVE>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
-			RuleEngine engine = this.ghostRuleEngines.get(ghost);
+			RuleEngine engine = ghostRuleEngines.get(ghost);
+
+			// reset the rule engine
+			engine.reset();
+			// load facts
+			engine.assertFacts(input.getFacts(ghost));
+
+			// run the engine
 			MOVE move = engine.run(game);
 			result.put(ghost, move);
 		}

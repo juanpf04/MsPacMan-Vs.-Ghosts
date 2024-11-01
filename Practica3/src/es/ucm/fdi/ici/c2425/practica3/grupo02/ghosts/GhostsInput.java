@@ -10,10 +10,6 @@ import pacman.game.Game;
 
 public class GhostsInput extends RulesInput {
 
-	private boolean BLINKYedible;
-	private boolean INKYedible;
-	private boolean PINKYedible;
-	private boolean SUEedible;
 	private double minPacmanDistancePPill;
 
 	public GhostsInput(Game game) {
@@ -22,11 +18,6 @@ public class GhostsInput extends RulesInput {
 
 	@Override
 	public void parseInput() {
-		this.BLINKYedible = game.isGhostEdible(GHOST.BLINKY);
-		this.INKYedible = game.isGhostEdible(GHOST.INKY);
-		this.PINKYedible = game.isGhostEdible(GHOST.PINKY);
-		this.SUEedible = game.isGhostEdible(GHOST.SUE);
-
 		int pacman = game.getPacmanCurrentNodeIndex();
 		this.minPacmanDistancePPill = Double.MAX_VALUE;
 		for (int ppill : game.getPowerPillIndices()) {
@@ -35,16 +26,16 @@ public class GhostsInput extends RulesInput {
 		}
 	}
 
-	@Override
-	public Collection<String> getFacts() {
+	public Collection<String> getFacts(GHOST ghost) {
 		Vector<String> facts = new Vector<String>();
-
-		for (GHOST ghost : GHOST.values()) {
-			facts.add(String.format("(%s (edible %s))", ghost, this.game.isGhostEdible(ghost)));
-		}
-
+		facts.add(String.format("(GHOST (edible %s))", this.game.isGhostEdible(ghost)));
 		facts.add(String.format("(MSPACMAN (mindistancePPill %d))", (int) this.minPacmanDistancePPill));
 		return facts;
+	}
+
+	@Override
+	public Collection<String> getFacts() {
+		return null;
 	}
 
 }
