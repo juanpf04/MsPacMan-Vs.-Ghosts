@@ -5,8 +5,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 
 import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.GhostsInput;
-import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.ChaseAction;
-import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.RunAwayAction;
+import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.*;
 import es.ucm.fdi.ici.rules.RuleEngine;
 import es.ucm.fdi.ici.rules.RulesAction;
 import es.ucm.fdi.ici.rules.RulesInput;
@@ -16,88 +15,69 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
-public class Ghosts  extends GhostController  {
-	private static final String RULES_PATH = "es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"c2425"+File.separator+"practica3"+File.separator+"grupo02"+File.separator;
-	HashMap<String,RulesAction> map;
-	
-	EnumMap<GHOST,RuleEngine> ghostRuleEngines;
-	
-	
-	public Ghosts() {
-		setName("Ghosts XX");
-		setTeam("Team XX");
-		
-		map = new HashMap<String,RulesAction>();
-		//Fill Actions
-		/* 
-		RulesAction BLINKYchases = new ChaseAction(GHOST.BLINKY);
-		RulesAction INKYchases = new ChaseAction(GHOST.INKY);
-		RulesAction PINKYchases = new ChaseAction(GHOST.PINKY);
-		RulesAction SUEchases = new ChaseAction(GHOST.SUE);
-		RulesAction BLINKYrunsAway = new RunAwayAction(GHOST.BLINKY);
-		RulesAction INKYrunsAway = new RunAwayAction(GHOST.INKY);
-		RulesAction PINKYrunsAway = new RunAwayAction(GHOST.PINKY);
-		RulesAction SUErunsAway = new RunAwayAction(GHOST.SUE);
-		
-		map.put("BLINKYchases", BLINKYchases);
-		map.put("INKYchases", INKYchases);
-		map.put("PINKYchases", PINKYchases);
-		map.put("SUEchases", SUEchases);	
-		map.put("BLINKYrunsAway", BLINKYrunsAway);
-		map.put("INKYrunsAway", INKYrunsAway);
-		map.put("PINKYrunsAway", PINKYrunsAway);
-		map.put("SUErunsAway", SUErunsAway);
-		*/
+public class Ghosts extends GhostController {
+	private static final String RULES_PATH = "es" + File.separator + "ucm" + File.separator + "fdi" + File.separator
+			+ "ici" + File.separator + "c2425" + File.separator + "practica3" + File.separator + "grupo02"
+			+ File.separator;
+	HashMap<String, RulesAction> map;
 
+	EnumMap<GHOST, RuleEngine> ghostRuleEngines;
+
+	public Ghosts() {
+		this.setName("Fantasmikos");
+		this.setTeam("Team 02");
+
+		this.map = new HashMap<String, RulesAction>();
+
+		// Fill Actions
 		for (GHOST ghost : GHOST.values()) {
-			map.put(ghost.toString() + "chases", new ChaseAction(ghost));
-			map.put(ghost.toString() + "runsAway", new RunAwayAction(ghost));
-			map.put(ghost.toString() + "goesToNearestPPillToPacman", new PLACEHOLDER(ghost));
-			map.put(ghost.toString() + "protectEdibleGhost", new PLACEHOLDER(ghost));
-			map.put(ghost.toString() + "goToSafeGhost", new PLACEHOLDER(ghost));
-			map.put(ghost.toString() + "disperse", new PLACEHOLDER(ghost));
-			map.put(ghost.toString() + "goToLastPills", new PLACEHOLDER(ghost));
-			map.put(ghost.toString() + "blockExits", new PLACEHOLDER(ghost));
+			this.map.put(ghost.toString() + "chases", new ChaseAction(ghost));
+			this.map.put(ghost.toString() + "runsAway", new RunAwayAction(ghost));
+			this.map.put(ghost.toString() + "goesToNearestPPillToPacman", new GoToNearestPPillToPacmanAction(ghost));
+			this.map.put(ghost.toString() + "protectsEdibleGhost", new ProtectEdibleGhostAction(ghost));
+			this.map.put(ghost.toString() + "goesToSafeGhost", new GoToSafeGhostAction(ghost));
+			this.map.put(ghost.toString() + "disperses", new DisperseAction(ghost));
+			this.map.put(ghost.toString() + "goesToLastPills", new GoToLastPillsAction(ghost));
+			this.map.put(ghost.toString() + "blocksExits", new BlockExitsAction(ghost));
 		}
-		
-		ghostRuleEngines = new EnumMap<GHOST,RuleEngine>(GHOST.class);
-		for(GHOST ghost: GHOST.values())
-		{
+
+		this.ghostRuleEngines = new EnumMap<GHOST, RuleEngine>(GHOST.class);
+		for (GHOST ghost : GHOST.values()) {
 			String rulesFile = String.format("%s%srules.clp", RULES_PATH, ghost.name().toLowerCase());
-			RuleEngine engine  = new RuleEngine(ghost.name(),rulesFile, map);
-			ghostRuleEngines.put(ghost, engine);
-			
-			//add observer to every Ghost
-			//ConsoleRuleEngineObserver observer = new ConsoleRuleEngineObserver(ghost.name(), true);
-			//engine.addObserver(observer);
+			RuleEngine engine = new RuleEngine(ghost.name(), rulesFile, this.map);
+			this.ghostRuleEngines.put(ghost, engine);
+
+			// add observer to every Ghost
+			// ConsoleRuleEngineObserver observer = new
+			// ConsoleRuleEngineObserver(ghost.name(), true);
+			// engine.addObserver(observer);
 		}
-		
-		//add observer only to BLINKY
+
+		// add observer only to BLINKY
 		ConsoleRuleEngineObserver observer = new ConsoleRuleEngineObserver(GHOST.BLINKY.name(), true);
-		ghostRuleEngines.get(GHOST.BLINKY).addObserver(observer);
-		
+		this.ghostRuleEngines.get(GHOST.BLINKY).addObserver(observer);
+
 	}
 
 	@Override
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
-		
-		//Process input
+
+		// Process input
 		RulesInput input = new GhostsInput(game);
-		//load facts
-		//reset the rule engines
-		for(RuleEngine engine: ghostRuleEngines.values()) {
+		// load facts
+		// reset the rule engines
+		for (RuleEngine engine : this.ghostRuleEngines.values()) {
 			engine.reset();
 			engine.assertFacts(input.getFacts());
 		}
-		
-		EnumMap<GHOST,MOVE> result = new EnumMap<GHOST,MOVE>(GHOST.class);		
-		for(GHOST ghost: GHOST.values())
-		{
-			RuleEngine engine = ghostRuleEngines.get(ghost);
+
+		EnumMap<GHOST, MOVE> result = new EnumMap<GHOST, MOVE>(GHOST.class);
+		for (GHOST ghost : GHOST.values()) {
+			RuleEngine engine = this.ghostRuleEngines.get(ghost);
 			MOVE move = engine.run(game);
 			result.put(ghost, move);
 		}
-		
+
 		return result;
 	}
 

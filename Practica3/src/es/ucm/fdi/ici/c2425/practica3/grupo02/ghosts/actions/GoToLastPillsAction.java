@@ -7,11 +7,11 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
-public class ChaseAction implements RulesAction {
+public class GoToLastPillsAction implements RulesAction {
 
     private GHOST ghost;
     
-	public ChaseAction( GHOST ghost) {
+	public GoToLastPillsAction( GHOST ghost) {
 		this.ghost = ghost;
 	}
 

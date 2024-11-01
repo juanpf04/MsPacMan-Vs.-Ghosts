@@ -22,7 +22,8 @@
 	(slot runawaystrategy (type SYMBOL)) ; Extra slot for the runaway action
 ) 
 
-;RULES 
+;RULES --------------------------------------------------------------------------------------------
+
 (defrule BLINKYgoesToNearestPPillToPacman
 	(BLINKY (edible false) (distanceMSPACMANNearestPPill ?d1)) 
 	(MSPACMAN (mindistancePPill ?d2)) 
@@ -37,64 +38,64 @@
 	)
 )
 
-(defrule BLINKYprotectEdibleGhost
+(defrule BLINKYprotectsEdibleGhost
 	(BLINKY (edible false) (distanceMSPACMAN ?d1) (distanceToClosestEdibleGhost ?d2)) 
 	(test (< ?d2 ?d1)) ; blinky closer to mspacman closest ppill than mspacman
 	=>  
 	(assert 
 		(ACTION 
-			(id BLINKYprotectEdibleGhost) 
+			(id BLINKYprotectsEdibleGhost) 
 			(info "Edible ghost near --> go to edible ghost") 
 			(priority 50) 
 		)
 	)
 )
 
-(defrule BLINKYgoToSafeGhost
+(defrule BLINKYgoesToSafeGhost
 	(BLINKY (edible true) (distanceMSPACMAN ?d1) (distanceToClosestNotEdibleGhost ?d2)) 
 	(test (< ?d2 ?d1)) ; blinky closer to safe ghost than mspacman
 	=>  
 	(assert 
 		(ACTION 
-			(id BLINKYgoToSafeGhost) 
+			(id BLINKYgoesToSafeGhost) 
 			(info "Not edible ghost near --> go to ghost") 
 			(priority 50) 
 		)
 	)
 )
 
-(defrule BLINKYdisperse
+(defrule BLINKYdisperses
 	(BLINKY (ghostDensity ?d1)) 
 	(test (< 1.5 ?d1)) ; density higher than threshold
 	=>  
 	(assert 
 		(ACTION 
-			(id BLINKYdisperse) 
+			(id BLINKYdisperses) 
 			(info "Density too high --> move away from other ghosts") 
 			(priority 50) 
 		)
 	)
 )
 
-(defrule BLINKYgoToLastPills
+(defrule BLINKYgoesToLastPills
 	(BLINKY (edible false) (pillCount ?d1)) 
 	(test (< ?d1 15)) ; density higher than threshold
 	=>  
 	(assert 
 		(ACTION 
-			(id BLINKYgoToLastPills) 
+			(id BLINKYgoesToLastPills) 
 			(info "Few pills left --> go to last pills") 
 			(priority 50) 
 		)
 	)
 )
 
-(defrule BLINKYblockExits
+(defrule BLINKYblocksExits
 	(BLINKY (edible false) (behindPacman true)) 
 	=>  
 	(assert 
 		(ACTION 
-			(id BLINKYblockExits) 
+			(id BLINKYblocksExits) 
 			(info "behind pacman --> cover exits") 
 			(priority 50) 
 		)
@@ -121,7 +122,7 @@
 	)
 )
 
-(defrule BLINKYnotDisperse
+(defrule BLINKYnotDisperses
 	(BLINKY (edible true) (ghostDensity ?d1)) 
 	(test (< ?d1 1.5)) ; density higher than threshold
 	=>  
