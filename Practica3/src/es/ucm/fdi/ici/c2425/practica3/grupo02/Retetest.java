@@ -10,7 +10,8 @@ import jess.Rete;
 public class Retetest {
 
 	public static void main(String args[]) {
-		String RULES_PATH = "es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"practica3"+File.separator+"demorules"+File.separator;
+		String RULES_PATH = "es" + File.separator + "ucm" + File.separator + "fdi" + File.separator + "ici"
+				+ File.separator + "c2425" + File.separator + "practica3" + File.separator + "grupo02" + File.separator;
 		String RULES_FILE = "rulestest.clp";
 		String rulesFile = String.format("%s%s", RULES_PATH, RULES_FILE);
 		Rete jess = new Rete();
@@ -19,9 +20,9 @@ public class Retetest {
 			jess.reset();
 			jess.run();
 			Iterator<?> it = jess.listFacts();
-			while(it.hasNext()){ 
-			    Fact dd = (Fact)it.next();
-			    System.out.println(dd.toString());
+			while (it.hasNext()) {
+				Fact dd = (Fact) it.next();
+				System.out.println(dd.toString());
 			}
 		} catch (JessException e) {
 			e.printStackTrace();
