@@ -57,6 +57,7 @@ public class Ghosts  extends GhostController  {
 			map.put(ghost.toString() + "goToSafeGhost", new PLACEHOLDER(ghost));
 			map.put(ghost.toString() + "disperse", new PLACEHOLDER(ghost));
 			map.put(ghost.toString() + "goToLastPills", new PLACEHOLDER(ghost));
+			map.put(ghost.toString() + "blockExits", new PLACEHOLDER(ghost));
 		}
 		
 		ghostRuleEngines = new EnumMap<GHOST,RuleEngine>(GHOST.class);

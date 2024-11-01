@@ -9,7 +9,8 @@
 	(slot distanceToClosestEdibleGhost (type NUMBER))
 	(slot distanceToClosestNotEdibleGhost (type NUMBER))
 	(slot ghostDensity (type NUMBER))
-	(slot pillCount (type NUMBER)))
+	(slot pillCount (type NUMBER))
+	(slot behindPacman (type SYMBOL)))
 
 	
 (deftemplate MSPACMAN 
@@ -88,6 +89,18 @@
 	)
 )
 
+(defrule BLINKYblockExits
+	(BLINKY (edible false) (behindPacman true)) 
+	=>  
+	(assert 
+		(ACTION 
+			(id BLINKYblockExits) 
+			(info "behind pacman --> cover exits") 
+			(priority 50) 
+		)
+	)
+)
+
 (defrule BLINKYrunsAway
 	(BLINKY (edible true)) 
 	=>  
@@ -142,6 +155,31 @@
 	)
 )
 
+(defrule BLINKYchase3
+	(BLINKY (edible false) (distanceMSPACMAN ?d1) (behindPacman false)) 
+	(test (< ?d1 50)) ; blinky closer to mspacman closest ppill than mspacman
+	=>  
+	(assert 
+		(ACTION 
+			(id BLINKYchases) 
+			(info "Edible ghost near --> go to edible ghost") 
+			(priority 50) 
+		)
+	)
+)
+
+(defrule BLINKYchase4
+	(BLINKY (edible false) (distanceMSPACMANNearestPPill ?d1)) 
+	(test (< ?d1 30)) ; blinky closer to mspacman closest ppill than mspacman
+	=>  
+	(assert 
+		(ACTION 
+			(id BLINKYchases) 
+			(info "Edible ghost near --> go to edible ghost") 
+			(priority 50) 
+		)
+	)
+)
 (defrule BLINKYnotDisperse2
 	(BLINKY (edible false) (ghostDensity ?d1)) 
 	(test (< ?d1 1.5)) ; density higher than threshold
