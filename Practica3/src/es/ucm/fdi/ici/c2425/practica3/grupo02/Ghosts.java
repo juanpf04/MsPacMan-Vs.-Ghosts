@@ -17,7 +17,7 @@ import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 public class Ghosts  extends GhostController  {
-	private static final String RULES_PATH = "es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"c2425"+File.separator+"practica3"+File.separator+"grupoYY"+File.separator;
+	private static final String RULES_PATH = "es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"c2425"+File.separator+"practica3"+File.separator+"grupo02"+File.separator;
 	HashMap<String,RulesAction> map;
 	
 	EnumMap<GHOST,RuleEngine> ghostRuleEngines;
@@ -29,6 +29,7 @@ public class Ghosts  extends GhostController  {
 		
 		map = new HashMap<String,RulesAction>();
 		//Fill Actions
+		/* 
 		RulesAction BLINKYchases = new ChaseAction(GHOST.BLINKY);
 		RulesAction INKYchases = new ChaseAction(GHOST.INKY);
 		RulesAction PINKYchases = new ChaseAction(GHOST.PINKY);
@@ -46,6 +47,17 @@ public class Ghosts  extends GhostController  {
 		map.put("INKYrunsAway", INKYrunsAway);
 		map.put("PINKYrunsAway", PINKYrunsAway);
 		map.put("SUErunsAway", SUErunsAway);
+		*/
+
+		for (GHOST ghost : GHOST.values()) {
+			map.put(ghost.toString() + "chases", new ChaseAction(ghost));
+			map.put(ghost.toString() + "runsAway", new RunAwayAction(ghost));
+			map.put(ghost.toString() + "goesToNearestPPillToPacman", new PLACEHOLDER(ghost));
+			map.put(ghost.toString() + "protectEdibleGhost", new PLACEHOLDER(ghost));
+			map.put(ghost.toString() + "goToSafeGhost", new PLACEHOLDER(ghost));
+			map.put(ghost.toString() + "disperse", new PLACEHOLDER(ghost));
+			map.put(ghost.toString() + "goToLastPills", new PLACEHOLDER(ghost));
+		}
 		
 		ghostRuleEngines = new EnumMap<GHOST,RuleEngine>(GHOST.class);
 		for(GHOST ghost: GHOST.values())
