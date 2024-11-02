@@ -3,6 +3,8 @@ package es.ucm.fdi.ici.c2425.practica3.grupo02;
 import java.io.File;
 import java.util.EnumMap;
 import java.util.HashMap;
+
+import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.actions.*;
 import es.ucm.fdi.ici.rules.RuleEngine;
@@ -22,27 +24,32 @@ public class Ghosts extends GhostController {
 
 	private EnumMap<GHOST, RuleEngine> ghostRuleEngines;
 
+	private GhostsInfo info;
+
 	public Ghosts() {
 		this.setName("Fantasmikos");
 		this.setTeam("Team 02");
 
 		String rulesFile = String.format("%s%s", RULES_PATH, RULES_FILE);
 
+		this.info = new GhostsInfo();
+
 		this.ghostRuleEngines = new EnumMap<GHOST, RuleEngine>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
-			HashMap<String, RulesAction> map = new HashMap<String, RulesAction>();
+			HashMap<String, RulesAction> actions = new HashMap<String, RulesAction>();
 
 			// Fill Actions
-			map.put("chase", new ChaseAction(ghost));
-			map.put("runAway", new RunAwayAction(ghost));
-			map.put("goToNearestPPillToPacman", new GoToNearestPPillToPacmanAction(ghost));
-			map.put("protectEdibleGhost", new ProtectEdibleGhostAction(ghost));
-			map.put("goToSafeGhost", new GoToSafeGhostAction(ghost));
-			map.put("disperse", new DisperseAction(ghost));
-			map.put("goToLastPills", new GoToLastPillsAction(ghost));
-			map.put("blockExits", new BlockExitsAction(ghost));
+			actions.put("chase", new ChaseAction(ghost));
+			actions.put("runAway", new RunAwayAction(ghost));
+			actions.put("goToNearestPPillToPacman", new GoToPowePillAction(ghost, this.info));
+			actions.put("protectEdibleGhost", new GoToGhostAction(ghost, this.info));
+			actions.put("goToSafeGhost", new GoToGhostAction(ghost, this.info));
+			actions.put("disperse", new DisperseAction(ghost));
+			actions.put("goToLastPills", new GoToLastPillsAction(ghost));
+			actions.put("blockExits", new CoverExitAction(ghost, this.info));
 
-			RuleEngine engine = new RuleEngine(ghost.name(), rulesFile, map);
+			// Create Rule Engine
+			RuleEngine engine = new RuleEngine(ghost.name(), rulesFile, actions);
 			this.ghostRuleEngines.put(ghost, engine);
 
 			// add observer to every Ghost
@@ -61,7 +68,7 @@ public class Ghosts extends GhostController {
 		EnumMap<GHOST, MOVE> result = new EnumMap<GHOST, MOVE>(GHOST.class);
 
 		// Process input
-		GhostsInput input = new GhostsInput(game);
+		GhostsInput input = new GhostsInput(game, this.info);
 
 		for (GHOST ghost : GHOST.values()) {
 			RuleEngine engine = this.ghostRuleEngines.get(ghost);

@@ -18,6 +18,7 @@
 (deftemplate ACTION
 	(slot id) (slot info (default "")) (slot priority (type NUMBER) ) ; mandatory slots
 	(slot runawaystrategy (type SYMBOL)) ; Extra slot for the runaway action
+	(slot edible (type SYMBOL)) ; Extra slot for the go to Ghost action
 ) 
 
 ;RULES --------------------------------------------------------------------------------------------
@@ -30,7 +31,7 @@
 	(assert 
 		(ACTION 
 			(id goToNearestPPillToPacman) 
-			(info (str-cat "MSPacMan cerca PPill, " ?g " mas cerca --> ir a ppill")) 
+			(info (str-cat "MSPacMan near PPill, " ?g " nearest --> go to ppill")) 
 			(priority 50) 
 		)
 	)
@@ -44,6 +45,7 @@
 		(ACTION 
 			(id protectEdibleGhost) 
 			(info "Edible ghost near --> go to edible ghost") 
+			(edible false)
 			(priority 50) 
 		)
 	)
@@ -56,7 +58,8 @@
 	(assert 
 		(ACTION 
 			(id goToSafeGhost) 
-			(info "Not edible ghost near --> go to ghost") 
+			(info "Not edible ghost near --> go to ghost")
+			(edible true) 
 			(priority 50) 
 		)
 	)
