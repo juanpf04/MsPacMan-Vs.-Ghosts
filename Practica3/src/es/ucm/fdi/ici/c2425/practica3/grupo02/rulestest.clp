@@ -18,7 +18,20 @@
 (deftemplate ACTION
 	(slot id) (slot info (default "")) (slot priority (type NUMBER) ) ; mandatory slots
 	(slot runawaystrategy (type SYMBOL)) ; Extra slot for the runaway action
+	(slot edible (type SYMBOL)) ; Extra slot for the go to Ghost action
 ) 
+
+
+(deffacts ghost
+    (GHOST (name BLINKY) 
+    (edible false) 
+    (behindPacman false) 
+    (distanceMSPACMANNearestPPill 10) 
+    (distanceMSPACMAN 50) 
+    (distanceToClosestEdibleGhost 30) 
+    (distanceToClosestNotEdibleGhost 40) 
+    (ghostDensity 1.5) 
+    (pillCount 20)))
 
 ;RULES --------------------------------------------------------------------------------------------
 
@@ -30,7 +43,7 @@
 	(assert 
 		(ACTION 
 			(id goToNearestPPillToPacman) 
-			(info (str-cat "MSPacMan cerca PPill, " ?g " mas cerca --> ir a ppill")) 
+			(info (str-cat "MSPacMan near PPill, " ?g " nearest --> go to ppill")) 
 			(priority 50) 
 		)
 	)
@@ -44,6 +57,7 @@
 		(ACTION 
 			(id protectEdibleGhost) 
 			(info "Edible ghost near --> go to edible ghost") 
+			(edible false)
 			(priority 50) 
 		)
 	)
@@ -56,7 +70,8 @@
 	(assert 
 		(ACTION 
 			(id goToSafeGhost) 
-			(info "Not edible ghost near --> go to ghost") 
+			(info "Not edible ghost near --> go to ghost")
+			(edible true) 
 			(priority 50) 
 		)
 	)
