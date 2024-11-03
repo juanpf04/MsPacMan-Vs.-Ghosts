@@ -151,7 +151,6 @@
     ?s <- (SUE (distance ?sd) (edible FALSE) (ghostEdibleTime ?sget))
     (test (or (<= ?bd 75) (<= ?id 75) (<= ?pd 75) (<= ?sd 75)))
     =>
-    (printout t "Finding nearest non-edible ghost within 100 distance" crlf)
     (bind ?nearest-name "NONE")
     (bind ?nearest-distance 10000)
     (bind ?nearest-time -1)
@@ -179,7 +178,6 @@
 (defrule runaway-from-nearest-ghost ;Una vez sabemos cual es el fantasma mas cercano, huir de el
     (NEAREST-GHOST (name ?name) (distance ?d) (edible FALSE))
     =>
-    (printout t "Running away from " ?name " with distance " ?d crlf)
     (assert (ACTION (id pacmanRunAway) (info (str-cat "Run away from " ?name)) (priority 100) 
         (runawaystrategypacman ?name)))
 )
@@ -193,7 +191,6 @@
 
     (test (or (and (<= ?bd 75) (eq ?be TRUE)) (and (<= ?id 75) (eq ?ie TRUE)) (and (<= ?pd 75) (eq ?pe TRUE)) (and (<= ?sd 75) (eq ?se TRUE))))
     =>
-    (printout t "Finding nearest non-edible ghost within 100 distance" crlf)
     (bind ?nearest-name "NONE")
     (bind ?nearest-distance 10000)
     (bind ?nearest-time -1)
