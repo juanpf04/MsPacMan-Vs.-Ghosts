@@ -57,6 +57,8 @@ public class GhostsInput extends RulesInput {
 		// Density of ghosts around a certain ghost
 		public Map<GHOST, Double> ghostDensity;
 
+		public Map<GHOST, Integer> closestGhostIndex;
+
 //		public int edibleGhosts; // done
 
 		public GhostsInfo() {
@@ -72,6 +74,8 @@ public class GhostsInput extends RulesInput {
 			this.ghostDensity = new HashMap<>();
 			this.distancesFromGhostToEdibleGhost = new HashMap<>();
 			this.distancesFromEdibleGhostToGhost = new HashMap<>();
+
+			this.closestGhostIndex = new HashMap<>();
 		}
 	}
 
@@ -127,6 +131,7 @@ public class GhostsInput extends RulesInput {
 			MOVE ghostMove = this.game.getGhostLastMoveMade(ghost);
 
 			// state maps
+			this.info.closestGhostIndex.put(ghost,closestGhostIndex(ghostIndex));
 			this.info.isGhostEdible.put(ghost, this.game.getGhostEdibleTime(ghost) > 0);
 			this.info.isGhostInLair.put(ghost, this.game.getGhostLairTime(ghost) > 0);
 //			this.info.doesGhostRequireAction.put(ghost, this.game.doesGhostRequireAction(ghost));
@@ -328,4 +333,19 @@ public class GhostsInput extends RulesInput {
 		return facts;
 	}
 
+
+	private int closestGhostIndex(int index) {
+		double minDistance = Double.MAX_VALUE;
+		GHOST theChosenOne = GHOST.BLINKY;
+
+		for (GHOST ghost : GHOST.values()) {
+			double currDistance = game.getDistance(game.getGhostCurrentNodeIndex(ghost), index, DM.PATH);
+			if (minDistance > currDistance) {
+				minDistance = currDistance;
+				theChosenOne = ghost;
+			}
+		}
+
+		return game.getGhostCurrentNodeIndex(theChosenOne);
+	}
 }

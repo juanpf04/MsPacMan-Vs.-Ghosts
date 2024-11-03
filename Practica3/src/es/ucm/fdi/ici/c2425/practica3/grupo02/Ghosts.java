@@ -26,7 +26,7 @@ public class Ghosts extends GhostController {
 		this.setName("Fantasmikos");
 		this.setTeam("Team 02");
 
-		String rulesFile = String.format("%s%s", Utils.RULES_PATH, RULES_FILE);
+		String rulesFile = String.format("%s%s",Utils.RULES_PATH, RULES_FILE);
 
 		this.info = new GhostsInfo();
 
@@ -40,7 +40,7 @@ public class Ghosts extends GhostController {
 			actions.put("goToNearestPPillToPacman", new GoToPowePillAction(ghost, this.info));
 			actions.put("protectEdibleGhost", new GoToGhostAction(ghost, this.info));
 			actions.put("goToSafeGhost", new GoToGhostAction(ghost, this.info));
-			actions.put("disperse", new DisperseAction(ghost));
+			actions.put("disperse", new DisperseAction(ghost,this.info));
 			actions.put("goToLastPills", new GoToLastPillsAction(ghost));
 			actions.put("blockExits", new CoverExitAction(ghost, this.info));
 
