@@ -2,6 +2,7 @@
 (deftemplate GHOST
     (slot name (type SYMBOL))
 	(slot edible (type SYMBOL))
+	(slot lair (type SYMBOL))
 	(slot behindPacman (type SYMBOL))
 	(slot distanceMSPACMANNearestPPill (type NUMBER))
 	(slot distanceMSPACMAN (type NUMBER))
@@ -21,22 +22,10 @@
 	(slot edible (type SYMBOL)) ; Extra slot for the go to Ghost action
 ) 
 
-
-(deffacts ghost
-    (GHOST (name BLINKY) 
-    (edible false) 
-    (behindPacman false) 
-    (distanceMSPACMANNearestPPill 10) 
-    (distanceMSPACMAN 50) 
-    (distanceToClosestEdibleGhost 30) 
-    (distanceToClosestNotEdibleGhost 40) 
-    (ghostDensity 1.5) 
-    (pillCount 20)))
-
 ;RULES --------------------------------------------------------------------------------------------
 
 (defrule goToNearestPPillToPacman
-	(GHOST (name ?g) (edible false) (distanceMSPACMANNearestPPill ?d1)) 
+	(GHOST (name ?g) (edible false) (lair false) (distanceMSPACMANNearestPPill ?d1)) 
 	(MSPACMAN (mindistancePPill ?d2)) 
 	(test (< ?d1 ?d2)) ; ghost closer to mspacman closest ppill than mspacman
 	=>  
@@ -50,7 +39,7 @@
 )
 
 (defrule protectEdibleGhost
-	(GHOST (edible false) (distanceMSPACMAN ?d1) (distanceToClosestEdibleGhost ?d2)) 
+	(GHOST (edible false) (lair false) (distanceMSPACMAN ?d1) (distanceToClosestEdibleGhost ?d2)) 
 	(test (< ?d2 ?d1)) ; Ghost closer to mspacman closest ppill than mspacman
 	=>  
 	(assert 
@@ -64,7 +53,7 @@
 )
 
 (defrule goToSafeGhost
-	(GHOST (edible true) (distanceMSPACMAN ?d1) (distanceToClosestNotEdibleGhost ?d2)) 
+	(GHOST (edible true) (lair false) (distanceMSPACMAN ?d1) (distanceToClosestNotEdibleGhost ?d2)) 
 	(test (< ?d2 ?d1)) ; Ghost closer to safe ghost than mspacman
 	=>  
 	(assert 
@@ -78,7 +67,7 @@
 )
 
 (defrule disperse
-	(GHOST (ghostDensity ?d1)) 
+	(GHOST (lair false) (ghostDensity ?d1)) 
 	(test (< 1.5 ?d1)) ; density higher than threshold
 	=>  
 	(assert 
@@ -91,7 +80,7 @@
 )
 
 (defrule goToLastPills
-	(GHOST (edible false) (pillCount ?d1)) 
+	(GHOST (edible false) (lair false) (pillCount ?d1)) 
 	(test (< ?d1 15)) ; density higher than threshold
 	=>  
 	(assert 
@@ -104,7 +93,7 @@
 )
 
 (defrule blockExits
-	(GHOST (edible false) (behindPacman true)) 
+	(GHOST (edible false) (lair false) (behindPacman true)) 
 	=>  
 	(assert 
 		(ACTION 
@@ -116,7 +105,7 @@
 )
 
 (defrule runAway
-	(GHOST (edible true)) 
+	(GHOST (edible true) (lair false)) 
 	=>  
 	(assert 
 		(ACTION (id runAway) (info "Comestible --> huir") (priority 30) 
@@ -137,7 +126,7 @@
 )
 
 (defrule notDisperse
-	(GHOST (edible true) (ghostDensity ?d1)) 
+	(GHOST (edible true) (lair false) (ghostDensity ?d1)) 
 	(test (< ?d1 1.5)) ; density higher than threshold
 	=>  
 	(assert 
@@ -150,7 +139,7 @@
 )
 	
 (defrule chase
-	(GHOST (edible false))
+	(GHOST (edible false) (lair false))
 	(MSPACMAN (mindistancePPill ?d1))
 	(test (< 30 ?d1))
 	=> 
@@ -158,7 +147,7 @@
 )
 
 (defrule chase2
-	(GHOST (edible false) (distanceMSPACMAN ?d1) (distanceToClosestEdibleGhost ?d2)) 
+	(GHOST (edible false) (lair false) (distanceMSPACMAN ?d1) (distanceToClosestEdibleGhost ?d2)) 
 	(test (< ?d1 ?d2)) ; Ghost closer to mspacman closest ppill than mspacman
 	=>  
 	(assert 
@@ -171,7 +160,7 @@
 )
 
 (defrule chase3
-	(GHOST (edible false) (distanceMSPACMAN ?d1) (behindPacman false)) 
+	(GHOST (edible false) (lair false) (distanceMSPACMAN ?d1) (behindPacman false)) 
 	(test (< ?d1 50)) ; Ghost closer to mspacman closest ppill than mspacman
 	=>  
 	(assert 
@@ -184,7 +173,7 @@
 )
 
 (defrule chase4
-	(GHOST (edible false) (distanceMSPACMANNearestPPill ?d1)) 
+	(GHOST (edible false) (lair false) (distanceMSPACMANNearestPPill ?d1)) 
 	(test (< ?d1 30)) ; Ghost closer to mspacman closest ppill than mspacman
 	=>  
 	(assert 
@@ -196,7 +185,7 @@
 	)
 )
 (defrule notDisperse2
-	(GHOST (edible false) (ghostDensity ?d1)) 
+	(GHOST (edible false) (lair false) (ghostDensity ?d1)) 
 	(test (< ?d1 1.5)) ; density higher than threshold
 	=>  
 	(assert 
