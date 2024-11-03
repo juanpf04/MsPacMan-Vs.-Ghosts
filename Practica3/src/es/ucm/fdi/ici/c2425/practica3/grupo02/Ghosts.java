@@ -25,7 +25,7 @@ public class Ghosts extends GhostController {
 	EnumMap<GHOST, RuleEngine> ghostRuleEngines;
 
 	public Ghosts() {
-		setName("Ghosts XX");
+		setName("Fantasmikos");
 		setTeam("Team XX");
 
 		map = new HashMap<String, RulesAction>();
