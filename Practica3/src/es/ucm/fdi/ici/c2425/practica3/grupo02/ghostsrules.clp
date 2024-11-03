@@ -33,7 +33,7 @@
 		(ACTION 
 			(id goToNearestPPillToPacman) 
 			(info (str-cat "MSPacMan near PPill, " ?g " nearest --> go to ppill")) 
-			(priority 50) 
+			(priority 70) 
 		)
 	)
 )
@@ -47,7 +47,7 @@
 			(id protectEdibleGhost) 
 			(info "Edible ghost near --> go to edible ghost") 
 			(edible false)
-			(priority 50) 
+			(priority 100) 
 		)
 	)
 )
@@ -61,7 +61,7 @@
 			(id goToSafeGhost) 
 			(info "Not edible ghost near --> go to ghost")
 			(edible true) 
-			(priority 50) 
+			(priority 100) 
 		)
 	)
 )
@@ -74,7 +74,7 @@
 		(ACTION 
 			(id disperse) 
 			(info "Density too high --> move away from other ghosts") 
-			(priority 50) 
+			(priority 70) 
 		)
 	)
 )
@@ -87,7 +87,7 @@
 		(ACTION 
 			(id goToLastPills) 
 			(info "Few pills left --> go to last pills") 
-			(priority 50) 
+			(priority 90) 
 		)
 	)
 )
@@ -99,7 +99,7 @@
 		(ACTION 
 			(id blockExits) 
 			(info "behind pacman --> cover exits") 
-			(priority 50) 
+			(priority 60) 
 		)
 	)
 )
@@ -184,6 +184,14 @@
 		)
 	)
 )
+
+(defrule chase5
+	(GHOST (edible false) (lair false) (distanceMSPACMAN ?d1))
+	(test (< 150 ?d1))
+	=> 
+	(assert (ACTION (id chase) (info "Lejos --> perseguir")  (priority 80)))
+)
+
 (defrule notDisperse2
 	(GHOST (edible false) (lair false) (ghostDensity ?d1)) 
 	(test (< ?d1 1.5)) ; density higher than threshold
