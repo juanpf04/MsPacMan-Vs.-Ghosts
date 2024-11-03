@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica3.grupo02.pacman.busqueda;
+package es.ucm.fdi.ici.c2425.practica3.grupo02.mspacman.busqueda;
 
 import pacman.game.Game;
 
