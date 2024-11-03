@@ -10,15 +10,18 @@ import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
+import es.ucm.fdi.ici.Action;
+import es.ucm.fdi.ici.c2425.practica3.grupo02.ghosts.GhostsInput.GhostsInfo;
 
 public class DisperseAction implements RulesAction {
 
 	private GHOST ghost;
-	private Random rnd;
+	private GhostsInfo info;
+	private Random rnd = new Random();
 
-	public DisperseAction(GHOST ghost) {
+	public DisperseAction(GHOST ghost, GhostsInfo info) {
 		this.ghost = ghost;
-		this.rnd = new Random();
+		this.info = info;
 	}
 
 	@Override
@@ -27,7 +30,7 @@ public class DisperseAction implements RulesAction {
 			int ghostIndex = game.getGhostCurrentNodeIndex(this.ghost);
 			MOVE lastMove = game.getGhostLastMoveMade(this.ghost);
 
-			MOVE move = game.getApproximateNextMoveAwayFromTarget(ghostIndex, game.getPacmanCurrentNodeIndex(),
+			MOVE move = game.getApproximateNextMoveAwayFromTarget(ghostIndex, info.closestGhostIndex.get(ghost),
 					lastMove, DM.PATH);
 
 			List<MOVE> possibleMoves = new ArrayList<MOVE>();
