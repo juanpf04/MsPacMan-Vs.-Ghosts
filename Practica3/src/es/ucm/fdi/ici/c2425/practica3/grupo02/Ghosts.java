@@ -1,6 +1,5 @@
 package es.ucm.fdi.ici.c2425.practica3.grupo02;
 
-import java.io.File;
 import java.util.EnumMap;
 import java.util.HashMap;
 
@@ -17,9 +16,6 @@ import pacman.game.Game;
 
 public class Ghosts extends GhostController {
 
-	private static final String RULES_PATH = "es" + File.separator + "ucm" + File.separator + "fdi" + File.separator
-			+ "ici" + File.separator + "c2425" + File.separator + "practica3" + File.separator + "grupo02"
-			+ File.separator;
 	private static final String RULES_FILE = "ghostsrules.clp";
 
 	private EnumMap<GHOST, RuleEngine> ghostRuleEngines;
@@ -30,7 +26,7 @@ public class Ghosts extends GhostController {
 		this.setName("Fantasmikos");
 		this.setTeam("Team 02");
 
-		String rulesFile = String.format("%s%s", RULES_PATH, RULES_FILE);
+		String rulesFile = String.format("%s%s", Utils.RULES_PATH, RULES_FILE);
 
 		this.info = new GhostsInfo();
 
@@ -53,8 +49,8 @@ public class Ghosts extends GhostController {
 			this.ghostRuleEngines.put(ghost, engine);
 
 			// add observer to every Ghost
-			ConsoleRuleEngineObserver observer = new ConsoleRuleEngineObserver(ghost.name(), true);
-			engine.addObserver(observer);
+//			ConsoleRuleEngineObserver observer = new ConsoleRuleEngineObserver(ghost.name(), true);
+//			engine.addObserver(observer);
 		}
 
 		// add observer only to BLINKY

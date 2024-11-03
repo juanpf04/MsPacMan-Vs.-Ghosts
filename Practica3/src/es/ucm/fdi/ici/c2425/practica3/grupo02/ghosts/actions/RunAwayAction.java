@@ -31,6 +31,6 @@ public class RunAwayAction implements RulesAction {
 
 	@Override
 	public void parseFact(Fact actionFact) {
-
+		// Nothing to parse
 	}
 }
