@@ -16,8 +16,8 @@ public class ExecutorTest {
                 .setPacmanPO(true)
                 .setPacmanPOvisual(true)
                 .setGhostsPOvisual(false)
-                .setPOType(POType.RADIUS)
-                .setSightLimit(30)
+                .setPOType(POType.LOS)
+                .setSightLimit(100)
                 .setVisual(true)
                 .setScaleFactor(2.5)
                 .build();
