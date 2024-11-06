@@ -18,7 +18,7 @@ import pacman.game.Game;
 
 public class MsPacMan extends PacmanController {
 
-	private static final String RULES_PATH = "bin"+File.separator+"es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"c2425"+File.separator+"practica4"+File.separator+"grupoYY"+File.separator+"mspacman"+File.separator;
+	private static final String RULES_PATH = "bin"+File.separator+"es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"c2425"+File.separator+"practica4"+File.separator+"grupo02"+File.separator+"mspacman"+File.separator;
 	FuzzyEngine fuzzyEngine;
 	MsPacManFuzzyMemory fuzzyMemory;
 	
