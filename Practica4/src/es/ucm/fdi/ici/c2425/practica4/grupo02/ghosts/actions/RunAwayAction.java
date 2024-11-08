@@ -7,13 +7,13 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
-public class ChaseAction implements Action {
+public class RunAwayAction implements Action {
 
 	private Random rnd = new Random();
 	private MOVE[] allMoves = MOVE.values();
 
-	public ChaseAction(GHOST ghost) {
-		// TODO Auto-generated
+	public RunAwayAction(GHOST ghost) {
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class ChaseAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return "Chase";
+		return "Runaway";
 	}
 
 }
