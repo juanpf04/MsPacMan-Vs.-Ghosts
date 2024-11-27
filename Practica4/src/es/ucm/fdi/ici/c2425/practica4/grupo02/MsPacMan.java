@@ -7,8 +7,7 @@ import es.ucm.fdi.ici.Action;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.MaxActionSelector;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.MsPacManFuzzyMemory;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.MsPacManInput;
-import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.actions.GoToPPillAction;
-import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.actions.RunAwayAction;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.actions.*;
 import es.ucm.fdi.ici.fuzzy.ActionSelector;
 import es.ucm.fdi.ici.fuzzy.FuzzyEngine;
 import es.ucm.fdi.ici.fuzzy.observers.ConsoleFuzzyEngineObserver;
@@ -25,20 +24,22 @@ public class MsPacMan extends PacmanController {
 	
 	public MsPacMan()
 	{
-		setName("MsPacMan XX");
+		setName("JPacman");
 
-		fuzzyMemory = new MsPacManFuzzyMemory();
+		fuzzyMemory = new MsPacManFuzzyMemory(); //Reglas borrosas para el pacman
 		
-		Action[] actions = {new GoToPPillAction(), new RunAwayAction()};
+		Action[] actions = {new GoToPPillAction(), new RunAwayFromBLINKY(), 
+			new RunAwayFromINKY(), new RunAwayFromPINKY(), new RunAwayFromSUE(),
+			 new ChaseBLINKY(),new ChaseINKY(), new ChasePINKY(),new ChaseSUE(), new GoToPillAction()}; //Acciones que hemos declarado segun rlas reglas que tenemos
 		
-		ActionSelector actionSelector = new MaxActionSelector(actions);
+		ActionSelector actionSelector = new MaxActionSelector(actions); //Selecciona la accion con ,as prioridad
 		 
 		fuzzyEngine = new FuzzyEngine("MsPacMan",
 				RULES_PATH+"mspacman.fcl",
 				"FuzzyMsPacMan",
-				actionSelector);
+				actionSelector); //Motor borroso que ejecuta las reglas
 
-		ConsoleFuzzyEngineObserver observer = new ConsoleFuzzyEngineObserver("MsPacMan","MsPacManRules");
+		ConsoleFuzzyEngineObserver observer = new ConsoleFuzzyEngineObserver("MsPacMan","MsPacManRules"); //Para ver que esta psadno
 		fuzzyEngine.addObserver(observer);
 		
 		
@@ -46,7 +47,7 @@ public class MsPacMan extends PacmanController {
 	
 	
 	@Override
-	public MOVE getMove(Game game, long timeDue) {
+	public MOVE getMove(Game game, long timeDue) { //Devuelve el movimiento que se va a hacer
 		MsPacManInput input = new MsPacManInput(game);
 		input.parseInput();
 		fuzzyMemory.getInput(input);
