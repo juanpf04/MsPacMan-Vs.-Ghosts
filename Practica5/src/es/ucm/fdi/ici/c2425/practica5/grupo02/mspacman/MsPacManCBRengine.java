@@ -1,7 +1,6 @@
 package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import es.ucm.fdi.gaia.jcolibri.cbraplications.StandardCBRApplication;
@@ -33,7 +32,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 	NNConfig simConfig;
 	
 	
-	final static String TEAM = "grupoYY";  //Cuidado!! poner el grupo aquí
+	final static String TEAM = "grupo02";  //Cuidado!! poner el grupo aquí
 	
 	
 	final static String CONNECTOR_FILE_PATH = "es/ucm/fdi/ici/c2425/practica5/"+TEAM+"/mspacman/plaintextconfig.xml";
@@ -104,13 +103,6 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		CBRCase mostSimilarCase = first.get_case();
 		double similarity = first.getEval();
 		
-		
-		if(Math.random()<.2) {
-		ArrayList<CBRCase> toforget = new ArrayList<CBRCase>();
-		toforget.add(mostSimilarCase);
-		this.caseBase.forgetCases(toforget);
-		System.out.println(mostSimilarCase.getID());
-		}
 		
 		MsPacManResult result = (MsPacManResult) mostSimilarCase.getResult();
 		MsPacManSolution solution = (MsPacManSolution) mostSimilarCase.getSolution();
