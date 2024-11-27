@@ -1,6 +1,7 @@
 
 
-import es.ucm.fdi.ici.c2425.practica4.grupoYY.MsPacMan;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.Ghosts;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.MsPacMan;
 import pacman.Executor;
 import pacman.controllers.GhostController;
 import pacman.controllers.PacmanController;
@@ -16,8 +17,8 @@ public class ExecutorTest {
                 .setPacmanPO(true)
                 .setPacmanPOvisual(true)
                 .setGhostsPOvisual(false)
-                .setPOType(POType.RADIUS)
-                .setSightLimit(30)
+                .setPOType(POType.LOS)
+                .setSightLimit(100)
                 .setVisual(true)
                 .setScaleFactor(2.5)
                 .build();

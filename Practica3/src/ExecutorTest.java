@@ -16,8 +16,8 @@ public class ExecutorTest {
                 .setScaleFactor(3.0)
                 .build();
 
-        PacmanController pacMan = new PacManRandom();
-        GhostController ghosts = new es.ucm.fdi.ici.c2425.practica3.grupoYY.Ghosts();
+        PacmanController pacMan = new es.ucm.fdi.ici.c2425.practica3.grupo02.MsPacMan();
+        GhostController ghosts = new es.ucm.fdi.ici.c2425.practica3.grupo02.Ghosts();
         
         System.out.println( 
         		executor.runGame(pacMan, ghosts, 40)

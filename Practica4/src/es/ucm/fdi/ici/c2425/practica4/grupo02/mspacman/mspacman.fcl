@@ -1,0 +1,784 @@
+FUNCTION_BLOCK FuzzyMsPacMan	// Block definition (there may be more than one block per file)
+
+VAR_INPUT				// Define input variables
+
+	//Distancia
+	BLINKYdistance : REAL;
+	PINKYdistance : REAL;
+	INKYdistance : REAL;
+	SUEdistance : REAL;
+	
+	//Confianza fantasmas
+	BLINKYconfidence : REAL;
+	PINKYconfidence : REAL;
+	INKYconfidence : REAL;
+	SUEconfidence : REAL;
+
+	//Comestibilidad de los fantasmas
+	BLINKYedible : REAL;
+	INKYedible: REAL;
+	PINKYedible : REAL;
+	SUEedible: REAL;
+
+	//Tiempo comestible de los fantasmas
+	BLINKYedibletime : REAL;
+	INKYedibletime : REAL;
+	PINKYedibletime: REAL;
+	SUEedibletime: REAL;
+
+	//Fantasma en jaula
+	BLINKYjail : REAL;
+	INKYjail: REAL;
+	PINKYjail:REAL;
+	SUEjail: REAL;
+
+	//Tiempo de los fantasmas en la jaula
+	BLINKYjailtime : REAL;
+	INKYjailtime : REAL;
+	PINKYjailtime : REAL;
+	SUEjailtime : REAL;
+
+	//Posicion fantasmas
+	BLINKYposition:REAL;
+	INKYposition:REAL;
+	PINKYposition:REAL;
+	SUEposition:REAl;
+
+	//Confianza de la posicion de los fantasmas
+	BLINKYpositionConfidence: REAL;
+	INKYpositionConfidence:REAL;
+	PINKYpositionConfidence:REAL;
+	SUEpositionConfidence: REAL;
+
+END_VAR
+
+VAR_OUTPUT				// Define output variable
+	RunawayFromBLINKY : REAL;
+	RunawayFromINKY:	REAL;
+	RunawayFromPINKY: REAL;
+	RunawayFromSUE: REAL;
+	ChaseBLINKY: REAL;
+	ChaseINKY: REAL;
+	ChasePINKY: REAL;
+	ChaseSUE: REAL;
+	GoToPPill: REAL;
+	GoToPill:REAL;
+END_VAR
+
+//DISTANCES-----------------------------------------------------------------------------------------
+FUZZIFY BLINKYdistance			// Fuzzify input variable 'service': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; //Primera par significa que si la distancia entr fantasma y pacman es 0, se considera 1(completamnete cerca) y el (60,0) indica que a una distancia de 60, no se considera cerca en absoluto
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY PINKYdistance			// Fuzzify input variable 'service': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY INKYdistance			// Fuzzify input variable 'service': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY SUEdistance			// Fuzzify input variable 'SUEdistance': {'near', 'medium', 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1); //Hacer esa linea recta aporta estabilidad a la pertenencia de far 
+END_FUZZIFY
+
+//CONFIDENCES------------------------------------------------------------------------------------------
+FUZZIFY BLINKYconfidence			// Fuzzify input variable 'service': {'low', 'medium' , 'high'}
+	TERM low := (0,1)(25,1)(50,0) ; 
+	TERM medium := gauss 50 25;
+	TERM high := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+FUZZIFY INKYconfidence			// Fuzzify input variable 'service': {'low', 'medium' , 'high'}
+	TERM low := (0,1)(25,1)(50,0) ; 
+	TERM medium := gauss 50 25;
+	TERM high := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+FUZZIFY PINKYconfidence			// Fuzzify input variable 'service': {'low', 'medium' , 'high'}
+	TERM low := (0,1)(25,1)(50,0) ; 
+	TERM medium := gauss 50 25;
+	TERM high := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+FUZZIFY SUEconfidence			// Fuzzify input variable 'service': {'low', 'medium' , 'high'}
+	TERM low := (0,1)(25,1)(50,0) ; 
+	TERM medium := gauss 50 25;
+	TERM high := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+
+//EDIBLE-----------------------------------------------------------------------------------------
+//Si son comestibles o no
+
+FUZZIFY BLINKYedible
+	TERM true:= 1;
+	TERM false:= 0;
+END_FUZZIFY
+
+FUZZIFY INKYedible
+	TERM true:= 1;
+	TERM false:= 0;
+END_FUZZIFY
+
+FUZZIFY PINKYedible
+	TERM true:= 1;
+	TERM false:= 0;
+END_FUZZIFY
+
+FUZZIFY SUEedible
+	TERM true:= 1;
+	TERM false:= 0;
+END_FUZZIFY
+
+//Si son comestibles, cuanto tiempo tienen
+FUZZIFY BLINKYedibletime
+	TERM high := trape 15 18 22 25;  
+    TERM medium := trape 20 23 27 30;
+    TERM low := trape 28 31 100 105; 
+END_FUZZIFY
+
+FUZZIFY INKYedibletime
+	TERM high := trape 15 18 22 25;  
+    TERM medium := trape 20 23 27 30;
+    TERM low := trape 28 31 100 105; 
+END_FUZZIFY
+
+FUZZIFY PINKYedibletime
+	TERM high := trape 15 18 22 25;  
+    TERM medium := trape 20 23 27 30;
+    TERM low := trape 28 31 100 105; 
+END_FUZZIFY
+
+FUZZIFY SUEedibletime
+	TERM high := trape 15 18 22 25;  
+    TERM medium := trape 20 23 27 30;
+    TERM low := trape 28 31 100 105; 
+END_FUZZIFY
+
+//JAIL----------------------------------------------------------------------------------------------------
+//Si estan o no en la jaula
+FUZZIFY BLINKYjail
+	TERM true:= 1;
+	TERM false:= 0;
+END_FUZZIFY
+
+FUZZIFY INKYjail
+	TERM true:= 1;
+	TERM false:= 0;
+END_FUZZIFY
+
+FUZZIFY PINKYjail
+	TERM true:= 1;
+	TERM false:= 0;
+END_FUZZIFY
+
+FUZZIFY SUEjail
+	TERM true:= 1;
+	TERM false:= 0;
+END_FUZZIFY
+
+//Si estan, el tiempo que les queda dentro
+
+FUZZIFY BLINKYjailtime
+    TERM high := trape 15 18 22 25;  // Ajuste de los puntos para representar mejor los datos (trapecio)
+    TERM medium := trape 20 23 27 30; 
+    TERM low := trape 28 31 100 105;  
+END_FUZZIFY
+
+FUZZIFY INKYjailtime
+    TERM high := trape 15 18 22 25;  
+    TERM medium := trape 20 23 27 30;
+    TERM low := trape 28 31 100 105; 
+END_FUZZIFY
+
+FUZZIFY PINKYjailtime
+    TERM high := trape 15 18 22 25;  
+    TERM medium := trape 20 23 27 30; 
+    TERM low := trape 28 31 100 105;  
+END_FUZZIFY
+
+FUZZIFY SUEjailtime
+    TERM high := trape 15 18 22 25;  
+    TERM medium := trape 20 23 27 30; 
+    TERM low := trape 28 31 100 105;  
+END_FUZZIFY
+
+//POSITION---------------------------------------------------------------------------------------
+FUZZIFY BLINKYposition
+	TERM behind:=0;
+	TERM infront:= 1;
+END_FUZZIFY
+
+FUZZIFY INKYposition
+	TERM behind:=0;
+	TERM infront:= 1;
+END_FUZZIFY
+
+FUZZIFY PINKYposition
+	TERM behind:=0;
+	TERM infront:= 1;
+END_FUZZIFY
+
+FUZZIFY SUEposition
+	TERM behind:=0;
+	TERM infront:= 1;
+END_FUZZIFY
+
+FUZZIFY BLINKYpositionConfidence
+	TERM low := (0,1)(25,1)(50,0) ; 
+	TERM medium := gauss 50 25;
+	TERM high := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+FUZZIFY INKYpositionConfidence
+	TERM low := (0,1)(25,1)(50,0) ; 
+	TERM medium := gauss 50 25;
+	TERM high := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+FUZZIFY PINKYpositionConfidence
+	TERM low := (0,1)(25,1)(50,0) ; 
+	TERM medium := gauss 50 25;
+	TERM high := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+FUZZIFY SUEpositionConfidence
+	TERM low := (0,1)(25,1)(50,0) ; 
+	TERM medium := gauss 50 25;
+	TERM high := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+//FUNCTIONS--------------------------------------------------------------------------------------
+
+//HUIR DE X FANTASMA----------------------------------------------------------------------------
+DEFUZZIFY RunawayFromBLINKY			// Defzzzify output variable 'tip' : {'calm', 'nervious', 'emergency' }
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY RunawayFromINKY			// Defzzzify output variable 'tip' : {'calm', 'nervious', 'emergency' }
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY RunawayFromPINKY			// Defzzzify output variable 'tip' : {'calm', 'nervious', 'emergency' }
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY RunawayFromSUE			// Defzzzify output variable 'tip' : {'calm', 'nervious', 'emergency' }
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+//PERSEGUIR A X FANTASMA--------------------------------------------------------------------------
+
+DEFUZZIFY ChaseBLINKY
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+DEFUZZIFY ChaseINKY
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+DEFUZZIFY ChasePINKY
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+DEFUZZIFY ChaseSUE
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+
+//OTRAS------------------------------------------------------------------------------------------
+DEFUZZIFY GoToPPill			// Defzzzify output variable 'tip' : {'cheap', 'average', 'generous' }
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY GoToPill
+	TERM calm := (0,1) (5,1) (15,0);
+	TERM nervious := gauss 15 5;
+	TERM emergency := (15,0) (25,1) (30,1);
+	METHOD : COG;
+	DEFAULT := 0;
+END_DEFUZZIFY
+
+
+
+RULEBLOCK MsPacManRules
+	AND : MIN;			// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgan's Law)
+	ACT : MIN;			// Use 'min' activation method
+	ACCU : MAX;			// Use 'MAX' accumulation method (Other options PROBOR and SUM)
+
+
+	//REGLAS PARA HUIR
+		RULE 1 : IF BLINKYdistance IS near AND BLINKYedible is false AND BLINKYconfidence IS high THEN RunawayFromBLINKY IS emergency;
+		RULE 2 : IF INKYdistance IS near AND INKYedible is false AND INKYconfidence IS high THEN RunawayFromINKY IS emergency;
+		RULE 3 : IF PINKYdistance IS near AND PINKYedible is false AND PINKYconfidence IS high THEN RunawayFromPINKY IS emergency;
+		RULE 4 : IF SUEdistance IS near AND SUEedible is false AND SUEconfidence IS high THEN RunawayFromSUE IS emergency;
+
+		RULE 5 : IF BLINKYdistance IS far THEN RunawayFromBLINKY IS calm;
+		RULE 6 : IF INKYdistance IS far THEN RunawayFromINKY IS calm;
+		RULE 7 : IF PINKYdistance IS far THEN RunawayFromPINKY IS calm;
+		RULE 8 : IF SUEdistance IS far THEN RunawayFromSUE IS calm;
+
+		RULE 9:  IF BLINKYedible IS true AND BLINKYedibletime IS low
+						AND (BLINKYdistance IS medium OR BLINKYdistance IS near) 
+						THEN RunawayFromBLINKY IS emergency;
+		RULE 10:  IF INKYedible IS true AND (INKYedibletime IS low)
+						AND (INKYdistance IS medium OR INKYdistance IS near) 
+						THEN RunawayFromINKY IS emergency;
+		RULE 11:  IF 	PINKYedible IS true AND (PINKYedibletime IS low)
+						AND (PINKYdistance IS medium OR PINKYdistance IS near) 
+						THEN RunawayFromPINKY IS emergency;
+		RULE 12:  IF SUEedible IS true AND (SUEedibletime IS low)
+						AND (SUEdistance IS medium OR SUEdistance IS near) 
+						THEN RunawayFromSUE IS emergency;
+
+		RULE 9:  IF BLINKYedible IS true AND (BLINKYedibletime IS low OR BLINKYedibletime IS medium)
+						AND (BLINKYdistance IS medium OR BLINKYdistance IS near) 
+						THEN RunawayFromBLINKY IS emergency;
+		RULE 10:  IF INKYedible IS true AND (INKYedibletime IS low OR INKYedibletime IS medium)
+						AND (INKYdistance IS medium OR INKYdistance IS near) 
+						THEN RunawayFromINKY IS emergency;
+		RULE 11:  IF 	PINKYedible IS true AND (PINKYedibletime IS low OR PINKYedibletime IS medium)
+						AND (PINKYdistance IS medium OR PINKYdistance IS near) 
+						THEN RunawayFromPINKY IS emergency;
+		RULE 12:  IF SUEedible IS true AND (SUEedibletime IS low OR SUEedibletime IS medium)
+						AND (SUEdistance IS medium OR SUEdistance IS near) 
+						THEN RunawayFromSUE IS emergency;
+
+		RULE 13: IF BLINKYjail IS true AND BLINKYjailtime IS high THEN RunawayFromBLINKY IS calm;
+		RULE 14 : IF INKYjail IS true AND INKYjailtime IS high THEN RunawayFromINKY IS calm;
+		RULE 15 : IF PINKYjail IS true AND PINKYjailtime IS high THEN RunawayFromPINKY IS calm;
+		RULE 16 : IF SUEjail IS true AND SUEjailtime IS high THEN RunawayFromSUE IS calm;
+		
+		RULE 17 : IF BLINKYjail IS true AND BLINKYjailtime IS medium THEN RunawayFromBLINKY IS nervious;
+		RULE 18 : IF INKYjail IS true AND INKYjailtime IS medium THEN RunawayFromINKY IS nervious;
+		RULE 19 : IF PINKYjail IS true AND PINKYjailtime IS medium THEN RunawayFromPINKY IS nervious;
+		RULE 20 : IF SUEjail IS true AND SUEjailtime IS medium THEN RunawayFromSUE IS nervious;
+		
+		RULE 21 : IF BLINKYjail IS true AND BLINKYjailtime IS low THEN RunawayFromBLINKY IS emergency;
+		RULE 22 : IF INKYjail IS true AND INKYjailtime IS low THEN RunawayFromINKY IS emergency;
+		RULE 23 : IF PINKYjail IS true AND PINKYjailtime IS low THEN RunawayFromPINKY IS emergency;
+		RULE 24 : IF SUEjail IS true AND SUEjailtime IS low THEN RunawayFromSUE IS emergency;
+
+		RULE 25: IF BLINKYedible IS false AND BLINKYposition IS infront AND BLINKYdistance IS near AND (BLINKYconfidence is high or BLINKYconfidence is medium)
+					THEN RunawayFromBLINKY is emergency;
+		RULE 26: IF INKYedible IS false AND INKYposition IS infront AND INKYdistance IS near AND (INKYconfidence is high or INKYconfidence is medium)
+					THEN RunawayFromINKY is emergency;
+		RULE 27: IF PINKYedible IS false AND PINKYposition IS infront AND PINKYdistance IS near AND (PINKYconfidence is high or PINKYconfidence is medium)
+					THEN RunawayFromPINKY is emergency;
+		RULE 28: IF SUEedible IS false AND SUEposition IS infront AND SUEdistance IS near AND (SUEconfidence is high or SUEconfidence is medium)
+					THEN RunawayFromSUE is emergency;
+
+		RULE 29: IF BLINKYedible IS false AND BLINKYposition IS infront AND BLINKYdistance IS near AND (BLINKYconfidence is low)
+					THEN RunawayFromBLINKY is nervious;
+		RULE 30: IF INKYedible IS false AND INKYposition IS infront AND INKYdistance IS near AND (INKYconfidence is low)
+					THEN RunawayFromINKY is nervious;
+		RULE 31: IF PINKYedible IS false AND PINKYposition IS infront AND PINKYdistance IS near AND (PINKYconfidence is low)
+					THEN RunawayFromPINKY is nervious;
+		RULE 32: IF SUEedible IS false AND SUEposition IS infront AND SUEdistance IS near AND (SUEconfidence is low)
+					THEN RunawayFromSUE is nervious;
+
+		RULE 33: IF BLINKYedible IS false AND BLINKYposition IS infront AND BLINKYdistance IS medium AND (BLINKYconfidence is high or BLINKYconfidence is medium)
+					THEN RunawayFromBLINKY IS nervious;
+		RULE 34: IF INKYedible IS false AND INKYposition IS infront AND INKYdistance IS medium AND (INKYconfidence is high or INKYconfidence is medium)
+					THEN RunawayFromINKY is nervious;
+		RULE 35: IF PINKYedible IS false AND PINKYposition IS infront AND PINKYdistance IS medium AND (PINKYconfidence is high or PINKYconfidence is medium)
+					THEN RunawayFromPINKY is nervious;
+		RULE 36: IF SUEedible IS false AND SUEposition IS infront AND SUEdistance IS medium AND (SUEconfidence is high or SUEconfidence is medium)
+					THEN RunawayFromSUE is nervious;
+
+		RULE 37: IF BLINKYedible IS false AND BLINKYposition IS infront AND BLINKYdistance IS medium AND (BLINKYconfidence is low)
+					THEN RunawayFromBLINKY IS calm;
+		RULE 38: IF INKYedible IS false AND INKYposition IS infront AND INKYdistance IS medium AND (INKYconfidence is low)
+					THEN RunawayFromINKY is calm;
+		RULE 39: IF PINKYedible IS false AND PINKYposition IS infront AND PINKYdistance IS medium AND (PINKYconfidence is low)
+					THEN RunawayFromPINKY is calm;
+		RULE 40: IF SUEedible IS false AND SUEposition IS infront AND SUEdistance IS medium AND (SUEconfidence is low)
+					THEN RunawayFromSUE is calm;
+		
+		RULE 41: IF BLINKYedible IS false AND BLINKYposition IS infront AND BLINKYdistance IS far AND (BLINKYconfidence is high or BLINKYconfidence is medium)
+					THEN GoToPill IS emergency;
+		RULE 42: IF INKYedible IS false AND INKYposition IS infront AND INKYdistance IS far AND (INKYconfidence is high or INKYconfidence is medium)
+					THEN GoToPill IS emergency;
+		RULE 43: IF PINKYedible IS false AND PINKYposition IS infront AND PINKYdistance IS far AND (PINKYconfidence is high or PINKYconfidence is medium)
+					THEN GoToPill IS emergency;
+		RULE 44: IF SUEedible IS false AND SUEposition IS infront AND SUEdistance IS far AND (SUEconfidence is high or SUEconfidence is medium)
+					THEN GoToPill IS emergency;
+		
+		RULE 45: IF BLINKYedible IS false AND BLINKYposition IS infront AND BLINKYdistance IS far AND (BLINKYconfidence is low)
+					THEN GoToPill IS nervious;
+		RULE 46: IF INKYedible IS false AND INKYposition IS infront AND INKYdistance IS far AND (INKYconfidence is low)
+					THEN GoToPill IS nervious;
+		RULE 47: IF PINKYedible IS false AND PINKYposition IS infront AND PINKYdistance IS far AND (PINKYconfidence is low)
+					THEN GoToPill IS nervious;
+		RULE 48: IF SUEedible IS false AND SUEposition IS infront AND SUEdistance IS far AND (SUEconfidence is low)
+					THEN GoToPill IS nervious;
+		
+		RULE 49: IF BLINKYedible IS true AND (BLINKYedibletime IS medium OR BLINKYedibletime IS low) AND BLINKYposition IS behind AND BLINKYdistance IS medium AND
+					 (BLINKYconfidence is high or BLINKYconfidence is medium)
+						THEN RunawayFromBLINKY is nervious;
+		RULE 50: IF INKYedible IS true AND (INKYedibletime IS medium OR INKYedibletime IS low) AND INKYposition IS behind AND INKYdistance IS medium AND
+					 (INKYconfidence is high or INKYconfidence is medium)
+					  THEN RunawayFromINKY is nervious;
+		RULE 51: IF PINKYedible IS true AND (PINKYedibletime IS medium OR PINKYedibletime IS low) AND PINKYposition IS behind AND PINKYdistance IS medium AND 
+					 (PINKYconfidence is high or PINKYconfidence is medium)
+					  THEN RunawayFromPINKY is nervious;
+		RULE 52: IF SUEedible IS true AND (SUEedibletime IS medium OR SUEedibletime IS low) AND SUEposition IS behind AND SUEdistance IS medium AND
+					 (SUEconfidence is high or SUEconfidence is medium)
+					  THEN RunawayFromSUE is nervious;
+
+		RULE 53: IF BLINKYedible IS true AND (BLINKYedibletime IS medium OR BLINKYedibletime IS low) AND BLINKYposition IS behind AND BLINKYdistance IS medium AND
+					 (BLINKYconfidence is low)
+						THEN RunawayFromBLINKY is calm;
+		RULE 54: IF INKYedible IS true AND (INKYedibletime IS medium OR INKYedibletime IS low) AND INKYposition IS behind AND INKYdistance IS medium AND
+					 (INKYconfidence is low)
+					  THEN RunawayFromINKY is calm;
+		RULE 55: IF PINKYedible IS true AND (PINKYedibletime IS medium OR PINKYedibletime IS low) AND PINKYposition IS behind AND PINKYdistance IS medium AND 
+					 (PINKYconfidence is low)
+					  THEN RunawayFromPINKY is calm;
+		RULE 56: IF SUEedible IS true AND (SUEedibletime IS medium OR SUEedibletime IS low) AND SUEposition IS behind AND SUEdistance IS medium AND
+					 (SUEconfidence is low)
+					  THEN RunawayFromSUE is calm;
+
+		RULE 57: IF BLINKYedible IS true AND BLINKYedibletime IS low AND BLINKYposition IS behind AND BLINKYdistance IS far AND
+					 (BLINKYconfidence is high or BLINKYconfidence is medium)
+					  THEN GoToPill is calm;
+		RULE 58: IF INKYedible IS true AND INKYedibletime IS low AND INKYposition IS behind AND INKYdistance IS far AND 
+					 (INKYconfidence is high or INKYconfidence is medium)
+					  THEN GoToPill is calm;
+		RULE 59: IF PINKYedible IS true AND PINKYedibletime IS low AND PINKYposition IS behind AND PINKYdistance IS far AND
+					 (PINKYconfidence is high or PINKYconfidence is medium)
+					  THEN GoToPill is calm;
+		RULE 60: IF SUEedible IS true AND SUEedibletime IS low AND SUEposition IS behind AND SUEdistance IS far AND
+					 (SUEconfidence is high or SUEconfidence is medium)
+					  THEN GoToPill is calm;
+
+		RULE 61: IF BLINKYedible IS true AND BLINKYedibletime IS low AND BLINKYposition IS behind AND BLINKYdistance IS far AND
+					 (BLINKYconfidence is high or BLINKYconfidence is medium)
+					  THEN GoToPill is nervious;
+		RULE 62: IF INKYedible IS true AND INKYedibletime IS low AND INKYposition IS behind AND INKYdistance IS far AND 
+					 (INKYconfidence is high or INKYconfidence is medium)
+					  THEN GoToPill is nervious;
+		RULE 63: IF PINKYedible IS true AND PINKYedibletime IS low AND PINKYposition IS behind AND PINKYdistance IS far AND
+					 (PINKYconfidence is high or PINKYconfidence is medium)
+					  THEN GoToPill is nervious;
+		RULE 64: IF SUEedible IS true AND SUEedibletime IS low AND SUEposition IS behind AND SUEdistance IS far AND
+					 (SUEconfidence is high or SUEconfidence is medium)
+					  THEN GoToPill is nervious;
+
+		RULE 65: IF BLINKYedible IS false AND BLINKYposition IS behind AND BLINKYdistance IS near 
+				  AND (BLINKYconfidence is high or BLINKYconfidence is medium)
+					THEN RunawayFromBLINKY is emergency;
+		RULE 66: IF INKYedible IS false AND INKYposition IS behind AND INKYdistance IS near 
+					 AND (INKYconfidence is high or INKYconfidence is medium)
+					  THEN RunawayFromINKY is emergency;
+		RULE 67: IF PINKYedible IS false AND PINKYposition IS behind AND PINKYdistance IS near 
+					 AND (PINKYconfidence is high or PINKYconfidence is medium)
+					THEN RunawayFromPINKY is emergency;
+		RULE 68: IF SUEedible IS false AND SUEposition IS behind AND SUEdistance IS near 
+					 AND (SUEconfidence is high or SUEconfidence is medium)
+					  THEN RunawayFromSUE is emergency;
+
+		RULE 69: IF BLINKYedible IS false AND BLINKYposition IS behind AND BLINKYdistance IS near 
+				  AND  (BLINKYconfidence is low)
+					THEN RunawayFromBLINKY is nervious;
+		RULE 70: IF INKYedible IS false AND INKYposition IS behind AND INKYdistance IS near 
+					 AND (INKYconfidence is low)
+					  THEN RunawayFromINKY is nervious;
+		RULE 71: IF PINKYedible IS false AND PINKYposition IS behind AND PINKYdistance IS near 
+					 AND (PINKYconfidence is low)
+					THEN RunawayFromPINKY is nervious;
+		RULE 72: IF SUEedible IS false AND SUEposition IS behind AND SUEdistance IS near 
+					 AND (SUEconfidence is low)
+					  THEN RunawayFromSUE is nervious;
+
+		RULE 73: IF BLINKYedible IS false AND BLINKYposition IS behind AND BLINKYdistance IS medium
+					 AND (BLINKYconfidence is high or BLINKYconfidence is medium)
+					 THEN GoToPPill is emergency;
+		RULE 74: IF INKYedible IS false AND INKYposition IS behind AND INKYdistance IS medium
+					 AND (INKYconfidence is high or INKYconfidence is medium)
+					  THEN GoToPPill is emergency;
+		RULE 75: IF PINKYedible IS false AND PINKYposition IS behind AND PINKYdistance IS medium
+					 AND (PINKYconfidence is high or PINKYconfidence is medium) 
+					  THEN GoToPPill is emergency;
+		RULE 76: IF SUEedible IS false AND SUEposition IS behind AND SUEdistance IS medium
+					 AND (SUEconfidence is high or SUEconfidence is medium) 
+					  THEN GoToPPill is emergency;
+
+		RULE 77: IF BLINKYedible IS false AND BLINKYposition IS behind AND BLINKYdistance IS medium
+					 AND (BLINKYconfidence is low)
+					 THEN GoToPPill is nervious;
+		RULE 78: IF INKYedible IS false AND INKYposition IS behind AND INKYdistance IS medium
+					 AND (INKYconfidence is low)
+					  THEN GoToPPill is nervious;
+		RULE 79: IF PINKYedible IS false AND PINKYposition IS behind AND PINKYdistance IS medium
+					 AND (PINKYconfidence is low) 
+					  THEN GoToPPill is nervious;
+		RULE 80: IF SUEedible IS false AND SUEposition IS behind AND SUEdistance IS medium
+					 AND (SUEconfidence is low) 
+					  THEN GoToPPill is nervious;
+
+
+		RULE 81: IF BLINKYedible IS false AND BLINKYposition IS behind AND BLINKYdistance IS far
+					 AND (BLINKYconfidence is high or BLINKYconfidence is medium)  
+					  THEN GoToPPill is nervious;
+		RULE 82: IF INKYedible IS false AND INKYposition IS behind AND INKYdistance IS far
+					 AND (INKYconfidence is high or INKYconfidence is medium)  
+					  THEN GoToPPill is nervious;
+		RULE 83: IF PINKYedible IS false AND PINKYposition IS behind AND PINKYdistance IS far
+					 AND (PINKYconfidence is high or PINKYconfidence is medium)  
+					  THEN GoToPPill is nervious;
+		RULE 84: IF SUEedible IS false AND SUEposition IS behind AND SUEdistance IS far
+					 AND (SUEconfidence is high or SUEconfidence is medium)  
+					  THEN GoToPPill is nervious;
+
+
+		RULE 85: IF BLINKYedible IS false AND BLINKYposition IS behind AND BLINKYdistance IS far
+					 AND (BLINKYconfidence is low)  
+					  THEN GoToPPill is calm;
+		RULE 86: IF INKYedible IS false AND INKYposition IS behind AND INKYdistance IS far
+					 AND (INKYconfidence is low)  
+					  THEN GoToPPill is calm;
+		RULE 87: IF PINKYedible IS false AND PINKYposition IS behind AND PINKYdistance IS far
+					 AND (PINKYconfidence is low)  
+					  THEN GoToPPill is calm;
+		RULE 88: IF SUEedible IS false AND SUEposition IS behind AND SUEdistance IS far
+					 AND (SUEconfidence is low)  
+					  THEN GoToPPill is calm;
+
+	//REGLAS PARA PERSEGUIR
+		RULE 89: IF BLINKYdistance IS near AND BLINKYedible is true and BLINKYconfidence IS high THEN ChaseBLINKY IS emergency;
+		RULE 90: IF INKYdistance IS near AND INKYedible is true and INKYconfidence IS high THEN ChaseINKY IS emergency;
+		RULE 91: IF PINKYdistance IS near AND PINKYedible is true and PINKYconfidence IS high THEN ChasePINKY IS emergency;
+		RULE 92: IF SUEdistance IS near AND SUEedible is true and SUEconfidence IS high THEN ChaseSUE IS emergency;
+
+		RULE 93 : IF BLINKYedible IS true AND BLINKYdistance IS far THEN ChaseBLINKY IS calm;
+		RULE 94 : IF INKYedible IS true AND INKYdistance IS far THEN ChaseINKY IS calm;
+		RULE 95 : IF PINKYedible IS true AND PINKYdistance IS far THEN ChasePINKY IS calm;
+		RULE 96 : IF SUEedible IS true AND SUEdistance IS far THEN ChaseSUE IS calm;
+
+
+
+		RULE 97:  IF BLINKYedible IS true AND (BLINKYedibletime IS high OR BLINKYedibletime IS medium)
+						AND (BLINKYdistance IS medium OR BLINKYdistance IS near) AND (BLINKYconfidence IS high OR BLINKYconfidence IS medium)
+						THEN ChaseBLINKY IS emergency;
+		RULE 98:  IF INKYedible IS true AND (INKYedibletime IS high OR INKYedibletime IS medium)
+						AND (INKYdistance IS medium OR INKYdistance IS near) AND (INKYconfidence IS high OR INKYconfidence IS medium)
+						THEN ChaseINKY IS emergency;
+		RULE 99:  IF 	PINKYedible IS true AND (PINKYedibletime IS high OR PINKYedibletime IS medium)
+						AND (PINKYdistance IS medium OR PINKYdistance IS near) AND (PINKYconfidence IS high OR PINKYconfidence IS medium)
+						THEN ChasePINKY IS emergency;
+		RULE 100:  IF SUEedible IS true AND (SUEedibletime IS high OR SUEedibletime IS medium)
+						AND (SUEdistance IS medium OR SUEdistance IS near) AND (SUEconfidence IS high OR SUEconfidence IS medium)
+						THEN ChaseSUE IS emergency;
+
+
+		RULE 101:  IF BLINKYedible IS true AND (BLINKYedibletime IS high OR BLINKYedibletime IS medium)
+						AND (BLINKYdistance IS medium OR BLINKYdistance IS near) AND (BLINKYconfidence IS low)
+						THEN ChaseBLINKY IS nervious;
+		RULE 102:  IF INKYedible IS true AND (INKYedibletime IS high OR INKYedibletime IS medium)
+						AND (INKYdistance IS medium OR INKYdistance IS near) AND (INKYconfidence IS high OR INKYconfidence IS medium)
+						THEN ChaseINKY IS nervious;
+		RULE 103:  IF 	PINKYedible IS true AND (PINKYedibletime IS high OR PINKYedibletime IS medium)
+						AND (PINKYdistance IS medium OR PINKYdistance IS near) AND (PINKYconfidence IS high OR PINKYconfidence IS medium)
+						THEN ChasePINKY IS nervious;
+		RULE 104:  IF SUEedible IS true AND (SUEedibletime IS high OR SUEedibletime IS medium)
+						AND (SUEdistance IS medium OR SUEdistance IS near) AND (SUEconfidence IS high OR SUEconfidence IS medium)
+						THEN ChaseSUE IS nervious;
+
+		RULE 105:  IF BLINKYedible IS true AND BLINKYedibletime IS high AND BLINKYdistance IS near AND BLINKYconfidence is high
+					 THEN ChaseBLINKY IS emergency;
+		RULE 106:  IF INKYedible IS true AND INKYedibletime IS high AND INKYdistance IS near AND BLINKYconfidence is high
+					 THEN ChaseINKY IS emergency;
+		RULE 107:  IF PINKYedible IS true AND PINKYedibletime IS high AND PINKYdistance IS near AND BLINKYconfidence is high
+					 THEN ChasePINKY IS emergency;
+		RULE 108:  IF SUEedible IS true AND SUEedibletime IS high AND SUEdistance IS near AND BLINKYconfidence is high
+					 THEN ChaseSUE IS emergency;
+
+		RULE 109: IF BLINKYedible IS true AND (BLINKYedibletime IS high OR BLINKYedibletime is medium) AND BLINKYposition IS infront 
+					 AND BLINKYdistance IS near AND (BLINKYconfidence IS high OR BLINKYconfidence IS medium)
+					  THEN ChaseBLINKY is emergency;
+		RULE 110: IF INKYedible IS true AND (INKYedibletime IS high OR INKYedibletime is medium) AND INKYposition IS infront
+					 AND INKYdistance IS near AND (INKYconfidence IS high OR INKYconfidence IS medium)
+					  THEN ChaseINKY is emergency;
+		RULE 111: IF PINKYedible IS true AND (PINKYedibletime IS high OR PINKYedibletime is medium) AND PINKYposition IS infront 
+					 AND PINKYdistance IS near AND (PINKYconfidence IS high OR PINKYconfidence IS medium)
+					  THEN ChasePINKY is emergency;
+		RULE 112: IF SUEedible IS true AND (SUEedibletime IS high OR SUEedibletime is medium) AND SUEposition IS infront 
+		   			 AND SUEdistance IS near AND (SUEconfidence IS high OR SUEconfidence IS medium)
+					  THEN ChaseSUE is emergency;
+
+		RULE 113: IF BLINKYedible IS true AND (BLINKYedibletime IS high OR BLINKYedibletime is medium) AND BLINKYposition IS infront 
+					 AND BLINKYdistance IS near AND (BLINKYconfidence IS low)
+					  THEN ChaseBLINKY is nervious;
+		RULE 114: IF INKYedible IS true AND (INKYedibletime IS high OR INKYedibletime is medium) AND INKYposition IS infront
+					 AND INKYdistance IS near AND (INKYconfidence IS low)
+					  THEN ChaseINKY is nervious;
+		RULE 115: IF PINKYedible IS true AND (PINKYedibletime IS high OR PINKYedibletime is medium) AND PINKYposition IS infront 
+					 AND PINKYdistance IS near AND (PINKYconfidence IS low)
+					  THEN ChasePINKY is nervious;
+		RULE 116: IF SUEedible IS true AND (SUEedibletime IS high OR SUEedibletime is medium) AND SUEposition IS infront 
+		   			 AND SUEdistance IS near AND (SUEconfidence IS low)
+					  THEN ChaseSUE is nervious;
+
+		RULE 117: IF BLINKYedible IS true AND (BLINKYedibletime IS medium OR BLINKYedibletime IS low) AND BLINKYposition IS infront 
+					AND BLINKYdistance IS medium AND (BLINKYconfidence IS high OR BLINKYconfidence IS medium)
+					THEN ChaseBLINKY is nervious;
+		RULE 118: IF INKYedible IS true AND (INKYedibletime IS medium OR INKYedibletime IS low) AND INKYposition IS infront 
+					AND INKYdistance IS medium AND (INKYconfidence IS high OR INKYconfidence IS medium)
+					THEN ChaseINKY is nervious;
+		RULE 119: IF PINKYedible IS true AND (PINKYedibletime IS medium OR PINKYedibletime IS low) AND PINKYposition IS infront
+					AND PINKYdistance IS medium AND (PINKYconfidence IS high OR PINKYconfidence IS medium)
+					THEN ChasePINKY is nervious;
+		RULE 120: IF SUEedible IS true AND (SUEedibletime IS medium OR SUEedibletime IS low) AND SUEposition IS infront 
+					AND SUEdistance IS medium AND (SUEconfidence IS high OR SUEconfidence IS medium)
+					THEN ChaseSUE is nervious;
+
+
+		RULE 121: IF BLINKYedible IS true AND (BLINKYedibletime IS medium OR BLINKYedibletime IS low) AND BLINKYposition IS infront 
+					AND BLINKYdistance IS medium AND (BLINKYconfidence IS low)
+					THEN ChaseBLINKY is calm;
+		RULE 122: IF INKYedible IS true AND (INKYedibletime IS medium OR INKYedibletime IS low) AND INKYposition IS infront 
+					AND INKYdistance IS medium AND (INKYconfidence IS low)
+					THEN ChaseINKY is calm;
+		RULE 123: IF PINKYedible IS true AND (PINKYedibletime IS medium OR PINKYedibletime IS low) AND PINKYposition IS infront
+					AND PINKYdistance IS medium AND (PINKYconfidence IS low)
+					THEN ChasePINKY is calm;
+		RULE 124: IF SUEedible IS true AND (SUEedibletime IS medium OR SUEedibletime IS low) AND SUEposition IS infront 
+					AND SUEdistance IS medium AND (SUEconfidence IS low)
+					THEN ChaseSUE is calm;
+
+		RULE 125: IF BLINKYedible IS true AND BLINKYedibletime IS low AND BLINKYposition IS infront 
+					AND BLINKYdistance IS far AND (BLINKYconfidence IS high OR BLINKYconfidence IS medium)
+					THEN ChaseBLINKY is calm;
+		RULE 126: IF INKYedible IS true AND INKYedibletime IS low AND INKYposition IS infront 
+					AND INKYdistance IS far AND (INKYconfidence IS high OR INKYconfidence IS medium)
+					THEN ChaseINKY is calm;
+		RULE 127: IF PINKYedible IS true AND PINKYedibletime IS low AND PINKYposition IS infront 
+					AND PINKYdistance IS far AND (PINKYconfidence IS high OR PINKYconfidence IS medium)
+					THEN ChasePINKY is calm;
+		RULE 128: IF SUEedible IS true AND SUEedibletime IS low AND SUEposition IS infront 
+					AND SUEdistance IS far AND (SUEconfidence IS high OR SUEconfidence IS medium)
+					THEN ChaseSUE is calm;
+
+
+		RULE 129: IF BLINKYedible IS true AND BLINKYedibletime IS low AND BLINKYposition IS infront 
+					AND BLINKYdistance IS far AND (BLINKYconfidence IS low)
+					THEN GoToPill is emergency;
+		RULE 130: IF INKYedible IS true AND INKYedibletime IS low AND INKYposition IS infront 
+					AND INKYdistance IS far AND (INKYconfidence IS low)
+					THEN GoToPill is emergency;
+		RULE 131: IF PINKYedible IS true AND PINKYedibletime IS low AND PINKYposition IS infront 
+					AND PINKYdistance IS far AND (PINKYconfidence IS low)
+					THEN GoToPill is emergency;
+		RULE 132: IF SUEedible IS true AND SUEedibletime IS low AND SUEposition IS infront 
+					AND SUEdistance IS far AND (SUEconfidence IS low)
+					THEN GoToPill is emergency;
+
+
+		RULE 133: IF BLINKYedible IS true AND BLINKYposition IS infront AND BLINKYdistance IS medium AND (BLINKYconfidence IS high OR BLINKYconfidence IS medium)
+					THEN GoToPill is emergency;
+		RULE 134: IF INKYedible IS true AND INKYposition IS infront AND INKYdistance IS medium AND (INKYconfidence IS high OR INKYconfidence IS medium) 
+					THEN GoToPill is emergency;
+		RULE 135: IF PINKYedible IS true AND PINKYposition IS infront AND PINKYdistance IS medium AND (PINKYconfidence IS high OR PINKYconfidence IS medium)
+					THEN GoToPill is emergency;
+		RULE 136: IF SUEedible IS true AND SUEposition IS infront AND SUEdistance IS medium AND (SUEconfidence IS high OR SUEconfidence IS medium)
+					THEN GoToPill is emergency;
+
+
+		RULE 137: IF BLINKYedible IS true AND BLINKYposition IS infront AND BLINKYdistance IS medium AND (BLINKYconfidence IS low)
+					THEN GoToPill is nervious;
+		RULE 138: IF INKYedible IS true AND INKYposition IS infront AND INKYdistance IS medium AND (INKYconfidence IS low) 
+					THEN GoToPill is nervious;
+		RULE 139: IF PINKYedible IS true AND PINKYposition IS infront AND PINKYdistance IS medium AND (PINKYconfidence IS low)
+					THEN GoToPill is nervious;
+		RULE 140: IF SUEedible IS true AND SUEposition IS infront AND SUEdistance IS medium AND (SUEconfidence IS low)
+					THEN GoToPill is nervious;
+
+		RULE 141: IF BLINKYedible IS true AND (BLINKYedibletime IS high OR BLINKYedibletime IS medium) AND BLINKYposition IS behind AND BLINKYdistance IS near
+					AND (BLINKYconfidence IS high OR BLINKYconfidence IS medium)
+					THEN ChaseBLINKY is nervious;
+		RULE 142: IF INKYedible IS true AND (INKYedibletime IS high OR INKYedibletime IS medium) AND INKYposition IS behind AND INKYdistance IS near
+					AND (INKYconfidence IS high OR INKYconfidence IS medium)
+					THEN ChaseINKY is nervious;
+		RULE 143: IF PINKYedible IS true AND (PINKYedibletime IS high OR PINKYedibletime IS medium) AND PINKYposition IS behind AND PINKYdistance IS near
+					AND (PINKYconfidence IS high OR PINKYconfidence IS medium)
+					THEN ChasePINKY is nervious;
+		RULE 144: IF SUEedible IS true AND (SUEedibletime IS high OR SUEedibletime IS medium) AND SUEposition IS behind AND SUEdistance IS near
+					AND (SUEconfidence IS high OR SUEconfidence IS medium)
+					THEN ChaseSUE is nervious;
+
+		
+		RULE 141: IF BLINKYedible IS true AND (BLINKYedibletime IS high OR BLINKYedibletime IS medium) AND BLINKYposition IS behind AND BLINKYdistance IS near
+					AND (BLINKYconfidence IS low)
+					THEN ChaseBLINKY is calm;
+		RULE 142: IF INKYedible IS true AND (INKYedibletime IS high OR INKYedibletime IS medium) AND INKYposition IS behind AND INKYdistance IS near
+					AND (INKYconfidence IS low)
+					THEN ChaseINKY is calm;
+		RULE 143: IF PINKYedible IS true AND (PINKYedibletime IS high OR PINKYedibletime IS medium) AND PINKYposition IS behind AND PINKYdistance IS near
+					AND (PINKYconfidence IS low)
+					THEN ChasePINKY is calm;
+		RULE 144: IF SUEedible IS true AND (SUEedibletime IS high OR SUEedibletime IS medium) AND SUEposition IS behind AND SUEdistance IS near
+					AND (SUEconfidence IS low)
+					THEN ChaseSUE is calm;
+		
+		
+
+	//REGLAS PARA POWER PILL
+		RULE 145 : IF BLINKYconfidence IS medium THEN GoToPPill IS nervious;
+		RULE 146 : IF PINKYconfidence IS medium THEN GoToPPill IS nervious;
+		RULE 147 : IF INKYconfidence IS medium THEN GoToPPill IS nervious;
+		RULE 148 : IF SUEconfidence IS medium THEN GoToPPill IS nervious;
+	
+	
+	
+	
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+
