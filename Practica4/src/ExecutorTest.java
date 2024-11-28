@@ -15,16 +15,16 @@ public class ExecutorTest {
                 .setTickLimit(4000)
                 .setGhostPO(true)
                 .setPacmanPO(true)
-                .setPacmanPOvisual(true)
-                .setGhostsPOvisual(false)
+                .setPacmanPOvisual(false)
+                .setGhostsPOvisual(true)
                 .setPOType(POType.LOS)
                 .setSightLimit(100)
                 .setVisual(true)
                 .setScaleFactor(2.5)
                 .build();
 
-        PacmanController pacMan = new MsPacMan();
-        GhostController ghosts = new GhostsRandom();
+        PacmanController pacMan = new MsPacManRandom();
+        GhostController ghosts = new Ghosts();
         
         System.out.println( 
         		executor.runGame(pacMan, ghosts, 40)

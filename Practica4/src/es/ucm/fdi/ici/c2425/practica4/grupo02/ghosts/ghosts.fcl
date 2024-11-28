@@ -1,4 +1,4 @@
-FUNCTION_BLOCK FuzzyMsPacMan	// Block definition (there may be more than one block per file)
+FUNCTION_BLOCK FuzzyGhosts	// Block definition (there may be more than one block per file)
 
 VAR_INPUT				// Define input variables
 	BLINKYdistance : REAL;

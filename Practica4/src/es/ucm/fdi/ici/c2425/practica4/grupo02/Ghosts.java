@@ -5,9 +5,9 @@ import java.util.EnumMap;
 import java.util.HashMap;
 
 import es.ucm.fdi.ici.Action;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsFuzzyMemory;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsInput;
-import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.MaxActionSelector;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.ChaseAction;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.RunAwayAction;
 import es.ucm.fdi.ici.fuzzy.ActionSelector;
@@ -20,19 +20,22 @@ import pacman.game.Game;
 
 public class Ghosts extends GhostController {
 
-	private static final String RULES_PATH = "src" + File.separator + "es" + File.separator + "ucm" + File.separator
-			+ "fdi" + File.separator + "ici" + File.separator + "c2425" + File.separator + "practica4" + File.separator
-			+ "grupo02" + File.separator + "ghosts" + File.separator;
+	private static final String RULES_PATH = "src"+File.separator+"es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"c2425"+File.separator+"practica4"+File.separator+"grupo02"+File.separator+"ghosts"+File.separator;
+
 	private static final String RULES_FILE = "ghosts.fcl";
 
 	private EnumMap<GHOST, FuzzyEngine> ghostFuzzyEngines;
 	private GhostsFuzzyMemory fuzzyMemory;
+	
+	private GhostsInfo info;
 
 	public Ghosts() {
 		this.setName("Fantasmikos");
 		this.setTeam("Team 02");
 
 		String rulesFile = String.format("%s%s", RULES_PATH, RULES_FILE);
+		
+		this.info = new GhostsInfo();
 
 		this.fuzzyMemory = new GhostsFuzzyMemory();
 
@@ -49,12 +52,12 @@ public class Ghosts extends GhostController {
 
 			// add observer to every Ghost
 			// ConsoleFuzzyEngineObserver observer = new
-			// ConsoleFuzzyEngineObserver("MsPacMan", "MsPacManRules");
+			// ConsoleFuzzyEngineObserver(ghost.name(), ghost.name() + "Rules");
 			// engine.addObserver(observer);
 		}
 
 		// add observer only to BLINKY
-		ConsoleFuzzyEngineObserver observer = new ConsoleFuzzyEngineObserver(GHOST.BLINKY.name(), "FuzzyGhosts");
+		ConsoleFuzzyEngineObserver observer = new ConsoleFuzzyEngineObserver(GHOST.BLINKY.name(), GHOST.BLINKY.name() + "Rules");
 		this.ghostFuzzyEngines.get(GHOST.BLINKY).addObserver(observer);
 	}
 
@@ -62,7 +65,7 @@ public class Ghosts extends GhostController {
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
 		EnumMap<GHOST, MOVE> result = new EnumMap<GHOST, MOVE>(GHOST.class);
 
-		GhostsInput input = new GhostsInput(game);
+		GhostsInput input = new GhostsInput(game, this.info);
 		this.fuzzyMemory.getInput(input);
 
 		for (GHOST ghost : GHOST.values()) {
