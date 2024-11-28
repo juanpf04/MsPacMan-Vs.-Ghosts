@@ -1,97 +1,202 @@
 FUNCTION_BLOCK FuzzyGhosts	// Block definition (there may be more than one block per file)
 
 VAR_INPUT				// Define input variables
-	BLINKYdistance : REAL;
-	PINKYdistance : REAL;
-	INKYdistance : REAL;
-	SUEdistance : REAL;
-	BLINKYconfidence : REAL;
-	PINKYconfidence : REAL;
-	INKYconfidence : REAL;
-	SUEconfidence : REAL;
+
+	edible : REAL;
+	behindPacman : REAL;
+	
+	MSPACMANconfidence : REAL;
+
+	MSPACMANdistanceNearestPPill : REAL;
+	MSPACMANdistance : REAL;
+	distanceToClosestEdibleGhost : REAL;
+	distanceToClosestNotEdibleGhost : REAL;
+
+	ghostDensity : REAL;
+	pillCount : REAL;
+
 END_VAR
 
 VAR_OUTPUT				// Define output variable
+
+	Chase : REAL;
 	Runaway : REAL;
-	GoToPPill: REAL;
+	CoverExit : REAL;
+	CoverLastPills : REAL;
+	Disperse : REAL;
+	GoToPPill : REAL;
+	GoToGhost : REAL;
+
 END_VAR
 
-FUZZIFY BLINKYdistance			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM near := (0, 1) (60, 0) ; 
-	TERM medium := gauss 75 25;
-	TERM far := (90, 0) (150, 1) (200, 1);
-END_FUZZIFY
-FUZZIFY PINKYdistance			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM near := (0, 1) (60, 0) ; 
-	TERM medium := gauss 75 25;
-	TERM far := (90, 0) (150, 1) (200, 1);
-END_FUZZIFY
-FUZZIFY INKYdistance			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM near := (0, 1) (60, 0) ; 
-	TERM medium := gauss 75 25;
-	TERM far := (90, 0) (150, 1) (200, 1);
-END_FUZZIFY
-FUZZIFY SUEdistance			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM near := (0, 1) (60, 0) ; 
-	TERM medium := gauss 75 25;
-	TERM far := (90, 0) (150, 1) (200, 1);
+// Fuzzify input variables
+
+FUZZIFY edible			// Fuzzify input variable 'edible': {'true', 'false'}
+    TERM true := 1;
+    TERM false := 0;
 END_FUZZIFY
 
-FUZZIFY BLINKYconfidence			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM low := (0,1)(25,1)(50,0) ; 
-	TERM medium := gauss 50 25;
-	TERM high := (50,0)(75,1)(100,1);
+FUZZIFY behindPacman			// Fuzzify input variable 'behindPacman': {'true', 'false'}
+    TERM true := 1;
+    TERM false := 0;
 END_FUZZIFY
-FUZZIFY INKYconfidence			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM low := (0,1)(25,1)(50,0) ; 
-	TERM medium := gauss 50 25;
-	TERM high := (50,0)(75,1)(100,1);
-END_FUZZIFY
-FUZZIFY PINKYconfidence			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM low := (0,1)(25,1)(50,0) ; 
-	TERM medium := gauss 50 25;
-	TERM high := (50,0)(75,1)(100,1);
-END_FUZZIFY
-FUZZIFY SUEconfidence			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
+
+FUZZIFY MSPACMANconfidence				// Fuzzify input variable 'MSPACMANconfidence': {'low', 'medium' , 'high'}
 	TERM low := (0,1)(25,1)(50,0) ; 
 	TERM medium := gauss 50 25;
 	TERM high := (50,0)(75,1)(100,1);
 END_FUZZIFY
 
-DEFUZZIFY Runaway			// Defzzzify output variable 'tip' : {'cheap', 'average', 'generous' }
-	TERM calm := (0,1) (5,1) (15,0);
-	TERM nervious := gauss 15 5;
-	TERM emergency := (15,0) (25,1) (30,1);
+FUZZIFY MSPACMANdistanceNearestPPill	// Fuzzify input variable 'MSPACMANdistanceNearestPPill': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY MSPACMANdistance	// Fuzzify input variable 'MSPACMANdistance': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY distanceToClosestEdibleGhost			// Fuzzify input variable 'distanceToClosestEdibleGhost': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY distanceToClosestNotEdibleGhost			// Fuzzify input variable 'distanceToClosestNotEdibleGhost': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY ghostDensity			// Fuzzify input variable 'ghostDensity': {'normal' , 'high'}
+	TERM normal := sigm -9 1.5;
+	TERM high := sigm 3 1.5;
+END_FUZZIFY
+
+FUZZIFY pillCount			// Fuzzify input variable 'pillCount': {'low' , 'normal'}
+	TERM low := sigm -1 15;
+	TERM normal := sigm 5 15;
+END_FUZZIFY
+
+
+// Defuzzify output variables
+
+DEFUZZIFY Runaway			// Defuzzify output variable 'Runaway' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
 	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
 	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
 END_DEFUZZIFY
 
-DEFUZZIFY GoToPPill			// Defzzzify output variable 'tip' : {'cheap', 'average', 'generous' }
-	TERM calm := (0,1) (5,1) (15,0);
-	TERM nervious := gauss 15 5;
-	TERM emergency := (15,0) (25,1) (30,1);
+DEFUZZIFY Chase			// Defuzzify output variable 'Chase' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY CoverExit			// Defuzzify output variable 'CoverExit' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY CoverLastPills			// Defuzzify output variable 'CoverLastPills' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY Disperse			// Defuzzify output variable 'Disperse' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY GoToPPill			// Defuzzify output variable 'GoToPPill' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY GoToGhost			// Defuzzify output variable 'GoToGhost' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
 	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
 	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
 END_DEFUZZIFY
 
 
-RULEBLOCK MsPacManRules
+// Define rules
+
+RULEBLOCK GhostsRules
 	AND : MIN;			// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgan's Law)
 	ACT : MIN;			// Use 'min' activation method
 	ACCU : MAX;			// Use 'MAX' accumulation method (Other options PROBOR and SUM)
 
-	RULE 1 : IF BLINKYdistance IS near AND BLINKYconfidence IS high THEN Runaway IS emergency;
-	RULE 2 : IF PINKYdistance IS near AND PINKYconfidence IS high THEN Runaway IS emergency;
-	RULE 3 : IF INKYdistance IS near AND INKYconfidence IS high THEN Runaway IS emergency;
-	RULE 4 : IF SUEdistance IS near AND SUEconfidence IS high THEN Runaway IS emergency;
-	RULE 5 : IF BLINKYconfidence IS medium THEN GoToPPill IS nervious;
-	RULE 6 : IF PINKYconfidence IS medium THEN GoToPPill IS nervious;
-	RULE 7 : IF INKYconfidence IS medium THEN GoToPPill IS nervious;
-	RULE 8 : IF SUEconfidence IS medium THEN GoToPPill IS nervious;
-	RULE 9 : IF BLINKYdistance IS far THEN Runaway IS calm;
-	RULE 10 : IF PINKYdistance IS far THEN Runaway IS calm;
-	RULE 11 : IF INKYdistance IS far THEN Runaway IS calm;
-	RULE 12 : IF SUEdistance IS far THEN Runaway IS calm;
+	RULE x : IF edible IS true THEN Runaway IS never;
+	RULE x : IF MSPACMANdistance IS near AND MSPACMANconfidence IS high AND edible IS false THEN Runaway IS always;
+	RULE x : IF MSPACMANdistance IS near AND MSPACMANconfidence IS high THEN GoToPPill IS never;
+	RULE x : IF MSPACMANdistance IS near AND MSPACMANconfidence IS medium THEN Runaway IS usually;
+	RULE x : IF MSPACMANconfidence IS low THEN Runaway IS rarely;
+	RULE x : IF MSPACMANconfidence IS medium THEN GoToPPill IS sometimes;
+	RULE x : IF MSPACMANconfidence IS medium THEN GoToPPill IS sometimes;
+	RULE x : IF MSPACMANconfidence IS medium THEN GoToPPill IS sometimes;
+	RULE x : IF MSPACMANconfidence IS medium THEN GoToPPill IS sometimes;
+	RULE x : IF MSPACMANconfidence IS low AND edible IS false THEN GoToPPill IS always;
+	RULE x : IF MSPACMANdistance IS far THEN Runaway IS never;
+	RULE x : IF MSPACMANdistance IS far THEN Runaway IS never;
+	RULE x : IF MSPACMANdistance IS far THEN Runaway IS never;
+	RULE x : IF MSPACMANdistance IS far THEN Runaway IS never;
+	
+	/*
+	edible
+	behindPacman 
+	MSPACMANconfidence 
+	MSPACMANdistanceNearestPPill 
+	MSPACMANdistance 
+	distanceToClosestEdibleGhost 
+	distanceToClosestNotEdibleGhost 
+	ghostDensity 
+	pillCount 
+
+	Chase 
+	Runaway 
+	CoverExit
+	CoverLastPills 
+	Disperse 
+	GoToPPill
+	GoToGhost
+	*/
+	
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK
