@@ -59,7 +59,11 @@ public class MsPacMan extends PacmanController {
 		fvars.putAll(this.fuzzyMemory.getFuzzyValues());
 
 		// Run the engine
-		return this.fuzzyEngine.run(fvars, game);
+		try {
+			return this.fuzzyEngine.run(fvars, game);
+		} catch (Exception e) {
+            return MOVE.NEUTRAL;
+		}
 	}
 
 }
