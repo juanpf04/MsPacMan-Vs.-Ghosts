@@ -22,6 +22,7 @@ public class MaxActionSelector implements ActionSelector {
 
 	public void addAction(Action action, int priority) {
 		String id = action.getActionId();
+		
 		this.actions.put(id, action);
 		this.priorities.put(id, priority);
 	}
@@ -30,9 +31,11 @@ public class MaxActionSelector implements ActionSelector {
 	public Action selectAction(HashMap<String, Double> fuzzyOutput) {
 		double max = Double.NEGATIVE_INFINITY;
 		String maxActionName = null;
+		
 		for (Entry<String, Double> entry : fuzzyOutput.entrySet()) {
 			String actionName = entry.getKey();
 			double value = entry.getValue();
+			
 			if (value > max || (value == max && this.priorities.get(maxActionName) < this.priorities.get(actionName))) {
 				max = value;
 				maxActionName = actionName;

@@ -8,6 +8,11 @@ import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsFuzzyMemory;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsInput;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.ChaseAction;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.CoverExitAction;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.CoverLastPillsAction;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.DisperseAction;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.GoToGhostAction;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.GoToPowePillAction;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.RunAwayAction;
 import es.ucm.fdi.ici.fuzzy.FuzzyEngine;
 import es.ucm.fdi.ici.fuzzy.observers.ConsoleFuzzyEngineObserver;
@@ -41,21 +46,27 @@ public class Ghosts extends GhostController {
 			
 			// Fill Actions
 			MaxActionSelector actionSelector = new MaxActionSelector();
-			actionSelector.addAction(new ChaseAction(ghost), 1);
-			actionSelector.addAction(new RunAwayAction(ghost), 1);
+			actionSelector.addAction(new ChaseAction(ghost), 50);
+			actionSelector.addAction(new RunAwayAction(ghost), 50);
+			actionSelector.addAction(new CoverExitAction(ghost, this.info), 50);
+			actionSelector.addAction(new CoverLastPillsAction(ghost), 50);
+			actionSelector.addAction(new DisperseAction(ghost), 50);
+			actionSelector.addAction(new GoToGhostAction(ghost, false, info), 50);
+			actionSelector.addAction(new GoToPowePillAction(ghost, info), 50);
 			
 			// Create Rule Engine
 			FuzzyEngine engine = new FuzzyEngine(ghost.name(), rulesFile, "FuzzyGhosts", actionSelector);
 			this.ghostFuzzyEngines.put(ghost, engine);
 
 			// Add observer to every Ghost
-			// ConsoleFuzzyEngineObserver observer = new
-			// ConsoleFuzzyEngineObserver(ghost.name(), ghost.name() + "Rules");
-			// engine.addObserver(observer);
+//			ConsoleFuzzyEngineObserver observer = new
+//			ConsoleFuzzyEngineObserver(ghost.name(), "GhostsRules");
+//			engine.addObserver(observer);
 		}
 
 		// Add observer only to BLINKY
-		ConsoleFuzzyEngineObserver observer = new ConsoleFuzzyEngineObserver(GHOST.BLINKY.name(), GHOST.BLINKY.name() + "Rules");
+		ConsoleFuzzyEngineObserver observer = new 
+		ConsoleFuzzyEngineObserver(GHOST.BLINKY.name(), "GhostsRules");
 		this.ghostFuzzyEngines.get(GHOST.BLINKY).addObserver(observer);
 	}
 
@@ -63,6 +74,7 @@ public class Ghosts extends GhostController {
 	public EnumMap<GHOST, MOVE> getMove(Game game, long timeDue) {
 		EnumMap<GHOST, MOVE> result = new EnumMap<GHOST, MOVE>(GHOST.class);
 
+		// Parse input
 		GhostsInput input = new GhostsInput(game, this.info);
 		this.fuzzyMemory.getInput(input);
 
@@ -73,9 +85,14 @@ public class Ghosts extends GhostController {
 			HashMap<String, Double> fvars = input.getFuzzyValues(ghost);
 			fvars.putAll(this.fuzzyMemory.getFuzzyValues(ghost));
 
-			// run the engine
-			MOVE move = engine.run(fvars, game);
-			result.put(ghost, move);
+			MOVE move = null;
+			try {
+				// run the engine
+				move = engine.run(fvars, game);
+			} catch (Exception e) {
+				
+			}
+			result.put(ghost, move);				
 		}
 
 		return result;
