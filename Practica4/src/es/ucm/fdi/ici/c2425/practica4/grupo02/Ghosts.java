@@ -46,10 +46,10 @@ public class Ghosts extends GhostController {
 			
 			// Fill Actions
 			MaxActionSelector actionSelector = new MaxActionSelector();
-			actionSelector.addAction(new ChaseAction(ghost), 50);
-			actionSelector.addAction(new RunAwayAction(ghost), 50);
+			actionSelector.addAction(new ChaseAction(ghost), 60);
+			actionSelector.addAction(new RunAwayAction(ghost), 60);
 			actionSelector.addAction(new CoverExitAction(ghost, this.info), 50);
-			actionSelector.addAction(new CoverLastPillsAction(ghost), 50);
+			actionSelector.addAction(new CoverLastPillsAction(ghost), 55);
 			actionSelector.addAction(new DisperseAction(ghost), 50);
 			actionSelector.addAction(new GoToGhostAction(ghost, false, info), 50);
 			actionSelector.addAction(new GoToPowePillAction(ghost, info), 50);
@@ -81,13 +81,13 @@ public class Ghosts extends GhostController {
 		for (GHOST ghost : GHOST.values()) {
 			FuzzyEngine engine = this.ghostFuzzyEngines.get(ghost);
 
-			// get fuzzy values
+			// Get fuzzy values
 			HashMap<String, Double> fvars = input.getFuzzyValues(ghost);
 			fvars.putAll(this.fuzzyMemory.getFuzzyValues(ghost));
 
 			MOVE move = null;
 			try {
-				// run the engine
+				// Run the engine
 				move = engine.run(fvars, game); // TODO arreglar para no tener try catch, en actions
 			} catch (Exception e) {
 				

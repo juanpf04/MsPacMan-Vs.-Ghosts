@@ -18,9 +18,6 @@ public class GhostsFuzzyMemory {
 	public void getInput(GhostsInput input) {
 		if (input.isVisible())
 			this.confidence = 100;
-		else if (false) {
-			
-		}
 		else
 			this.confidence = Double.max(0, this.confidence - 5);
 		
