@@ -16,12 +16,15 @@ public class GhostsFuzzyMemory {
 	}
 
 	public void getInput(GhostsInput input) {
-		double conf = this.confidence;
 		if (input.isVisible())
-			conf = 100;
+			this.confidence = 100;
+		else if (false) {
+			
+		}
 		else
-			conf = Double.max(0, conf - 5);
-		this.mem.put("MSPACMANconfidence", conf);
+			this.confidence = Double.max(0, this.confidence - 5);
+		
+		this.mem.put("MSPACMANconfidence", this.confidence);
 	}
 
 	public HashMap<String, Double> getFuzzyValues(GHOST ghost) {

@@ -66,7 +66,7 @@ public class Ghosts extends GhostController {
 
 		// Add observer only to BLINKY
 		ConsoleFuzzyEngineObserver observer = new 
-		ConsoleFuzzyEngineObserver(GHOST.BLINKY.name(), "GhostsRules");
+		ConsoleFuzzyEngineObserver(GHOST.BLINKY.name(), "GhostsRules aaa"); // TODO cambiar
 		this.ghostFuzzyEngines.get(GHOST.BLINKY).addObserver(observer);
 	}
 
@@ -88,7 +88,7 @@ public class Ghosts extends GhostController {
 			MOVE move = null;
 			try {
 				// run the engine
-				move = engine.run(fvars, game);
+				move = engine.run(fvars, game); // TODO arreglar para no tener try catch, en actions
 			} catch (Exception e) {
 				
 			}
