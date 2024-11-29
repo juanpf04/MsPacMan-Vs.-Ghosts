@@ -8,14 +8,16 @@ public class MsPacManDescription implements CaseComponent {
 	Integer id;
 	
 	Integer score;
-	Integer time;
+	Integer timeOfNearestEdibleGhost;
 	Integer nearestPPill;
+	Integer nearestPill;
 	Integer nearestGhost;
+	Boolean allGhostsEdible;
+	@SuppressWarnings("rawtypes")
+	Enum relativePos;
+	Boolean allInJail;
 	Boolean edibleGhost;
 	
-	
-
-
 
 
 	public Integer getId() {
@@ -35,11 +37,11 @@ public class MsPacManDescription implements CaseComponent {
 	}
 
 	public Integer getTime() {
-		return time;
+		return timeOfNearestEdibleGhost;
 	}
 
 	public void setTime(Integer time) {
-		this.time = time;
+		this.timeOfNearestEdibleGhost = time;
 	}
 
 	public Integer getNearestPPill() {
@@ -50,12 +52,36 @@ public class MsPacManDescription implements CaseComponent {
 		this.nearestPPill = nearestPPill;
 	}
 
+	public Integer getNearestPill() {
+		return nearestPill;
+	}
+
+	public void setNearestPill(Integer nearestPill) {
+		this.nearestPill = nearestPill;
+	}
+
 	public Integer getNearestGhost() {
 		return nearestGhost;
 	}
 
 	public void setNearestGhost(Integer nearestGhost) {
 		this.nearestGhost = nearestGhost;
+	}
+
+	public Boolean getAllGhostsEdible() {
+		return allGhostsEdible;
+	}
+
+	public void setAllGhostsEdible(Boolean allGhostsEdible) {
+		this.allGhostsEdible = allGhostsEdible;
+	}
+
+	public Boolean getAllInJail() {
+		return allInJail;
+	}
+
+	public void setAllInJail(Boolean allInJail) {
+		this.allInJail = allInJail;
 	}
 
 	public Boolean getEdibleGhost() {
@@ -73,8 +99,10 @@ public class MsPacManDescription implements CaseComponent {
 
 	@Override
 	public String toString() {
-		return "MsPacManDescription [id=" + id + ", score=" + score + ", time=" + time + ", nearestPPill="
-				+ nearestPPill + ", nearestGhost=" + nearestGhost + ", edibleGhost=" + edibleGhost + "]";
+		return "MsPacManDescription [id=" + id + 
+			", score=" + score + ", time=" + timeOfNearestEdibleGhost + ", nearestPPill="
+				+ nearestPPill + ", nearestPill=" + nearestPill + ", allGhostsEdible=" + allGhostsEdible + 
+				", nearestGhost=" + nearestGhost + ", allInJail=" + allInJail + ", edibleGhost=" + edibleGhost + "]";
 	}
 
 
