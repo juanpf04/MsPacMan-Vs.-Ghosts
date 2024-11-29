@@ -111,15 +111,14 @@ public class GhostsInput extends FuzzyInput {
 		for (GHOST g : GHOST.values()) {
 			vars.put("edible", 1.0);
 			vars.put("behindPacman", 1.0);
-			vars.put("MSPACMANconfidence", 1.0);
-			vars.put("MSPACMANconfidence", 1.0);
+			vars.put("MSPACMANconfidence", 100.0);
 			vars.put("distanceNearestPPill", 1.0);
 			vars.put("MSPACMANdistanceNearestPPill", 1.0);
 			vars.put("MSPACMANdistance", 1.0);
 			vars.put("distanceToClosestEdibleGhost", 1.0);
 			vars.put("distanceToClosestNotEdibleGhost", 1.0);
 			vars.put("ghostDensity", 1.0);
-			vars.put("pillCount", 1.0);
+			vars.put("pillCount", 100.0);
 		}
 		
 		return vars;
