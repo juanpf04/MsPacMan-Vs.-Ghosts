@@ -10,25 +10,16 @@ public class GoToGhostAction implements Action {
 
 	private GHOST ghost;
 	private GhostsInfo info;
-	private boolean isEdible;
 
-	/**
-	 * Go to ghost action
-	 * 
-	 * @param ghost    ghost who will go to
-	 * @param info     ghosts info
-	 * @param isEdible true if the ghost who will go to is edible
-	 */
-	public GoToGhostAction(GHOST ghost, boolean isEdible, GhostsInfo info) {
+	public GoToGhostAction(GHOST ghost, GhostsInfo info) {
 		this.ghost = ghost;
-		this.isEdible = isEdible;
 		this.info = info;
 	}
 
 	@Override
 	public MOVE execute(Game game) {
 		Action action = new GoToAction(this.ghost,
-				this.isEdible ? this.info.nearestGhost : this.info.nearestEdibleGhostToPacman);
+				game.isGhostEdible(ghost) ? this.info.nearestGhost : this.info.nearestEdibleGhostToPacman);
 		return action.execute(game);
 	}
 

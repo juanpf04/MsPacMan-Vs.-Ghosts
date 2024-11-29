@@ -23,12 +23,12 @@ public class CoverLastPillsAction implements Action {
 		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
 		MOVE lastMove = game.getGhostLastMoveMade(ghost);
 
-		int nearestPill = 0;
+		int nearestPill = -1;
 		int minDistance = Integer.MAX_VALUE;
 
 		for (int pill : game.getActivePillsIndices()) {
 			int distance = game.getShortestPathDistance(ghostIndex, pill, lastMove);
-			if (distance < minDistance) {
+			if (distance < minDistance && distance != -1) {
 				minDistance = distance;
 				nearestPill = pill;
 			}

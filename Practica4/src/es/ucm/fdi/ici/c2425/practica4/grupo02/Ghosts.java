@@ -46,13 +46,13 @@ public class Ghosts extends GhostController {
 			
 			// Fill Actions
 			MaxActionSelector actionSelector = new MaxActionSelector();
-			actionSelector.addAction(new ChaseAction(ghost), 60);
-			actionSelector.addAction(new RunAwayAction(ghost), 60);
+			actionSelector.addAction(new ChaseAction(ghost), 70);
+			actionSelector.addAction(new RunAwayAction(ghost), 70);
 			actionSelector.addAction(new CoverExitAction(ghost, this.info), 50);
 			actionSelector.addAction(new CoverLastPillsAction(ghost), 55);
 			actionSelector.addAction(new DisperseAction(ghost), 50);
-			actionSelector.addAction(new GoToGhostAction(ghost, false, info), 50);
-			actionSelector.addAction(new GoToPowePillAction(ghost, info), 50);
+			actionSelector.addAction(new GoToGhostAction(ghost, info), 60);
+			actionSelector.addAction(new GoToPowePillAction(ghost, info), 55);
 			
 			// Create Rule Engine
 			FuzzyEngine engine = new FuzzyEngine(ghost.name(), rulesFile, "FuzzyGhosts", actionSelector);

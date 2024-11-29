@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.ucm.fdi.ici.fuzzy.FuzzyInput;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
-import es.ucm.fdi.ici.fuzzy.FuzzyInput;
 
 public class GhostsInput extends FuzzyInput {
 
@@ -41,30 +41,39 @@ public class GhostsInput extends FuzzyInput {
 
 		public Map<GHOST, Boolean> isGhostBehindPacman;
 		public Map<GHOST, Boolean> isGhostEdible;
-		public Map<GHOST, Boolean> isGhostInLair; // done
+		public Map<GHOST, Boolean> isGhostInLair;
 
 		// Density of ghosts around a certain ghost
 		public Map<GHOST, Double> ghostDensity;
 
 		public Map<GHOST, Integer> closestGhostIndex;
 
-//		public int edibleGhosts; // done
 
 		public GhostsInfo() {
 			this.exits = new ArrayList<>();
 			this.isGhostBehindPacman = new HashMap<>();
 			this.isGhostEdible = new HashMap<>();
 			this.isGhostInLair = new HashMap<>();
-//			this.doesGhostRequireAction = new HashMap<>();
-//			this.distancesFromGhostToPill = new HashMap<>();
+
 			this.distancesFromGhostToPPill = new HashMap<>();
 			this.distancesFromGhostToPacman = new HashMap<>();
-//			this.distancesFromPacmanToGhost = new HashMap<>();
 			this.ghostDensity = new HashMap<>();
 			this.distancesFromGhostToEdibleGhost = new HashMap<>();
 			this.distancesFromEdibleGhostToGhost = new HashMap<>();
 
 			this.closestGhostIndex = new HashMap<>();
+			
+			for(GHOST ghost : GHOST.values()) {
+				this.isGhostBehindPacman.put(ghost, false);
+				this.isGhostEdible.put(ghost, false);
+				this.isGhostInLair.put(ghost, false);
+				this.distancesFromGhostToPPill.put(ghost, -1);
+				this.distancesFromGhostToPacman.put(ghost, -1);
+				this.ghostDensity.put(ghost, 0.0);
+				this.distancesFromGhostToEdibleGhost.put(ghost, -1);
+				this.distancesFromEdibleGhostToGhost.put(ghost, -1);
+				this.closestGhostIndex.put(ghost, -1);
+			}
 		}
 	}
 
@@ -78,26 +87,26 @@ public class GhostsInput extends FuzzyInput {
 
 	@Override
 	public void parseInput() {
-		
+
 		if (this.info == null) // if info is null, we can't do anything
 			return;
-		
-		if(this.isVisible())
+
+		if (this.isVisible())
 			this.fillInfo();
 	}
 
 	public HashMap<String, Double> getFuzzyValues(GHOST ghost) {
 		HashMap<String, Double> vars = new HashMap<String, Double>();
 
-		vars.put("edible", 1.0);
-		vars.put("behindPacman", 1.0);
-		vars.put("distanceNearestPPill", 1.0);
-		vars.put("MSPACMANdistanceNearestPPill", 1.0);
-		vars.put("MSPACMANdistance", 1.0);
-		vars.put("distanceToClosestEdibleGhost", 1.0);
-		vars.put("distanceToClosestNotEdibleGhost", 1.0);
-		vars.put("ghostDensity", 1.0);
-		vars.put("pillCount", 100.0);
+		vars.put("edible", this.info.isGhostEdible.get(ghost) ? 1.0 : 0.0);
+		vars.put("behindPacman", this.info.isGhostBehindPacman.get(ghost) ? 1.0 : 0.0);
+		vars.put("distanceNearestPPill", this.info.distancesFromGhostToPPill.get(ghost).doubleValue());
+		vars.put("MSPACMANdistanceNearestPPill", this.info.minDistanceFromPacmanToPPill * 1.0);
+		vars.put("MSPACMANdistance", this.info.distancesFromGhostToPacman.get(ghost).doubleValue());
+		vars.put("distanceToClosestEdibleGhost", this.info.distancesFromGhostToEdibleGhost.get(ghost).doubleValue());
+		vars.put("distanceToClosestNotEdibleGhost", this.info.distancesFromEdibleGhostToGhost.get(ghost).doubleValue());
+		vars.put("ghostDensity", this.info.ghostDensity.get(ghost));
+		vars.put("pillCount", this.info.pillCount * 1.0);
 
 		return vars;
 	}
@@ -116,7 +125,7 @@ public class GhostsInput extends FuzzyInput {
 	public boolean isVisible() {
 		return this.game.getPacmanCurrentNodeIndex() != -1;
 	}
-	
+
 	private void fillInfo() {
 		int pacmanIndex = this.game.getPacmanCurrentNodeIndex();
 		MOVE pacmanMove = this.game.getPacmanLastMoveMade();
@@ -154,7 +163,7 @@ public class GhostsInput extends FuzzyInput {
 			MOVE ghostMove = this.game.getGhostLastMoveMade(ghost);
 
 			// state maps
-			this.info.closestGhostIndex.put(ghost,closestGhostIndex(ghostIndex));
+			this.info.closestGhostIndex.put(ghost, closestGhostIndex(ghostIndex));
 			this.info.isGhostEdible.put(ghost, this.game.getGhostEdibleTime(ghost) > 0);
 			this.info.isGhostInLair.put(ghost, this.game.getGhostLairTime(ghost) > 0);
 //			this.info.doesGhostRequireAction.put(ghost, this.game.doesGhostRequireAction(ghost));
@@ -320,7 +329,7 @@ public class GhostsInput extends FuzzyInput {
 
 		return density;
 	}
-	
+
 	private int closestGhostIndex(int index) {
 		double minDistance = Double.MAX_VALUE;
 		GHOST theChosenOne = GHOST.BLINKY;

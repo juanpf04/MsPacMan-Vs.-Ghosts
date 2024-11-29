@@ -25,12 +25,12 @@ public class CoverExitAction implements Action {
 	private int getNearestExit(Game game) {
 		int ghostIndex = game.getGhostCurrentNodeIndex(this.ghost);
 
-		int exit = 0;
+		int exit = -1;
 		int minDistance = Integer.MAX_VALUE;
 
 		for (int e : this.info.exits) {
 			int distance = game.getShortestPathDistance(ghostIndex, e);
-			if (distance < minDistance) {
+			if (distance < minDistance && distance != -1) {
 				exit = e;
 				minDistance = distance;
 			}

@@ -15,9 +15,8 @@ public class ChaseAction implements Action {
 
 	@Override
 	public MOVE execute(Game game) {
-//		Action action = new GoToAction(this.ghost, game.getPacmanCurrentNodeIndex());
-//		return action.execute(game);
-		return MOVE.NEUTRAL;
+		Action action = new GoToAction(this.ghost, game.getPacmanCurrentNodeIndex());
+		return action.execute(game);
 	}
 
 	@Override

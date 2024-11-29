@@ -16,12 +16,11 @@ public class RunAwayAction implements Action {
 
 	@Override
 	public MOVE execute(Game game) {
+		if (game.doesGhostRequireAction(this.ghost) && game.getPacmanCurrentNodeIndex() != -1)
+			return game.getApproximateNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(this.ghost),
+					game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(this.ghost), DM.PATH);
+
 		return MOVE.NEUTRAL;
-//		if (game.doesGhostRequireAction(this.ghost))
-//			return game.getApproximateNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(this.ghost),
-//					game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(this.ghost), DM.PATH);
-//
-//		return MOVE.NEUTRAL;
 	}
 
 	@Override

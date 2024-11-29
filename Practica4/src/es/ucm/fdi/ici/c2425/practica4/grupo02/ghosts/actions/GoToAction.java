@@ -18,7 +18,7 @@ public class GoToAction implements Action {
 
 	@Override
 	public MOVE execute(Game game) {
-		if (game.doesGhostRequireAction(this.ghost))
+		if (game.doesGhostRequireAction(this.ghost) && node != -1)
 			return game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(this.ghost), this.node,
 					game.getGhostLastMoveMade(this.ghost), DM.PATH);
 
