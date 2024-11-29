@@ -40,7 +40,7 @@ public class FuzzyTest {
         fis.evaluate();
 
         // Show output variable's chart
-        Variable runAway = fb.getVariable("Runaway");
+        Variable runAway = fb.getVariable("RunAway");
         JFuzzyChart.get().chart(runAway, runAway.getDefuzzifier(), true);
 
         Variable goToPPill = fb.getVariable("GoToPPill");
