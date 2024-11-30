@@ -13,7 +13,9 @@ import pacman.game.Game;
 
 public class MsPacMan extends PacmanController {
 
-	static final String RULES_PATH = "src"+File.separator+"es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"c2425"+File.separator+"practica4"+File.separator+"grupo02"+File.separator+"mspacman"+File.separator;
+	static final String RULES_PATH = "src" + File.separator + "es" + File.separator + "ucm" + File.separator + "fdi"
+			+ File.separator + "ici" + File.separator + "c2425" + File.separator + "practica4" + File.separator
+			+ "grupo02" + File.separator + "mspacman" + File.separator;
 	static final String RULES_FILE = "mspacman.fcl";
 
 	private FuzzyEngine fuzzyEngine;
@@ -28,7 +30,7 @@ public class MsPacMan extends PacmanController {
 		this.fuzzyMemory = new MsPacManFuzzyMemory();
 
 		// Fill Actions
-		MaxActionSelector actionSelector = new MaxActionSelector(); 
+		MaxActionSelector actionSelector = new MaxActionSelector();
 		actionSelector.addAction(new GoToPPillAction(), 60);
 		actionSelector.addAction(new RunAwayFromBLINKY(), 50);
 		actionSelector.addAction(new RunAwayFromINKY(), 50);
@@ -57,13 +59,8 @@ public class MsPacMan extends PacmanController {
 		// Get fuzzy values
 		HashMap<String, Double> fvars = input.getFuzzyValues();
 		fvars.putAll(this.fuzzyMemory.getFuzzyValues());
-
 		// Run the engine
-		try {
-			return this.fuzzyEngine.run(fvars, game);
-		} catch (Exception e) {
-            return MOVE.NEUTRAL;
-		}
+		return this.fuzzyEngine.run(fvars, game);
 	}
 
 }

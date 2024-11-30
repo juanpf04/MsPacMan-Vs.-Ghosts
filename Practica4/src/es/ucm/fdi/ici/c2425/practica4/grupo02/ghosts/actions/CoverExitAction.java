@@ -41,6 +41,6 @@ public class CoverExitAction implements Action {
 
 	@Override
 	public String getActionId() {
-		return "CovereExit";
+		return "CoverExit";
 	}
 }

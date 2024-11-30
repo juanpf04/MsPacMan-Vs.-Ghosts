@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.EnumMap;
 import java.util.HashMap;
 
-import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsFuzzyMemory;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsInput;
+import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.GhostsInput.GhostsInfo;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.ChaseAction;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.CoverExitAction;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.CoverLastPillsAction;
@@ -15,7 +15,6 @@ import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.GoToGhostAction;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.GoToPowePillAction;
 import es.ucm.fdi.ici.c2425.practica4.grupo02.ghosts.actions.RunAwayAction;
 import es.ucm.fdi.ici.fuzzy.FuzzyEngine;
-import es.ucm.fdi.ici.fuzzy.observers.ConsoleFuzzyEngineObserver;
 import pacman.controllers.GhostController;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -23,12 +22,14 @@ import pacman.game.Game;
 
 public class Ghosts extends GhostController {
 
-	static final String RULES_PATH = "src"+File.separator+"es"+File.separator+"ucm"+File.separator+"fdi"+File.separator+"ici"+File.separator+"c2425"+File.separator+"practica4"+File.separator+"grupo02"+File.separator+"ghosts"+File.separator;
+	static final String RULES_PATH = "src" + File.separator + "es" + File.separator + "ucm" + File.separator + "fdi"
+			+ File.separator + "ici" + File.separator + "c2425" + File.separator + "practica4" + File.separator
+			+ "grupo02" + File.separator + "ghosts" + File.separator;
 	static final String RULES_FILE = "ghosts.fcl";
 
 	private EnumMap<GHOST, FuzzyEngine> ghostFuzzyEngines;
 	private GhostsFuzzyMemory fuzzyMemory;
-	
+
 	private GhostsInfo info;
 
 	public Ghosts() {
@@ -36,14 +37,14 @@ public class Ghosts extends GhostController {
 		this.setTeam("Team 02");
 
 		String rulesFile = String.format("%s%s", RULES_PATH, RULES_FILE);
-		
+
 		this.info = new GhostsInfo();
 
 		this.fuzzyMemory = new GhostsFuzzyMemory();
 
 		this.ghostFuzzyEngines = new EnumMap<GHOST, FuzzyEngine>(GHOST.class);
 		for (GHOST ghost : GHOST.values()) {
-			
+
 			// Fill Actions
 			MaxActionSelector actionSelector = new MaxActionSelector();
 			actionSelector.addAction(new ChaseAction(ghost), 70);
@@ -53,7 +54,7 @@ public class Ghosts extends GhostController {
 			actionSelector.addAction(new DisperseAction(ghost), 50);
 			actionSelector.addAction(new GoToGhostAction(ghost, info), 60);
 			actionSelector.addAction(new GoToPowePillAction(ghost, info), 55);
-			
+
 			// Create Rule Engine
 			FuzzyEngine engine = new FuzzyEngine(ghost.name(), rulesFile, "FuzzyGhosts", actionSelector);
 			this.ghostFuzzyEngines.put(ghost, engine);
@@ -65,9 +66,9 @@ public class Ghosts extends GhostController {
 		}
 
 		// Add observer only to BLINKY
-		ConsoleFuzzyEngineObserver observer = new 
-		ConsoleFuzzyEngineObserver(GHOST.BLINKY.name(), "GhostsRules aaa"); // TODO cambiar
-		this.ghostFuzzyEngines.get(GHOST.BLINKY).addObserver(observer);
+//		ConsoleFuzzyEngineObserver observer = new 
+//		ConsoleFuzzyEngineObserver(GHOST.BLINKY.name(), "GhostsRules");
+//		this.ghostFuzzyEngines.get(GHOST.BLINKY).addObserver(observer);
 	}
 
 	@Override
@@ -85,14 +86,10 @@ public class Ghosts extends GhostController {
 			HashMap<String, Double> fvars = input.getFuzzyValues(ghost);
 			fvars.putAll(this.fuzzyMemory.getFuzzyValues(ghost));
 
-			MOVE move = null;
-			try {
-				// Run the engine
-				move = engine.run(fvars, game); // TODO arreglar para no tener try catch, en actions
-			} catch (Exception e) {
-				
-			}
-			result.put(ghost, move);				
+			// Run the engine
+			MOVE move = engine.run(fvars, game);
+
+			result.put(ghost, move);
 		}
 
 		return result;

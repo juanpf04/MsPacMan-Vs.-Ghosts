@@ -1,7 +1,5 @@
 package es.ucm.fdi.ici.c2425.practica4.grupo02.mspacman.actions;
 
-import java.util.Random;
-
 import es.ucm.fdi.ici.Action;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
@@ -10,8 +8,6 @@ import pacman.game.Game;
 
 public class ChaseBLINKY implements Action {
     
-    private Random rnd = new Random();
-    private MOVE[] allMoves = MOVE.values();
     @Override
     public String getActionId() {
         return "ChaseBLINKY";
@@ -22,7 +18,7 @@ public class ChaseBLINKY implements Action {
         int posBlinky = game.getGhostCurrentNodeIndex(GHOST.BLINKY);
 
         if(posBlinky == -1) {
-            return allMoves[rnd.nextInt(allMoves.length)];
+            return MOVE.NEUTRAL;
         }
         
         int pacmanNode = game.getPacmanCurrentNodeIndex();

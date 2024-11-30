@@ -23,6 +23,7 @@ public class GhostsInput extends FuzzyInput {
 		public int closestPPillToPacman;
 
 		public int pillCount;
+		public Map<GHOST, Integer> ppills;
 
 		// Node of nearest edible ghost to pacman. Returns -1 if no ghost is edbile.
 		public int nearestEdibleGhostToPacman;
@@ -33,6 +34,7 @@ public class GhostsInput extends FuzzyInput {
 
 		// Distance from ghost to nearest power pill of pacman
 		public Map<GHOST, Integer> distancesFromGhostToPPill;
+		public Map<GHOST, Integer> distancesPPill;
 		public Map<GHOST, Integer> distancesFromGhostToPacman;
 
 		// Distance from ghost to nearest edible ghost to pacman
@@ -48,13 +50,13 @@ public class GhostsInput extends FuzzyInput {
 
 		public Map<GHOST, Integer> closestGhostIndex;
 
-
 		public GhostsInfo() {
 			this.exits = new ArrayList<>();
 			this.isGhostBehindPacman = new HashMap<>();
 			this.isGhostEdible = new HashMap<>();
 			this.isGhostInLair = new HashMap<>();
 
+			this.distancesPPill = new HashMap<>();
 			this.distancesFromGhostToPPill = new HashMap<>();
 			this.distancesFromGhostToPacman = new HashMap<>();
 			this.ghostDensity = new HashMap<>();
@@ -62,18 +64,13 @@ public class GhostsInput extends FuzzyInput {
 			this.distancesFromEdibleGhostToGhost = new HashMap<>();
 
 			this.closestGhostIndex = new HashMap<>();
-			
-			for(GHOST ghost : GHOST.values()) {
-				this.isGhostBehindPacman.put(ghost, false);
-				this.isGhostEdible.put(ghost, false);
-				this.isGhostInLair.put(ghost, false);
-				this.distancesFromGhostToPPill.put(ghost, -1);
-				this.distancesFromGhostToPacman.put(ghost, -1);
-				this.ghostDensity.put(ghost, 0.0);
-				this.distancesFromGhostToEdibleGhost.put(ghost, -1);
-				this.distancesFromEdibleGhostToGhost.put(ghost, -1);
-				this.closestGhostIndex.put(ghost, -1);
-			}
+
+			this.ppills = new HashMap<>();
+			this.ppills.put(GHOST.BLINKY, 97);
+			this.ppills.put(GHOST.INKY, 102);
+			this.ppills.put(GHOST.PINKY, 1143);
+			this.ppills.put(GHOST.SUE, 1148);
+
 		}
 	}
 
@@ -82,6 +79,7 @@ public class GhostsInput extends FuzzyInput {
 	public GhostsInput(Game game, GhostsInfo info) {
 		super(game);
 		this.info = info;
+		this.reset();
 		this.parseInput();
 	}
 
@@ -107,6 +105,7 @@ public class GhostsInput extends FuzzyInput {
 		vars.put("distanceToClosestNotEdibleGhost", this.info.distancesFromEdibleGhostToGhost.get(ghost).doubleValue());
 		vars.put("ghostDensity", this.info.ghostDensity.get(ghost));
 		vars.put("pillCount", this.info.pillCount * 1.0);
+		vars.put("PPILLdistance", this.info.distancesPPill.get(ghost).doubleValue());
 
 		return vars;
 	}
@@ -126,6 +125,24 @@ public class GhostsInput extends FuzzyInput {
 		return this.game.getPacmanCurrentNodeIndex() != -1;
 	}
 
+	private void reset() {
+		for (GHOST ghost : GHOST.values()) {
+			if (this.game.getGhostLairTime(ghost) == 0)
+				continue;
+
+			this.info.isGhostBehindPacman.put(ghost, false);
+			this.info.isGhostEdible.put(ghost, false);
+			this.info.isGhostInLair.put(ghost, false);
+			this.info.distancesFromGhostToPPill.put(ghost, -1);
+			this.info.distancesFromGhostToPacman.put(ghost, -1);
+			this.info.ghostDensity.put(ghost, 0.0);
+			this.info.distancesFromGhostToEdibleGhost.put(ghost, -1);
+			this.info.distancesFromEdibleGhostToGhost.put(ghost, -1);
+			this.info.closestGhostIndex.put(ghost, -1);
+			this.info.distancesPPill.put(ghost, -1);
+		}
+	}
+
 	private void fillInfo() {
 		int pacmanIndex = this.game.getPacmanCurrentNodeIndex();
 		MOVE pacmanMove = this.game.getPacmanLastMoveMade();
@@ -134,10 +151,7 @@ public class GhostsInput extends FuzzyInput {
 			pacmanNextJunction = this.getNextJunctionNode(pacmanIndex, pacmanMove);
 		}
 
-		int[] activePills = this.game.getActivePillsIndices();
-		this.info.pillCount = activePills.length;
-
-		int[] activePowerPills = this.game.getActivePowerPillsIndices();
+		this.info.pillCount = 50;// activePills.length;
 
 		// -------------------------------------------
 
@@ -162,6 +176,9 @@ public class GhostsInput extends FuzzyInput {
 			int ghostIndex = this.game.getGhostCurrentNodeIndex(ghost);
 			MOVE ghostMove = this.game.getGhostLastMoveMade(ghost);
 
+			this.info.distancesPPill.put(ghost,
+					game.getShortestPathDistance(ghostIndex, this.info.ppills.get(ghost), ghostMove));
+
 			// state maps
 			this.info.closestGhostIndex.put(ghost, closestGhostIndex(ghostIndex));
 			this.info.isGhostEdible.put(ghost, this.game.getGhostEdibleTime(ghost) > 0);
@@ -170,18 +187,12 @@ public class GhostsInput extends FuzzyInput {
 
 			// distance maps
 			if (!this.info.isGhostInLair.get(ghost) && pacmanNextJunction >= 0) {
-				int pillCenter = getGeometricCenterOfActivePills();
-				int distanceFromGhostToPillCenter = pillCenter == -1 ? 0
-						: game.getShortestPathDistance(ghostIndex, pillCenter, ghostMove);
 				int distanceFromGhostToPPill = game.getShortestPathDistance(ghostIndex, this.info.closestPPillToPacman,
 						ghostMove);
 				int distanceFromGhostToPacman = this.game.getShortestPathDistance(ghostIndex, pacmanIndex, ghostMove);
-				int distanceFromPacmanToGhost = this.game.getShortestPathDistance(pacmanIndex, ghostIndex, pacmanMove);
 
 				this.info.distancesFromGhostToPPill.put(ghost, distanceFromGhostToPPill);
 				this.info.distancesFromGhostToPacman.put(ghost, distanceFromGhostToPacman);
-//				this.info.distancesFromPacmanToGhost.put(ghost, distanceFromPacmanToGhost);
-//				this.info.distancesFromGhostToPill.put(ghost, distanceFromGhostToPillCenter);
 
 				boolean ghostBehindPacman = this.game.getShortestPathDistance(ghostIndex, pacmanNextJunction,
 						ghostMove) > this.info.distancesFromGhostToPacman.get(ghost);
@@ -282,31 +293,6 @@ public class GhostsInput extends FuzzyInput {
 		}
 
 		return theChosenOne;
-	}
-
-	private int getGeometricCenterOfActivePills() {
-		int[] pills = game.getActivePillsIndices();
-		return geometricCenterOfIndexlist(pills);
-	}
-
-	private int geometricCenterOfIndexlist(int[] list) {
-		int bestNode = -1;
-		double minDistanceSum = Double.MAX_VALUE;
-
-		for (int i : list) {
-			double currentDistanceSum = 0;
-			for (int j : list)
-				if (i != j)
-					currentDistanceSum += game.getDistance(i, j, DM.PATH);
-
-			// Check if this node has the smallest total distance
-			if (currentDistanceSum < minDistanceSum) {
-				minDistanceSum = currentDistanceSum;
-				bestNode = i;
-			}
-		}
-
-		return bestNode;
 	}
 
 	/**
