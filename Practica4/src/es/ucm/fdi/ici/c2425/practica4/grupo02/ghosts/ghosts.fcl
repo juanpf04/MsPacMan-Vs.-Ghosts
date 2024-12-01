@@ -1,97 +1,251 @@
-FUNCTION_BLOCK FuzzyMsPacMan	// Block definition (there may be more than one block per file)
+FUNCTION_BLOCK FuzzyGhosts	// Block definition (there may be more than one block per file)
 
 VAR_INPUT				// Define input variables
-	BLINKYdistance : REAL;
-	PINKYdistance : REAL;
-	INKYdistance : REAL;
-	SUEdistance : REAL;
-	BLINKYconfidence : REAL;
-	PINKYconfidence : REAL;
-	INKYconfidence : REAL;
-	SUEconfidence : REAL;
+
+	edible : REAL;
+	behindPacman : REAL;
+	
+	MSPACMANconfidence : REAL;
+
+	distanceToMSPACMANNearestPPill : REAL;
+	distanceNearestPPill : REAL;
+	
+	MSPACMANdistanceNearestPPill : REAL;
+	MSPACMANdistance : REAL;
+	distanceToClosestEdibleGhost : REAL;
+	distanceToClosestNotEdibleGhost : REAL;
+
+	ghostDensity : REAL;
+	pillCount : REAL;
+	PPILLdistance : REAL;
+
 END_VAR
 
 VAR_OUTPUT				// Define output variable
-	Runaway : REAL;
-	GoToPPill: REAL;
+
+	Chase : REAL;
+	RunAway : REAL;
+	CoverExit : REAL;
+	CoverLastPills : REAL;
+	Disperse : REAL;
+	GoToPPill : REAL;
+	GoToGhost : REAL;
+
 END_VAR
 
-FUZZIFY BLINKYdistance			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM near := (0, 1) (60, 0) ; 
-	TERM medium := gauss 75 25;
-	TERM far := (90, 0) (150, 1) (200, 1);
-END_FUZZIFY
-FUZZIFY PINKYdistance			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM near := (0, 1) (60, 0) ; 
-	TERM medium := gauss 75 25;
-	TERM far := (90, 0) (150, 1) (200, 1);
-END_FUZZIFY
-FUZZIFY INKYdistance			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM near := (0, 1) (60, 0) ; 
-	TERM medium := gauss 75 25;
-	TERM far := (90, 0) (150, 1) (200, 1);
-END_FUZZIFY
-FUZZIFY SUEdistance			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM near := (0, 1) (60, 0) ; 
-	TERM medium := gauss 75 25;
-	TERM far := (90, 0) (150, 1) (200, 1);
+// Fuzzify input variables
+
+FUZZIFY edible			// Fuzzify input variable 'edible': {'true', 'false'}
+    TERM true := 1;
+    TERM false := 0;
 END_FUZZIFY
 
-FUZZIFY BLINKYconfidence			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM low := (0,1)(25,1)(50,0) ; 
-	TERM medium := gauss 50 25;
-	TERM high := (50,0)(75,1)(100,1);
+FUZZIFY behindPacman			// Fuzzify input variable 'behindPacman': {'true', 'false'}
+    TERM true := 1;
+    TERM false := 0;
 END_FUZZIFY
-FUZZIFY INKYconfidence			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM low := (0,1)(25,1)(50,0) ; 
-	TERM medium := gauss 50 25;
-	TERM high := (50,0)(75,1)(100,1);
-END_FUZZIFY
-FUZZIFY PINKYconfidence			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
-	TERM low := (0,1)(25,1)(50,0) ; 
-	TERM medium := gauss 50 25;
-	TERM high := (50,0)(75,1)(100,1);
-END_FUZZIFY
-FUZZIFY SUEconfidence			// Fuzzify input variable 'service': {'poor', 'good' , 'excellent'}
+
+FUZZIFY MSPACMANconfidence				// Fuzzify input variable 'MSPACMANconfidence': {'low', 'medium' , 'high'}
 	TERM low := (0,1)(25,1)(50,0) ; 
 	TERM medium := gauss 50 25;
 	TERM high := (50,0)(75,1)(100,1);
 END_FUZZIFY
 
-DEFUZZIFY Runaway			// Defzzzify output variable 'tip' : {'cheap', 'average', 'generous' }
-	TERM calm := (0,1) (5,1) (15,0);
-	TERM nervious := gauss 15 5;
-	TERM emergency := (15,0) (25,1) (30,1);
+FUZZIFY MSPACMANdistanceNearestPPill	// Fuzzify input variable 'MSPACMANdistanceNearestPPill': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY MSPACMANdistance	// Fuzzify input variable 'MSPACMANdistance': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY distanceToClosestEdibleGhost			// Fuzzify input variable 'distanceToClosestEdibleGhost': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY distanceToClosestNotEdibleGhost			// Fuzzify input variable 'distanceToClosestNotEdibleGhost': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+FUZZIFY ghostDensity			// Fuzzify input variable 'ghostDensity': {'normal' , 'high'}
+	TERM normal := sigm -9 1.5;
+	TERM high := sigm 3 1.5;
+END_FUZZIFY
+
+FUZZIFY pillCount			// Fuzzify input variable 'pillCount': {'low' , 'normal'}
+	TERM low := sigm -1 15;
+	TERM normal := sigm 5 15;
+END_FUZZIFY
+
+FUZZIFY PPILLdistance	// Fuzzify input variable 'PPILLdistance': {'near', 'medium' , 'far'}
+	TERM near := (0, 1) (60, 0) ; 
+	TERM medium := gauss 75 25;
+	TERM far := (90, 0) (150, 1) (200, 1);
+END_FUZZIFY
+
+// Defuzzify output variables
+
+DEFUZZIFY RunAway			// Defuzzify output variable 'RunAway' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
 	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
 	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
 END_DEFUZZIFY
 
-DEFUZZIFY GoToPPill			// Defzzzify output variable 'tip' : {'cheap', 'average', 'generous' }
-	TERM calm := (0,1) (5,1) (15,0);
-	TERM nervious := gauss 15 5;
-	TERM emergency := (15,0) (25,1) (30,1);
+DEFUZZIFY Chase			// Defuzzify output variable 'Chase' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY CoverExit			// Defuzzify output variable 'CoverExit' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY CoverLastPills			// Defuzzify output variable 'CoverLastPills' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY Disperse			// Defuzzify output variable 'Disperse' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY GoToPPill			// Defuzzify output variable 'GoToPPill' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY GoToGhost			// Defuzzify output variable 'GoToGhost' : {'never', 'rarely', 'sometimes', 'usually', 'always'}
+	TERM never := gbell 30 40 0;
+	TERM rarely := gbell 20 30 50;
+	TERM sometimes := gbell 10 20 80;
+	TERM usually := gbell 20 30 110;
+	TERM always := gbell 30 40 160;
 	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
 	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
 END_DEFUZZIFY
 
 
-RULEBLOCK MsPacManRules
+// Define rules
+
+RULEBLOCK GhostsRules
+
 	AND : MIN;			// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgan's Law)
 	ACT : MIN;			// Use 'min' activation method
 	ACCU : MAX;			// Use 'MAX' accumulation method (Other options PROBOR and SUM)
+	
+	
+	// Chase
+	
+	RULE 1 : IF edible IS true THEN Chase IS never;
+	RULE 2 : IF edible IS false THEN Chase IS usually;
+	RULE 3 : IF edible IS false AND MSPACMANconfidence IS low THEN Chase IS rarely;
+	RULE 4 : IF edible IS false AND MSPACMANconfidence IS medium THEN Chase IS sometimes;
+	RULE 5 : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS far THEN Chase IS always;
+	RULE 6 : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS medium THEN Chase IS sometimes;
+	RULE 7 : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS near THEN Chase IS rarely;
+	RULE 8 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN Chase IS rarely;
+	RULE 9 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN Chase IS sometimes;
+	RULE 10 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN Chase IS usually;
+	RULE 11 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN Chase IS always;
+	RULE 12 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN Chase IS usually;
+	RULE 13 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN Chase IS usually;
+	
+	// RunAway
+	
+	RULE 14 : IF edible IS false THEN RunAway IS sometimes;
+	RULE 15 : IF edible IS false AND MSPACMANdistanceNearestPPill IS near THEN RunAway IS usually;
+	RULE 16 : IF edible IS true THEN RunAway IS usually;
+	RULE 17 : IF edible IS true AND ghostDensity IS high THEN RunAway IS rarely;
+	
+	// GoToPPill
+	
+	RULE 18 : IF edible IS true THEN GoToPPill IS never;
+	RULE 19 : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS far THEN GoToPPill IS always;
+	RULE 20 : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS medium THEN GoToPPill IS usually;
+	RULE 21 : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS near THEN GoToPPill IS never;
+	RULE 22 : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS near THEN GoToPPill IS never;
+	RULE 23 : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS medium THEN GoToPPill IS never;
+	RULE 24 : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS far THEN GoToPPill IS sometimes;
+	
+	// GoToGhost
 
-	RULE 1 : IF BLINKYdistance IS near AND BLINKYconfidence IS high THEN Runaway IS emergency;
-	RULE 2 : IF PINKYdistance IS near AND PINKYconfidence IS high THEN Runaway IS emergency;
-	RULE 3 : IF INKYdistance IS near AND INKYconfidence IS high THEN Runaway IS emergency;
-	RULE 4 : IF SUEdistance IS near AND SUEconfidence IS high THEN Runaway IS emergency;
-	RULE 5 : IF BLINKYconfidence IS medium THEN GoToPPill IS nervious;
-	RULE 6 : IF PINKYconfidence IS medium THEN GoToPPill IS nervious;
-	RULE 7 : IF INKYconfidence IS medium THEN GoToPPill IS nervious;
-	RULE 8 : IF SUEconfidence IS medium THEN GoToPPill IS nervious;
-	RULE 9 : IF BLINKYdistance IS far THEN Runaway IS calm;
-	RULE 10 : IF PINKYdistance IS far THEN Runaway IS calm;
-	RULE 11 : IF INKYdistance IS far THEN Runaway IS calm;
-	RULE 12 : IF SUEdistance IS far THEN Runaway IS calm;
+	RULE 25 : IF edible IS true AND MSPACMANconfidence IS low THEN GoToGhost IS usually;
+	RULE 26 : IF edible IS true AND 
+	MSPACMANconfidence IS high AND 
+	MSPACMANdistance IS medium AND 
+	distanceToClosestNotEdibleGhost IS near THEN GoToGhost IS always;
+	RULE 27 : IF edible IS true AND 
+	MSPACMANconfidence IS medium AND 
+	MSPACMANdistance IS medium AND 
+	distanceToClosestNotEdibleGhost IS near THEN GoToGhost IS always;
+	
+	// Disperse
+	
+	RULE 28 : IF edible IS false THEN Disperse IS never;
+	RULE 29 : IF edible IS true AND ghostDensity IS high THEN Disperse IS usually;
+	
+	// Cover Exit
+	
+	RULE 30 : IF edible IS true THEN CoverExit IS never;
+	RULE 31 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low THEN CoverExit IS usually;
+	RULE 32 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS medium THEN CoverExit IS sometimes;
+	RULE 33 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS near THEN CoverExit IS always;
+	RULE 34 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS medium THEN CoverExit IS usually;
+	RULE 35 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS far THEN CoverExit IS rarely;
+	RULE 36 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS far THEN CoverExit IS never;
+	RULE 37 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS medium THEN CoverExit IS sometimes;
+	RULE 38 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS near THEN CoverExit IS never;
+
+    // Cover Last Pills
+    
+	RULE 39 : IF edible IS true THEN CoverLastPills IS never;
+	RULE 40 : IF edible IS false AND pillCount IS normal THEN CoverLastPills IS never;
+	RULE 41 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS low THEN CoverLastPills IS always;
+	RULE 42 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS medium THEN CoverLastPills IS usually;
+	RULE 43 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN CoverLastPills IS rarely;
+	RULE 44 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN CoverLastPills IS sometimes;
+	RULE 45 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN CoverLastPills IS usually;
+
+	
 END_RULEBLOCK
 
 END_FUNCTION_BLOCK

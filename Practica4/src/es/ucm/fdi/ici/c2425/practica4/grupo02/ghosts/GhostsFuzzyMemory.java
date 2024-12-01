@@ -8,26 +8,24 @@ public class GhostsFuzzyMemory {
 
 	private HashMap<String, Double> mem;
 
-	double[] confidence = { 100, 100, 100, 100 };
+	private double confidence;
 
 	public GhostsFuzzyMemory() {
 		this.mem = new HashMap<String, Double>();
+		this.confidence = 100;
 	}
 
 	public void getInput(GhostsInput input) {
-		for (GHOST g : GHOST.values()) {
-			double conf = confidence[g.ordinal()];
-			if (input.isVisible(g))
-				conf = 100;
-			else
-				conf = Double.max(0, conf - 5);
-			mem.put(g.name() + "confidence", conf);
-		}
-
+		if (input.isVisible())
+			this.confidence = 100;
+		else
+			this.confidence = Double.max(0, this.confidence - 5);
+		
+		this.mem.put("MSPACMANconfidence", this.confidence);
 	}
 
 	public HashMap<String, Double> getFuzzyValues(GHOST ghost) {
-		return mem;
+		return this.mem;
 	}
 
 }

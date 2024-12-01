@@ -6,25 +6,27 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
-public class RunAwayAction implements Action {
+public class GoToAction implements Action {
 
 	private GHOST ghost;
+	private int node;
 
-	public RunAwayAction(GHOST ghost) {
+	public GoToAction(GHOST ghost, int node) {
 		this.ghost = ghost;
+		this.node = node;
 	}
 
 	@Override
 	public MOVE execute(Game game) {
-		if (game.doesGhostRequireAction(this.ghost) && game.getPacmanCurrentNodeIndex() != -1)
-			return game.getApproximateNextMoveAwayFromTarget(game.getGhostCurrentNodeIndex(this.ghost),
-					game.getPacmanCurrentNodeIndex(), game.getGhostLastMoveMade(this.ghost), DM.PATH);
+		if (game.doesGhostRequireAction(this.ghost) && node != -1)
+			return game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(this.ghost), this.node,
+					game.getGhostLastMoveMade(this.ghost), DM.PATH);
 
 		return MOVE.NEUTRAL;
 	}
 
 	@Override
 	public String getActionId() {
-		return "RunAway";
+		return "Go to " + this.node;
 	}
 }
