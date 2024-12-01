@@ -175,75 +175,75 @@ RULEBLOCK GhostsRules
 	
 	// Chase
 	
-	RULE x : IF edible IS true THEN Chase IS never;
-	RULE x : IF edible IS false THEN Chase IS usually;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS low THEN Chase IS rarely;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS medium THEN Chase IS sometimes;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS far THEN Chase IS always;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS medium THEN Chase IS sometimes;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS near THEN Chase IS rarely;
-	RULE x : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN Chase IS rarely;
-	RULE x : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN Chase IS sometimes;
-	RULE x : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN Chase IS usually;
-	RULE x : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN Chase IS always;
-	RULE x : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN Chase IS usually;
-	RULE x : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN Chase IS usually;
+	RULE 1 : IF edible IS true THEN Chase IS never;
+	RULE 2 : IF edible IS false THEN Chase IS usually;
+	RULE 3 : IF edible IS false AND MSPACMANconfidence IS low THEN Chase IS rarely;
+	RULE 4 : IF edible IS false AND MSPACMANconfidence IS medium THEN Chase IS sometimes;
+	RULE 5 : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS far THEN Chase IS always;
+	RULE 6 : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS medium THEN Chase IS sometimes;
+	RULE 7 : IF edible IS false AND MSPACMANconfidence IS high AND MSPACMANdistanceNearestPPill IS near THEN Chase IS rarely;
+	RULE 8 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN Chase IS rarely;
+	RULE 9 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN Chase IS sometimes;
+	RULE 10 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN Chase IS usually;
+	RULE 11 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN Chase IS always;
+	RULE 12 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN Chase IS usually;
+	RULE 13 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN Chase IS usually;
 	
 	// RunAway
 	
-	RULE x : IF edible IS false THEN RunAway IS sometimes;
-	RULE x : IF edible IS false AND MSPACMANdistanceNearestPPill IS near THEN RunAway IS usually;
-	RULE x : IF edible IS true THEN RunAway IS usually;
-	RULE x : IF edible IS true AND ghostDensity IS high THEN RunAway IS rarely;
+	RULE 14 : IF edible IS false THEN RunAway IS sometimes;
+	RULE 15 : IF edible IS false AND MSPACMANdistanceNearestPPill IS near THEN RunAway IS usually;
+	RULE 16 : IF edible IS true THEN RunAway IS usually;
+	RULE 17 : IF edible IS true AND ghostDensity IS high THEN RunAway IS rarely;
 	
 	// GoToPPill
 	
-	RULE x : IF edible IS true THEN GoToPPill IS never;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS far THEN GoToPPill IS always;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS medium THEN GoToPPill IS usually;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS near THEN GoToPPill IS never;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS near THEN GoToPPill IS never;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS medium THEN GoToPPill IS never;
-	RULE x : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS far THEN GoToPPill IS sometimes;
+	RULE 18 : IF edible IS true THEN GoToPPill IS never;
+	RULE 19 : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS far THEN GoToPPill IS always;
+	RULE 20 : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS medium THEN GoToPPill IS usually;
+	RULE 21 : IF edible IS false AND MSPACMANconfidence IS low AND PPILLdistance IS near THEN GoToPPill IS never;
+	RULE 22 : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS near THEN GoToPPill IS never;
+	RULE 23 : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS medium THEN GoToPPill IS never;
+	RULE 24 : IF edible IS false AND MSPACMANconfidence IS medium AND PPILLdistance IS far THEN GoToPPill IS sometimes;
 	
 	// GoToGhost
 
-	RULE x : IF edible IS true AND MSPACMANconfidence IS low THEN GoToGhost IS usually;
-	RULE x : IF edible IS true AND 
+	RULE 25 : IF edible IS true AND MSPACMANconfidence IS low THEN GoToGhost IS usually;
+	RULE 26 : IF edible IS true AND 
 	MSPACMANconfidence IS high AND 
 	MSPACMANdistance IS medium AND 
 	distanceToClosestNotEdibleGhost IS near THEN GoToGhost IS always;
-	RULE x : IF edible IS true AND 
+	RULE 27 : IF edible IS true AND 
 	MSPACMANconfidence IS medium AND 
 	MSPACMANdistance IS medium AND 
 	distanceToClosestNotEdibleGhost IS near THEN GoToGhost IS always;
 	
 	// Disperse
 	
-	RULE x : IF edible IS false THEN Disperse IS never;
-	RULE x : IF edible IS true AND ghostDensity IS high THEN Disperse IS usually;
+	RULE 28 : IF edible IS false THEN Disperse IS never;
+	RULE 29 : IF edible IS true AND ghostDensity IS high THEN Disperse IS usually;
 	
 	// Cover Exit
 	
-	RULE x : IF edible IS true THEN CoverExit IS never;
-	RULE x : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low THEN CoverExit IS usually;
-	RULE x : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS medium THEN CoverExit IS sometimes;
-	RULE x : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS near THEN CoverExit IS always;
-	RULE x : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS medium THEN CoverExit IS usually;
-	RULE x : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS far THEN CoverExit IS rarely;
-	RULE x : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS far THEN CoverExit IS never;
-	RULE x : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS medium THEN CoverExit IS sometimes;
-	RULE x : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS near THEN CoverExit IS never;
+	RULE 30 : IF edible IS true THEN CoverExit IS never;
+	RULE 31 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low THEN CoverExit IS usually;
+	RULE 32 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS medium THEN CoverExit IS sometimes;
+	RULE 33 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS near THEN CoverExit IS always;
+	RULE 34 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS medium THEN CoverExit IS usually;
+	RULE 35 : IF edible IS false AND behindPacman IS true AND MSPACMANconfidence IS low AND MSPACMANdistance IS far THEN CoverExit IS rarely;
+	RULE 36 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS far THEN CoverExit IS never;
+	RULE 37 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS medium THEN CoverExit IS sometimes;
+	RULE 38 : IF edible IS false AND behindPacman IS false AND MSPACMANconfidence IS low AND MSPACMANdistance IS near THEN CoverExit IS never;
 
     // Cover Last Pills
     
-	RULE x : IF edible IS true THEN CoverLastPills IS never;
-	RULE x : IF edible IS false AND pillCount IS normal THEN CoverLastPills IS never;
-	RULE x : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS low THEN CoverLastPills IS always;
-	RULE x : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS medium THEN CoverLastPills IS usually;
-	RULE x : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN CoverLastPills IS rarely;
-	RULE x : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN CoverLastPills IS sometimes;
-	RULE x : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN CoverLastPills IS usually;
+	RULE 39 : IF edible IS true THEN CoverLastPills IS never;
+	RULE 40 : IF edible IS false AND pillCount IS normal THEN CoverLastPills IS never;
+	RULE 41 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS low THEN CoverLastPills IS always;
+	RULE 42 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS medium THEN CoverLastPills IS usually;
+	RULE 43 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS near THEN CoverLastPills IS rarely;
+	RULE 44 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS medium THEN CoverLastPills IS sometimes;
+	RULE 45 : IF edible IS false AND pillCount IS low  AND MSPACMANconfidence IS high AND MSPACMANdistance IS far THEN CoverLastPills IS usually;
 
 	
 END_RULEBLOCK
