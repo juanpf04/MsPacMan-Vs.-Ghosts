@@ -3,7 +3,10 @@ package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import constantes.Weithgs;
 import es.ucm.fdi.gaia.jcolibri.cbraplications.StandardCBRApplication;
@@ -139,35 +142,51 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	private MOVE reuse(Collection<RetrievalResult> eval)
 	{
-		// This simple implementation only uses 1NN
+		Map<MOVE, Integer> votacion_mayoritaria = new HashMap<MOVE, Integer>();
+		Iterator<RetrievalResult> iterator = SelectCases.selectTopKRR(eval, 13).iterator();
 		
-		RetrievalResult first = SelectCases.selectTopKRR(eval, 5).iterator().next();
-		CBRCase mostSimilarCase = first.get_case();
-		double similarity = first.getEval();
+		while (iterator.hasNext()) {
+			RetrievalResult first = iterator.next();
+			CBRCase mostSimilarCase = first.get_case();
+			double similarity = first.getEval();
+			
+			
+			if(Math.random()<.2) {
+				ArrayList<CBRCase> toforget = new ArrayList<CBRCase>();
+				toforget.add(mostSimilarCase);
+				this.caseBase.forgetCases(toforget);
+				System.out.println(mostSimilarCase.getID());
+			}
+			
+			MsPacManResult result = (MsPacManResult) mostSimilarCase.getResult();
+			MsPacManSolution solution = (MsPacManSolution) mostSimilarCase.getSolution();
+			
+			//Now compute a solution for the query
+			
+			//Here, it simply takes the action of the 1NN
+			MOVE action = solution.getAction();
+			
+			//But if not enough similarity or bad case, choose another move randomly
+			if((similarity<0.7)||(result.getScore()<100)) {
+				int index = (int)Math.floor(Math.random()*4);
+				if(MOVE.values()[index]==action) 
+					index= (index+1)%4;
+				action = MOVE.values()[index];
+			}
+			
+			votacion_mayoritaria.put(action, votacion_mayoritaria.getOrDefault(action, 1) + 1);
 		
-		
-		if(Math.random()<.2) {
-			ArrayList<CBRCase> toforget = new ArrayList<CBRCase>();
-			toforget.add(mostSimilarCase);
-			this.caseBase.forgetCases(toforget);
-			System.out.println(mostSimilarCase.getID());
 		}
 		
-		MsPacManResult result = (MsPacManResult) mostSimilarCase.getResult();
-		MsPacManSolution solution = (MsPacManSolution) mostSimilarCase.getSolution();
-		
-		//Now compute a solution for the query
-		
-		//Here, it simply takes the action of the 1NN
-		MOVE action = solution.getAction();
-		
-		//But if not enough similarity or bad case, choose another move randomly
-		if((similarity<0.7)||(result.getScore()<100)) {
-			int index = (int)Math.floor(Math.random()*4);
-			if(MOVE.values()[index]==action) 
-				index= (index+1)%4;
-			action = MOVE.values()[index];
+		Integer max = -1;
+		for (Map.Entry<MOVE, Integer> entrada : votacion_mayoritaria.entrySet()) {
+			Integer value = entrada.getValue();
+			if(value > max) {
+				max = value;
+				action = entrada.getKey();
+			}
 		}
+		
 		return action;
 	}
 	
