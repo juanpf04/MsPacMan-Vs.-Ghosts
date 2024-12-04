@@ -135,7 +135,7 @@ public class Attribute extends es.ucm.fdi.gaia.jcolibri.cbrcore.Attribute {
 	
 	public static void main(String[] args) {
 		try {
-			Attribute a = new Attribute("id", MsPacManDescription.class);
+			Attribute a = new Attribute("id", MsPacManDescription.class); //FIXME como hacer para ghosts
 		
 			MsPacManDescription d = new MsPacManDescription();
 			d.setId(25);

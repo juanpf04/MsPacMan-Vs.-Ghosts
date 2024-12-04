@@ -132,7 +132,8 @@ public class GhostsCBRengine implements StandardCBRApplication {
 	 */
 	private CBRCase createNewCase(CBRQuery query) {
 		CBRCase newCase = new CBRCase();
-		GhostsDescription newDescription = (GhostsDescription) query.getDescription();
+		GhostsDescription newDescription = (GhostsDescription) query.getDescription(); //FIXME: 
+		// class es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManDescription cannot be cast to class es.ucm.fdi.ici.c2425.practica5.grupo02.ghosts.GhostsDescription (es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManDescription and es.ucm.fdi.ici.c2425.practica5.grupo02.ghosts.GhostsDescription are in unnamed module of loader 'app')
 		GhostsResult newResult = new GhostsResult();
 		GhostsSolution newSolution = new GhostsSolution();
 		int newId = this.caseBase.getNextId();
