@@ -19,6 +19,7 @@ import es.ucm.fdi.gaia.jcolibri.util.FileIO;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.Average;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.CachedLinearCaseBase;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.CustomPlainTextConnector;
+import es.ucm.fdi.ici.c2425.practica5.grupo02.similitud.Enumerado;
 import pacman.game.Constants.MOVE;
 
 public class MsPacManCBRengine implements StandardCBRApplication {
@@ -68,6 +69,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		simConfig.addMapping(new Attribute("nearestPPill",MsPacManDescription.class), new Interval(650));
 		simConfig.addMapping(new Attribute("nearestGhost",MsPacManDescription.class), new Interval(650));
 		simConfig.addMapping(new Attribute("edibleGhost",MsPacManDescription.class), new Equal());
+		simConfig.addMapping(new Attribute("relativePos",MsPacManDescription.class), new Enumerado());
 		
 	}
 
