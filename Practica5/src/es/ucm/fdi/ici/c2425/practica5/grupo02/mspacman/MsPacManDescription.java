@@ -17,7 +17,7 @@ public class MsPacManDescription implements CaseComponent {
 	@SuppressWarnings("rawtypes")
 	private Enum relativePosGhost;
 	@SuppressWarnings("rawtypes")
-	//private Enum relativePosEdibleGhost;
+	private Enum relativePosEdibleGhost;
 	
 	
 
@@ -92,6 +92,15 @@ public class MsPacManDescription implements CaseComponent {
 	public void setRelativePosGhost(Enum relativePosGhost) {
 		this.relativePosGhost = relativePosGhost;
 	}
+	
+	public Enum getRelativePosEdibleGhost() {
+		return relativePosEdibleGhost;
+	}
+	
+	public void setRelativePosEdibleGhost(Enum relativeEdibleGhost) {
+		this.relativePosEdibleGhost = relativeEdibleGhost;
+	}
+
 
 	@Override
 	public Attribute getIdAttribute() {
@@ -102,7 +111,7 @@ public class MsPacManDescription implements CaseComponent {
 	public String toString() {
 		return "MsPacManDescription [id=" + id + ", score=" + score + ", time=" + timeEdibleGhost + ", nearestPPill="
 				+ nearestPPillDistance + "nearestPill=" + this.nearestPillDistance+ "nearestGhost=" + nearestGhostDistance + ", edibleGhost=" + edibleGhosts 
-				+ "ghostsJail=" + numberJailGhosts + "relativePosGhost=" + relativePosGhost + "]";
+				+ "ghostsJail=" + numberJailGhosts + "relativePosGhost=" + relativePosGhost + "relativePosEdibleGhost=" + relativePosEdibleGhost + "]";
 	}
 
 

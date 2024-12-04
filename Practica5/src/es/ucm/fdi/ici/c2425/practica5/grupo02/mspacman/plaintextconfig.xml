@@ -10,6 +10,8 @@
 		<Map>nearestGhostDistance</Map>		
 		<Map>edibleGhosts</Map>		
 		<Map>numberJailGhosts</Map>	
+		<Map>relativePosGhost</Map>
+		<Map>relativePosEdibleGhost</Map>
 	</DescriptionMappings>
 	<SolutionClassName>es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManSolution</SolutionClassName>
 	<SolutionMappings>

@@ -73,7 +73,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		simConfig.addMapping(new Attribute("edibleGhosts",MsPacManDescription.class), new Interval(4));
 		simConfig.addMapping(new Attribute("numberJailGhosts",MsPacManDescription.class), new Interval(4));
 		simConfig.addMapping(new Attribute("relativePosGhost",MsPacManDescription.class), new Enumerado());
-		
+		simConfig.addMapping(new Attribute("relativePosEdibleGhost",MsPacManDescription.class), new Enumerado());
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 	{
 		// This simple implementation only uses 1NN
 		// Consider using kNNs with majority voting
-		RetrievalResult first = SelectCases.selectTopKRR(eval, 3).iterator().next();
+		RetrievalResult first = SelectCases.selectTopKRR(eval, 5).iterator().next();
 		CBRCase mostSimilarCase = first.get_case();
 		double similarity = first.getEval();
 		

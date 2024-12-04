@@ -20,6 +20,7 @@ public class MsPacManInput extends CBRInput {
 	private Integer edible;
 	private Integer jailGhosts;
 	private Enum relativePosGhost;
+	private Enum relativePosEdibleGhost;
 
 	public MsPacManInput(Game game) {
 		super(game);
@@ -33,7 +34,8 @@ public class MsPacManInput extends CBRInput {
 		computeNearestPPill(game);
 		computeNearestPill(game);
 		computeJailGhosts(game);
-		computeRelativePosGhost(game);
+		computeRelativePosGhost(game,relativePosGhost);
+		computeRelativePosGhost(game, relativePosEdibleGhost);
 		time = game.getTotalTime();
 		score = game.getScore();
 	}
@@ -49,6 +51,7 @@ public class MsPacManInput extends CBRInput {
 		description.setTimeEdibleGhost(time);
 		description.setNumberJailGhosts(jailGhosts);
 		description.setRelativePosGhost(relativePosGhost);
+		description.setRelativePosEdibleGhost(relativePosEdibleGhost);
 		
 		CBRQuery query = new CBRQuery();
 		query.setDescription(description);
@@ -102,19 +105,19 @@ public class MsPacManInput extends CBRInput {
 		}
 	}
 
-	private void computeRelativePosGhost(Game game){
+	private void computeRelativePosGhost(Game game, Enum relative){
 		for(GHOST g: GHOST.values() ) {
 			if(fantasmaDelante(game, g,RANGO_DISTANCIA)&& fantasmaDetras(game, g,RANGO_DISTANCIA)){
-				relativePosGhost = RelativePosition.AMBOS;
+				relative = RelativePosition.AMBOS;
 			}
 			else if(fantasmaDelante(game, g,RANGO_DISTANCIA)){
-				relativePosGhost = RelativePosition.DELANTE;
+				relative = RelativePosition.DELANTE;
 			}
 			else if(fantasmaDetras(game, g, RANGO_DISTANCIA)){
-				relativePosGhost = RelativePosition.DETRAS;
+				relative = RelativePosition.DETRAS;
 			}
 			else{
-				relativePosGhost = RelativePosition.NINGUNO;
+				relative = RelativePosition.NINGUNO;
 			}
 		}
 	}
