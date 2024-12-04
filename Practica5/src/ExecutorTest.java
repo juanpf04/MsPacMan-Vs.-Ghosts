@@ -1,3 +1,4 @@
+import es.ucm.fdi.ici.c2425.practica5.grupo02.Ghosts;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.MsPacMan;
 import pacman.Executor;
 import pacman.controllers.GhostController;
@@ -12,8 +13,8 @@ public class ExecutorTest {
                 .setScaleFactor(2.5)
                 .build();
 
-        PacmanController pacMan = new MsPacMan();
-        GhostController ghosts = new AggressiveGhosts();
+        PacmanController pacMan = new MsPacManRunAway();
+        GhostController ghosts = new Ghosts();
         
         System.out.println( 
             executor.runGame(pacMan, ghosts, 2) //last parameter defines speed
