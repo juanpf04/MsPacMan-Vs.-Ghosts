@@ -5,10 +5,14 @@
 	<DescriptionMappings>
 		<Map>id</Map>
 		<Map>score</Map>
-		<Map>time</Map>
+		<Map>timeOfNearestEdibleGhost</Map>
 		<Map>nearestPPill</Map>		
 		<Map>nearestGhost</Map>		
-		<Map>edibleGhost</Map>		
+		<Map>nearestPill</Map>
+		<Map>allGhostsEdible</Map>
+		<Map>relativePosGhost</Map>
+		<Map>relativePosEdibleGhost</Map>
+		<Map>allInJail</Map>
 	</DescriptionMappings>
 	<SolutionClassName>es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManSolution</SolutionClassName>
 	<SolutionMappings>

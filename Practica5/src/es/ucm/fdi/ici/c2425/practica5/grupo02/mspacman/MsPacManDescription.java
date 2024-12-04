@@ -5,18 +5,19 @@ import es.ucm.fdi.gaia.jcolibri.cbrcore.CaseComponent;
 
 public class MsPacManDescription implements CaseComponent {
 
-	Integer id;
+	private Integer id;
 	
-	Integer score;
-	Integer timeOfNearestEdibleGhost;
-	Integer nearestPPill;
-	Integer nearestPill;
-	Integer nearestGhost;
-	Boolean allGhostsEdible;
+	private Integer score;
+	private Integer timeEdibleGhost;
+	private Integer nearestPPillDistance;
+	private Integer nearestPillDistance;
+	private Integer nearestGhostDistance;
+	private Integer numberEdibleGhosts;
+	private Integer numberJailGhosts;
 	@SuppressWarnings("rawtypes")
-	Enum relativePos;
-	Boolean allInJail;
-	Boolean edibleGhost;
+	private Enum relativePosGhost;
+	@SuppressWarnings("rawtypes")
+	private Enum relativePosEdibleGhost;
 	
 
 
@@ -37,59 +38,67 @@ public class MsPacManDescription implements CaseComponent {
 	}
 
 	public Integer getTime() {
-		return timeOfNearestEdibleGhost;
+		return timeEdibleGhost;
 	}
 
 	public void setTime(Integer time) {
-		this.timeOfNearestEdibleGhost = time;
+		this.timeEdibleGhost = time;
 	}
 
-	public Integer getNearestPPill() {
-		return nearestPPill;
+	public Integer getNearestPPillDistance() {
+		return nearestPPillDistance;
 	}
 
-	public void setNearestPPill(Integer nearestPPill) {
-		this.nearestPPill = nearestPPill;
+	public void setNearestPPillDistance(Integer nearestPPill) {
+		this.nearestPPillDistance = nearestPPill;
 	}
 
-	public Integer getNearestPill() {
-		return nearestPill;
+	public Integer getNearestPillDistance() {
+		return nearestPillDistance;
 	}
 
-	public void setNearestPill(Integer nearestPill) {
-		this.nearestPill = nearestPill;
+	public void setNearestPillDistance(Integer nearestPill) {
+		this.nearestPillDistance = nearestPill;
 	}
 
-	public Integer getNearestGhost() {
-		return nearestGhost;
+	public Integer getNearestGhostDistance() {
+		return nearestGhostDistance;
 	}
 
-	public void setNearestGhost(Integer nearestGhost) {
-		this.nearestGhost = nearestGhost;
+	public void setNearestGhostDistance(Integer nearestGhost) {
+		this.nearestGhostDistance = nearestGhost;
 	}
 
-	public Boolean getAllGhostsEdible() {
-		return allGhostsEdible;
+	public Integer getNumberEdibleGhosts() {
+		return numberEdibleGhosts;
 	}
 
-	public void setAllGhostsEdible(Boolean allGhostsEdible) {
-		this.allGhostsEdible = allGhostsEdible;
+	public void setNumberEdibleGhosts(Integer allGhostsEdible) {
+		this.numberEdibleGhosts = allGhostsEdible;
 	}
 
-	public Boolean getAllInJail() {
-		return allInJail;
+	public Integer getNumberJailGhosts() {
+		return numberJailGhosts;
 	}
 
-	public void setAllInJail(Boolean allInJail) {
-		this.allInJail = allInJail;
+	public void setNumberJailGhosts(Integer allInJail) {
+		this.numberJailGhosts = allInJail;
 	}
 
-	public Boolean getEdibleGhost() {
-		return edibleGhost;
+	public Enum getRelativePosGhost() {
+		return this.relativePosGhost;
 	}
 
-	public void setEdibleGhost(Boolean edibleGhost) {
-		this.edibleGhost = edibleGhost;
+	public void setRelativePosGhost(Enum relativePos) {
+		this.relativePosGhost = relativePos;
+	}
+
+	public Enum getRelativePosEdibleGhost() {
+		return this.relativePosEdibleGhost;
+	}
+
+	public void setRelativePosEdibleGhost(Enum relativePos) {
+		this.relativePosEdibleGhost = relativePos;
 	}
 
 	@Override
@@ -100,9 +109,11 @@ public class MsPacManDescription implements CaseComponent {
 	@Override
 	public String toString() {
 		return "MsPacManDescription [id=" + id + 
-			", score=" + score + ", time=" + timeOfNearestEdibleGhost + ", nearestPPill="
-				+ nearestPPill + ", nearestPill=" + nearestPill + ", allGhostsEdible=" + allGhostsEdible + 
-				", nearestGhost=" + nearestGhost + ", allInJail=" + allInJail + ", edibleGhost=" + edibleGhost + "]";
+			", score=" + score + ", time=" + timeEdibleGhost + ", nearestPPill="
+				+ nearestPPillDistance + ", nearestPill=" + nearestPillDistance 
+				+ ", numberEdibleGhosts=" + numberEdibleGhosts +  ", nearestGhostDistance=" 
+				+ nearestGhostDistance + ", numberJailGhosts=" + numberJailGhosts 
+				+ ", numberEdibleGhosts=" + numberEdibleGhosts + "]";
 	}
 
 
