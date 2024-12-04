@@ -1,6 +1,7 @@
 package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import es.ucm.fdi.gaia.jcolibri.cbraplications.StandardCBRApplication;
@@ -65,11 +66,13 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		simConfig = new NNConfig();
 		simConfig.setDescriptionSimFunction(new Average());
 		simConfig.addMapping(new Attribute("score",MsPacManDescription.class), new Interval(15000));
-		simConfig.addMapping(new Attribute("time",MsPacManDescription.class), new Interval(4000));
-		simConfig.addMapping(new Attribute("nearestPPill",MsPacManDescription.class), new Interval(650));
-		simConfig.addMapping(new Attribute("nearestGhost",MsPacManDescription.class), new Interval(650));
-		simConfig.addMapping(new Attribute("edibleGhost",MsPacManDescription.class), new Equal());
-		simConfig.addMapping(new Attribute("relativePos",MsPacManDescription.class), new Enumerado());
+		simConfig.addMapping(new Attribute("timeEdibleGhost",MsPacManDescription.class), new Interval(4000));
+		simConfig.addMapping(new Attribute("nearestPPillDistance",MsPacManDescription.class), new Interval(650));
+		simConfig.addMapping(new Attribute("nearestPillDistance",MsPacManDescription.class), new Interval(650));
+		simConfig.addMapping(new Attribute("nearestGhostDistance",MsPacManDescription.class), new Interval(650));
+		simConfig.addMapping(new Attribute("edibleGhosts",MsPacManDescription.class), new Interval(4));
+		simConfig.addMapping(new Attribute("numberJailGhosts",MsPacManDescription.class), new Interval(4));
+		simConfig.addMapping(new Attribute("relativePosGhost",MsPacManDescription.class), new Enumerado());
 		
 	}
 
@@ -101,10 +104,17 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 	{
 		// This simple implementation only uses 1NN
 		// Consider using kNNs with majority voting
-		RetrievalResult first = SelectCases.selectTopKRR(eval, 1).iterator().next();
+		RetrievalResult first = SelectCases.selectTopKRR(eval, 3).iterator().next();
 		CBRCase mostSimilarCase = first.get_case();
 		double similarity = first.getEval();
 		
+		
+		if(Math.random()<.2) {
+			ArrayList<CBRCase> toforget = new ArrayList<CBRCase>();
+			toforget.add(mostSimilarCase);
+			this.caseBase.forgetCases(toforget);
+			System.out.println(mostSimilarCase.getID());
+		}
 		
 		MsPacManResult result = (MsPacManResult) mostSimilarCase.getResult();
 		MsPacManSolution solution = (MsPacManSolution) mostSimilarCase.getSolution();
