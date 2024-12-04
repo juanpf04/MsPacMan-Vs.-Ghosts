@@ -3,7 +3,9 @@ package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import constantes.Weithgs;
 import es.ucm.fdi.gaia.jcolibri.cbraplications.StandardCBRApplication;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.Attribute;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCase;
@@ -64,16 +66,50 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		this.storageManager.setCaseBase(caseBase);
 		
 		simConfig = new NNConfig();
+		Attribute[] atributos = {new Attribute("score",MsPacManDescription.class), new Attribute("timeEdibleGhost",MsPacManDescription.class),
+				new Attribute("nearestPPillDistance",MsPacManDescription.class),new Attribute("nearestPillDistance",MsPacManDescription.class),
+				new Attribute("nearestGhostDistance",MsPacManDescription.class), new Attribute("nearestEdibleGhostDistance",MsPacManDescription.class),
+				new Attribute("edibleGhosts",MsPacManDescription.class), new Attribute("numberJailGhosts",MsPacManDescription.class), 
+				new Attribute("relativePosGhost",MsPacManDescription.class), new Attribute("relativePosEdibleGhost",MsPacManDescription.class)};
+		//setWeight
 		simConfig.setDescriptionSimFunction(new Average());
-		simConfig.addMapping(new Attribute("score",MsPacManDescription.class), new Interval(15000));
-		simConfig.addMapping(new Attribute("timeEdibleGhost",MsPacManDescription.class), new Interval(4000));
-		simConfig.addMapping(new Attribute("nearestPPillDistance",MsPacManDescription.class), new Interval(650));
-		simConfig.addMapping(new Attribute("nearestPillDistance",MsPacManDescription.class), new Interval(650));
-		simConfig.addMapping(new Attribute("nearestGhostDistance",MsPacManDescription.class), new Interval(650));
-		simConfig.addMapping(new Attribute("edibleGhosts",MsPacManDescription.class), new Interval(4));
-		simConfig.addMapping(new Attribute("numberJailGhosts",MsPacManDescription.class), new Interval(4));
-		simConfig.addMapping(new Attribute("relativePosGhost",MsPacManDescription.class), new Enumerado());
-		simConfig.addMapping(new Attribute("relativePosEdibleGhost",MsPacManDescription.class), new Enumerado());
+		simConfig.addMapping(atributos[0], new Interval(15000));
+		simConfig.setWeight(atributos[0], Weithgs.SCORE);
+		
+		simConfig.addMapping(atributos[1], new Interval(200));
+		simConfig.setWeight(atributos[1], Weithgs.TIME_EDIBLE);
+		
+		simConfig.addMapping(atributos[2], new Interval(300));
+		simConfig.setWeight(atributos[2], Weithgs.DISTANCE_POWERPILL);
+		
+		
+		simConfig.addMapping(atributos[3], new Interval(300));
+		simConfig.setWeight(atributos[3], Weithgs.DISTANCE_PILL);
+		
+		
+		simConfig.addMapping(atributos[4], new Interval(300));
+		simConfig.setWeight(atributos[4], Weithgs.DISTANCE_NOT_EDIBLE);
+		
+		
+		simConfig.addMapping(atributos[5], new Interval(300));
+		simConfig.setWeight(atributos[5], Weithgs.DISTANCE_EDIBLE);
+		
+		
+		simConfig.addMapping(atributos[6], new Interval(4));
+		simConfig.setWeight(atributos[6], Weithgs.NUMBER_EDIBLES);
+		
+		
+		simConfig.addMapping(atributos[7], new Interval(4));
+		simConfig.setWeight(atributos[7], Weithgs.NUMBER_JAIL);
+		
+		simConfig.addMapping(atributos[8], new Enumerado());
+		simConfig.setWeight(atributos[8], Weithgs.DISTANCE_EDIBLE);
+		
+		
+		simConfig.addMapping(atributos[9], new Enumerado());
+		simConfig.setWeight(atributos[9], Weithgs.DISTANCE_EDIBLE);
+		
+		
 	}
 
 	@Override
@@ -90,6 +126,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		else {
 			//Compute retrieve
 			Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(caseBase.getCases(), query, simConfig);
+			
 			//Compute reuse
 			this.action = reuse(eval);
 		}
@@ -103,7 +140,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 	private MOVE reuse(Collection<RetrievalResult> eval)
 	{
 		// This simple implementation only uses 1NN
-		// Consider using kNNs with majority voting
+		
 		RetrievalResult first = SelectCases.selectTopKRR(eval, 5).iterator().next();
 		CBRCase mostSimilarCase = first.get_case();
 		double similarity = first.getEval();

@@ -12,6 +12,7 @@ public class MsPacManDescription implements CaseComponent {
 	private Integer nearestPPillDistance;
 	private Integer nearestPillDistance;
 	private Integer nearestGhostDistance;
+	private Integer nearestEdibleGhostDistance;
 	private Integer edibleGhosts;
 	private Integer numberJailGhosts;
 	@SuppressWarnings("rawtypes")
@@ -68,6 +69,14 @@ public class MsPacManDescription implements CaseComponent {
 	public void setNearestGhostDistance(Integer nearestGhost) {
 		this.nearestGhostDistance = nearestGhost;
 	}
+	
+	public Integer getNearestEdibleGhostDistance() {
+		return nearestEdibleGhostDistance;
+	}
+	
+	public void setNearestEdibleGhostDistance(Integer nearestEdibleGhost) {
+		this.nearestGhostDistance = nearestEdibleGhost;
+	}
 
 	public Integer getEdibleGhosts() {
 		return edibleGhosts;
@@ -110,8 +119,10 @@ public class MsPacManDescription implements CaseComponent {
 	@Override
 	public String toString() {
 		return "MsPacManDescription [id=" + id + ", score=" + score + ", time=" + timeEdibleGhost + ", nearestPPill="
-				+ nearestPPillDistance + "nearestPill=" + this.nearestPillDistance+ "nearestGhost=" + nearestGhostDistance + ", edibleGhost=" + edibleGhosts 
-				+ "ghostsJail=" + numberJailGhosts + "relativePosGhost=" + relativePosGhost + "relativePosEdibleGhost=" + relativePosEdibleGhost + "]";
+				+ nearestPPillDistance + "nearestPill=" + this.nearestPillDistance+ "nearestGhost=" + nearestGhostDistance + ", " +
+				", nearestEdibleGhost=" + nearestEdibleGhostDistance 
+						+ " edibleGhost=" + edibleGhosts + ", ghostsJail=" + numberJailGhosts + " relativePosGhost=" + relativePosGhost
+						+ ", relativePosEdibleGhost=" + relativePosEdibleGhost + "]";
 	}
 
 
