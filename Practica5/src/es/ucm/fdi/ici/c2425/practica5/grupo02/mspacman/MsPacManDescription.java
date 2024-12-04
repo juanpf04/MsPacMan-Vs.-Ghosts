@@ -3,10 +3,11 @@ package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.Attribute;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CaseComponent;
 
+@SuppressWarnings("rawtypes")
 public class MsPacManDescription implements CaseComponent {
 
 	private Integer id;
-	
+
 	private Integer score;
 	private Integer timeEdibleGhost;
 	private Integer nearestPPillDistance;
@@ -14,12 +15,8 @@ public class MsPacManDescription implements CaseComponent {
 	private Integer nearestGhostDistance;
 	private Integer numberEdibleGhosts;
 	private Integer numberJailGhosts;
-	@SuppressWarnings("rawtypes")
 	private Enum relativePosGhost;
-	@SuppressWarnings("rawtypes")
 	private Enum relativePosEdibleGhost;
-	
-
 
 	public Integer getId() {
 		return id;
@@ -108,16 +105,10 @@ public class MsPacManDescription implements CaseComponent {
 
 	@Override
 	public String toString() {
-		return "MsPacManDescription [id=" + id + 
-			", score=" + score + ", time=" + timeEdibleGhost + ", nearestPPill="
-				+ nearestPPillDistance + ", nearestPill=" + nearestPillDistance 
-				+ ", numberEdibleGhosts=" + numberEdibleGhosts +  ", nearestGhostDistance=" 
-				+ nearestGhostDistance + ", numberJailGhosts=" + numberJailGhosts 
-				+ ", numberEdibleGhosts=" + numberEdibleGhosts + "]";
+		return "MsPacManDescription [id=" + id + ", score=" + score + ", time=" + timeEdibleGhost + ", nearestPPill="
+				+ nearestPPillDistance + ", nearestPill=" + nearestPillDistance + ", numberEdibleGhosts="
+				+ numberEdibleGhosts + ", nearestGhostDistance=" + nearestGhostDistance + ", numberJailGhosts="
+				+ numberJailGhosts + ", numberEdibleGhosts=" + numberEdibleGhosts + "]";
 	}
-
-
-	
-	
 
 }
