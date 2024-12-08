@@ -8,6 +8,7 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
+@SuppressWarnings("rawtypes")
 public class MsPacManInput extends CBRInput {
 
 	private static final int RANGO_DISTANCIA = 40;
@@ -24,17 +25,15 @@ public class MsPacManInput extends CBRInput {
 
 	public MsPacManInput(Game game) {
 		super(game);
-		
 	}
 
-	
 	@Override
 	public void parseInput() {
 		computeNearestGhost(game);
 		computeNearestPPill(game);
 		computeNearestPill(game);
 		computeJailGhosts(game);
-		computeRelativePosGhost(game,relativePosGhost);
+		computeRelativePosGhost(game, relativePosGhost);
 		computeRelativePosGhost(game, relativePosEdibleGhost);
 		time = game.getTotalTime();
 		score = game.getScore();
@@ -52,103 +51,99 @@ public class MsPacManInput extends CBRInput {
 		description.setNumberJailGhosts(jailGhosts);
 		description.setRelativePosGhost(relativePosGhost);
 		description.setRelativePosEdibleGhost(relativePosEdibleGhost);
-		
+
 		CBRQuery query = new CBRQuery();
 		query.setDescription(description);
 		return query;
 	}
-	
+
 	private void computeNearestGhost(Game game) {
 		nearestGhost = Integer.MAX_VALUE;
 		edible = 0;
 		GHOST nearest = null;
-		for(GHOST g: GHOST.values()) {
+		for (GHOST g : GHOST.values()) {
 			int pos = game.getGhostCurrentNodeIndex(g);
-			int distance; 
-			if(pos != -1) 
-				distance = (int)game.getDistance(game.getPacmanCurrentNodeIndex(), pos, DM.PATH);
+			int distance;
+			if (pos != -1)
+				distance = (int) game.getDistance(game.getPacmanCurrentNodeIndex(), pos, DM.PATH);
 			else
 				distance = Integer.MAX_VALUE;
-			if(distance < nearestGhost)
-			{
+			if (distance < nearestGhost) {
 				nearestGhost = distance;
 				nearest = g;
 			}
 		}
-		if(nearest!=null)
+		if (nearest != null)
 			edible += game.isGhostEdible(nearest) ? 1 : 0;
 	}
-	
+
 	private void computeNearestPPill(Game game) {
 		nearestPPill = Integer.MAX_VALUE;
-		for(int pos: game.getPowerPillIndices()) {
-			int distance = (int)game.getDistance(game.getPacmanCurrentNodeIndex(), pos, DM.PATH);
-			if(distance < nearestGhost)
+		for (int pos : game.getPowerPillIndices()) {
+			int distance = (int) game.getDistance(game.getPacmanCurrentNodeIndex(), pos, DM.PATH);
+			if (distance < nearestGhost)
 				nearestPPill = distance;
 		}
 	}
 
 	private void computeNearestPill(Game game) {
 		nearestPill = Integer.MAX_VALUE;
-		for(int pos: game.getPillIndices()) {
-			int distance = (int)game.getDistance(game.getPacmanCurrentNodeIndex(), pos, DM.PATH);
-			if(distance < nearestGhost)
+		for (int pos : game.getPillIndices()) {
+			int distance = (int) game.getDistance(game.getPacmanCurrentNodeIndex(), pos, DM.PATH);
+			if (distance < nearestGhost)
 				nearestPill = distance;
 		}
 	}
 
-	private void computeJailGhosts(Game game){
+	private void computeJailGhosts(Game game) {
 		jailGhosts = 0;
-		for(GHOST g: GHOST.values()) {
-			if(game.getGhostLairTime(g) > 0)
+		for (GHOST g : GHOST.values()) {
+			if (game.getGhostLairTime(g) > 0)
 				jailGhosts++;
 		}
 	}
 
-	private void computeRelativePosGhost(Game game, Enum relative){
-		for(GHOST g: GHOST.values() ) {
-			if(fantasmaDelante(game, g,RANGO_DISTANCIA)&& fantasmaDetras(game, g,RANGO_DISTANCIA)){
+	private void computeRelativePosGhost(Game game, Enum relative) {
+		for (GHOST g : GHOST.values()) {
+			if (fantasmaDelante(game, g, RANGO_DISTANCIA) && fantasmaDetras(game, g, RANGO_DISTANCIA)) {
 				relative = RelativePosition.AMBOS;
-			}
-			else if(fantasmaDelante(game, g,RANGO_DISTANCIA)){
+			} else if (fantasmaDelante(game, g, RANGO_DISTANCIA)) {
 				relative = RelativePosition.DELANTE;
-			}
-			else if(fantasmaDetras(game, g, RANGO_DISTANCIA)){
+			} else if (fantasmaDetras(game, g, RANGO_DISTANCIA)) {
 				relative = RelativePosition.DETRAS;
-			}
-			else{
+			} else {
 				relative = RelativePosition.NINGUNO;
 			}
 		}
 	}
 
-
-
 	public boolean fantasmaDelante(Game game, GHOST ghost, int maxDistance) {
-		if(game.getGhostLairTime(ghost) > 0) return false;
+		if (game.getGhostLairTime(ghost) > 0)
+			return false;
 
-        int pacmanIndex = game.getPacmanCurrentNodeIndex();
-        int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
-        MOVE pacmanMove = game.getPacmanLastMoveMade();
+		int pacmanIndex = game.getPacmanCurrentNodeIndex();
+		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+		MOVE pacmanMove = game.getPacmanLastMoveMade();
 
-        int[] pathToGhost = game.getShortestPath(pacmanIndex, ghostIndex, pacmanMove);
-        if (pathToGhost.length > 0 && pathToGhost.length <= maxDistance) {
-            return true;
-        }
-        return false;
-    }
+		int[] pathToGhost = game.getShortestPath(pacmanIndex, ghostIndex, pacmanMove);
+		if (pathToGhost.length > 0 && pathToGhost.length <= maxDistance) {
+			return true;
+		}
+		return false;
+	}
 
-    public boolean fantasmaDetras(Game game, GHOST ghost, int maxDistance) {
-		if(game.getGhostLairTime(ghost) > 0) return false;
-		
-        int pacmanIndex = game.getPacmanCurrentNodeIndex();
-        int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
-        MOVE pacmanMove = game.getPacmanLastMoveMade();
+	public boolean fantasmaDetras(Game game, GHOST ghost, int maxDistance) {
+		if (game.getGhostLairTime(ghost) > 0)
+			return false;
 
-        int[] pathToGhost = game.getShortestPath(ghostIndex, pacmanIndex, pacmanMove.opposite());
-        if (pathToGhost.length > 0 && pathToGhost.length <= maxDistance) {
-            return true;
-        }
-        return false;
-    }
+		int pacmanIndex = game.getPacmanCurrentNodeIndex();
+		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+		MOVE pacmanMove = game.getPacmanLastMoveMade();
+
+		int[] pathToGhost = game.getShortestPath(ghostIndex, pacmanIndex, pacmanMove.opposite());
+		if (pathToGhost.length > 0 && pathToGhost.length <= maxDistance) {
+			return true;
+		}
+		return false;
+	}
 }

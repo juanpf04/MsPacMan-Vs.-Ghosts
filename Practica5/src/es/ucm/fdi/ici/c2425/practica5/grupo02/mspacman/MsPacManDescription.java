@@ -3,10 +3,11 @@ package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.Attribute;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CaseComponent;
 
+@SuppressWarnings("rawtypes")
 public class MsPacManDescription implements CaseComponent {
 
 	Integer id;
-	
+
 	private Integer score;
 	private Integer timeEdibleGhost;
 	private Integer nearestPPillDistance;
@@ -15,12 +16,8 @@ public class MsPacManDescription implements CaseComponent {
 	private Integer nearestEdibleGhostDistance;
 	private Integer edibleGhosts;
 	private Integer numberJailGhosts;
-	@SuppressWarnings("rawtypes")
 	private Enum relativePosGhost;
-	@SuppressWarnings("rawtypes")
 	private Enum relativePosEdibleGhost;
-	
-	
 
 	public Integer getId() {
 		return id;
@@ -57,7 +54,7 @@ public class MsPacManDescription implements CaseComponent {
 	public Integer getNearestPillDistance() {
 		return nearestPillDistance;
 	}
-	
+
 	public void setNearestPillDistance(Integer nearestPill) {
 		this.nearestPillDistance = nearestPill;
 	}
@@ -69,11 +66,11 @@ public class MsPacManDescription implements CaseComponent {
 	public void setNearestGhostDistance(Integer nearestGhost) {
 		this.nearestGhostDistance = nearestGhost;
 	}
-	
+
 	public Integer getNearestEdibleGhostDistance() {
 		return nearestEdibleGhostDistance;
 	}
-	
+
 	public void setNearestEdibleGhostDistance(Integer nearestEdibleGhost) {
 		this.nearestGhostDistance = nearestEdibleGhost;
 	}
@@ -101,15 +98,14 @@ public class MsPacManDescription implements CaseComponent {
 	public void setRelativePosGhost(Enum relativePosGhost) {
 		this.relativePosGhost = relativePosGhost;
 	}
-	
+
 	public Enum getRelativePosEdibleGhost() {
 		return relativePosEdibleGhost;
 	}
-	
+
 	public void setRelativePosEdibleGhost(Enum relativeEdibleGhost) {
 		this.relativePosEdibleGhost = relativeEdibleGhost;
 	}
-
 
 	@Override
 	public Attribute getIdAttribute() {
@@ -119,14 +115,10 @@ public class MsPacManDescription implements CaseComponent {
 	@Override
 	public String toString() {
 		return "MsPacManDescription [id=" + id + ", score=" + score + ", time=" + timeEdibleGhost + ", nearestPPill="
-				+ nearestPPillDistance + "nearestPill=" + this.nearestPillDistance+ "nearestGhost=" + nearestGhostDistance + ", " +
-				", nearestEdibleGhost=" + nearestEdibleGhostDistance 
-						+ " edibleGhost=" + edibleGhosts + ", ghostsJail=" + numberJailGhosts + " relativePosGhost=" + relativePosGhost
-						+ ", relativePosEdibleGhost=" + relativePosEdibleGhost + "]";
+				+ nearestPPillDistance + "nearestPill=" + this.nearestPillDistance + "nearestGhost="
+				+ nearestGhostDistance + ", " + ", nearestEdibleGhost=" + nearestEdibleGhostDistance + " edibleGhost="
+				+ edibleGhosts + ", ghostsJail=" + numberJailGhosts + " relativePosGhost=" + relativePosGhost
+				+ ", relativePosEdibleGhost=" + relativePosEdibleGhost + "]";
 	}
-
-
-	
-	
 
 }
