@@ -90,7 +90,7 @@ public class MsPacManResult implements CaseComponent {
 		this.numberJailGhosts = numberJailGhosts;
 	}
 
-	public Enum getRelativePosGhost() {
+	public Integer getRelativePosGhost() {
 		return relativePosGhost;
 	}
 
