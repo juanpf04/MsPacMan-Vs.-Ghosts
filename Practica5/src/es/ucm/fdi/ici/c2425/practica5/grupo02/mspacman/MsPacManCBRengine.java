@@ -74,6 +74,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 				new Attribute("numberJailGhosts", MsPacManDescription.class),
 				new Attribute("relativePosGhost", MsPacManDescription.class),
 				new Attribute("relativePosEdibleGhost", MsPacManDescription.class) };
+		
 		// setWeight
 		simConfig.setDescriptionSimFunction(new Average());
 		simConfig.addMapping(atributos[0], new Interval(15000));
@@ -82,16 +83,16 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		simConfig.addMapping(atributos[1], new Interval(200));
 		simConfig.setWeight(atributos[1], Weithgs.TIME_EDIBLE);
 
-		simConfig.addMapping(atributos[2], new Interval(300));
+		simConfig.addMapping(atributos[2], new Interval(240));
 		simConfig.setWeight(atributos[2], Weithgs.DISTANCE_POWERPILL);
 
-		simConfig.addMapping(atributos[3], new Interval(300));
+		simConfig.addMapping(atributos[3], new Interval(240));
 		simConfig.setWeight(atributos[3], Weithgs.DISTANCE_PILL);
 
-		simConfig.addMapping(atributos[4], new Interval(300));
+		simConfig.addMapping(atributos[4], new Interval(240));
 		simConfig.setWeight(atributos[4], Weithgs.DISTANCE_NOT_EDIBLE);
 
-		simConfig.addMapping(atributos[5], new Interval(300));
+		simConfig.addMapping(atributos[5], new Interval(240));
 		simConfig.setWeight(atributos[5], Weithgs.DISTANCE_EDIBLE);
 
 		simConfig.addMapping(atributos[6], new Interval(4));
@@ -169,6 +170,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 		}
 
+		
 		Integer max = -1;
 		for (Map.Entry<MOVE, Integer> entrada : votacion_mayoritaria.entrySet()) {
 			Integer value = entrada.getValue();

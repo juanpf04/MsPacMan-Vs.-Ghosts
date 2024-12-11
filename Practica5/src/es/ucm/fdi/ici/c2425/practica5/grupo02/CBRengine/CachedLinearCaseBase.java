@@ -60,7 +60,8 @@ public class CachedLinearCaseBase implements CBRCaseBase {
 	 * TODO.
 	 */
 	public Collection<CBRCase> getCases(CaseBaseFilter filter) {
-		// TODO
+		
+		
 		return null;
 	}
 
