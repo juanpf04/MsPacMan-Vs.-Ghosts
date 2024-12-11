@@ -3,9 +3,10 @@ package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.Attribute;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CaseComponent;
 
+@SuppressWarnings("rawtypes")
 public class MsPacManResult implements CaseComponent {
 
-	Integer id;
+	private Integer id;
 	private Integer score;
 	private Integer timeEdibleGhost;
 	private Integer nearestPPillDistance;
@@ -14,9 +15,7 @@ public class MsPacManResult implements CaseComponent {
 	private Integer nearestEdibleGhostDistance;
 	private Integer edibleGhosts;
 	private Integer numberJailGhosts;
-	@SuppressWarnings("rawtypes")
 	private Enum relativePosGhost;
-	@SuppressWarnings("rawtypes")
 	private Enum relativePosEdibleGhost;
 
 	public Integer getId() {
@@ -91,7 +90,6 @@ public class MsPacManResult implements CaseComponent {
 		this.numberJailGhosts = numberJailGhosts;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public Enum getRelativePosGhost() {
 		return relativePosGhost;
 	}
@@ -100,12 +98,11 @@ public class MsPacManResult implements CaseComponent {
 		this.relativePosGhost = relativePosGhost;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public Enum getRelativePosEdibleGhost() {
 		return relativePosEdibleGhost;
 	}
 
-	public void setRelativePosEdibleGhost(@SuppressWarnings("rawtypes") Enum relativeEdibleGhost) {
+	public void setRelativePosEdibleGhost(Enum relativeEdibleGhost) {
 		this.relativePosEdibleGhost = relativeEdibleGhost;
 	}
 	

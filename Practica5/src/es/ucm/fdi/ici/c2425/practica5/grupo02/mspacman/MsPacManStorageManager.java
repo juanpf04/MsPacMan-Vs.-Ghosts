@@ -1,5 +1,7 @@
 package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCase;
@@ -67,8 +69,31 @@ public class MsPacManStorageManager {
 		// here you should also check if the case must be stored into persistence (too
 		// similar to existing ones, etc.)
 		
-
-		StoreCasesMethod.storeCase(this.caseBase, bCase);
+		MsPacManResult result = (MsPacManResult) bCase.getResult();
+		
+		if (result.getScore() > 0 && similar(result)) { // si es un caso similar y obtiene mas puntos
+			List<CBRCase> cases = new ArrayList<CBRCase>();
+			cases.add(bCase);
+			this.caseBase.learnCases(cases);
+		}
+		
+		if(game.getScore() > 0) // si los puntos son positivos
+			StoreCasesMethod.storeCase(this.caseBase, bCase);
+	}
+	
+	private boolean similar(MsPacManResult result) { // TODO 
+		boolean similar = true;
+		
+		similar &= true;
+		similar &= true;
+		similar &= true;
+		similar &= true;
+		similar &= true;
+		similar &= true;
+		similar &= true;
+		similar &= true;
+		
+		return similar;
 	}
 
 	public void close() {

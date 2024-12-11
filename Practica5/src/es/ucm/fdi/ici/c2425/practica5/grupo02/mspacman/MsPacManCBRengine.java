@@ -169,7 +169,6 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 			votacion_mayoritaria.put(action, votacion_mayoritaria.getOrDefault(action, 1) + 1);
 
 		}
-
 		
 		Integer max = -1;
 		for (Map.Entry<MOVE, Integer> entrada : votacion_mayoritaria.entrySet()) {
