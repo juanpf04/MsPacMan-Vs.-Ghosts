@@ -15,7 +15,7 @@ public class MsPacManResult implements CaseComponent {
 	private Integer nearestEdibleGhostDistance;
 	private Integer edibleGhosts;
 	private Integer numberJailGhosts;
-	private Enum relativePosGhost;
+	private Integer relativePosGhost;
 	private Enum relativePosEdibleGhost;
 
 	public Integer getId() {
@@ -94,7 +94,7 @@ public class MsPacManResult implements CaseComponent {
 		return relativePosGhost;
 	}
 
-	public void setRelativePosGhost(Enum relativePosGhost) {
+	public void setRelativePosGhost(Integer relativePosGhost) {
 		this.relativePosGhost = relativePosGhost;
 	}
 
