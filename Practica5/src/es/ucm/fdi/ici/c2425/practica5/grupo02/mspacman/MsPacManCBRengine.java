@@ -60,6 +60,8 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		// Note that you can create any subfolder of files to store the case base inside
 		// your "cbrdata/grupoXX" folder.
 		connector.setCaseBaseFile(CASE_BASE_PATH, opponent + ".csv");
+		
+		//TODO cargar base de datos especifica y generica
 
 		this.storageManager.setCaseBase(caseBase);
 
@@ -117,12 +119,15 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	@Override
 	public void cycle(CBRQuery query) throws ExecutionException {
-		if (caseBase.getCases().isEmpty()) {
+		//TODO si esta vacia voy a la generica
+		//  si la similitud es baja, voy a la generica
+		// si en la generica es baja o vacia, hago random.
+		if (caseBase.getCases().isEmpty()) { 
 			this.action = MOVE.NEUTRAL;
 		} else {
 			// Compute retrieve
 			Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(caseBase.getCases(), query,
-					simConfig);
+					simConfig); 
 
 			// Compute reuse
 			this.action = reuse(eval);

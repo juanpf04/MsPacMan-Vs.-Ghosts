@@ -33,7 +33,7 @@ public class MsPacManStorageManager {
 		this.caseBase = caseBase;
 	}
 
-	public void reviseAndRetain(CBRCase newCase) {
+	public void reviseAndRetain(CBRCase newCase) { //TODO revisar que lo haga bien
 		this.buffer.add(newCase);
 
 		// Buffer not full yet.
