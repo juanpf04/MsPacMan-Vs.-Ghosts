@@ -76,7 +76,7 @@ public class MsPacManStorageManager {
 		if (result.getScore() > 0 && similar(result)) { // si es un caso similar y obtiene mas puntos
 			List<CBRCase> cases = new ArrayList<CBRCase>();
 			cases.add(bCase);
-			this.caseBase.learnCases(cases);
+			this.caseBase.forgetCases(cases);
 		}
 		
 		if(game.getScore() > 0) // si los puntos son positivos
