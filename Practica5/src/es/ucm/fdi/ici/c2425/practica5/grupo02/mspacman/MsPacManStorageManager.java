@@ -19,6 +19,7 @@ public class MsPacManStorageManager {
 	private Vector<CBRCase> buffer;
 
 	private final static int TIME_WINDOW = 3;
+	private final static int MAX_DISTANCE = 75;
 
 	public MsPacManStorageManager() {
 		this.buffer = new Vector<CBRCase>();
@@ -58,8 +59,8 @@ public class MsPacManStorageManager {
 		result.setNearestPillDistance(metrica_pills_distance(description));
 		result.setNearestPPillDistance(metrica_powerpills_distance(description));
 		result.setNumberJailGhosts(metrica_number_jail_ghosts(description));
-		result.setRelativePosEdibleGhost(null);
-		result.setRelativePosGhost(null);
+		result.setRelativePosEdibleGhost(metrica_pos_relative_edible_ghost(description));
+		result.setRelativePosGhost(metrica_pos_relative_ghost(description));
 		result.setTimeEdibleGhost(null);
 	}
 
@@ -232,22 +233,94 @@ public class MsPacManStorageManager {
 	//Metrica posicion relativa a un edible ghost setRelativePosEdibleGhost
 	private int metrica_pos_relative_edible_ghost(MsPacManDescription description) {
 		RelativePosition oldPosRelative = (RelativePosition) description.getRelativePosEdibleGhost();
-		RelativePosition currentPosRelative =posicion_relativa_edible();
-		return 0;
+		RelativePosition currentPosRelative =posicion_relativa(true);
+		
+		if(oldPosRelative == currentPosRelative) {
+			return 1;
+		}
+		else {
+			if((oldPosRelative == RelativePosition.AMBOS && (currentPosRelative == RelativePosition.DELANTE || currentPosRelative == RelativePosition.DETRAS) 
+					|| (currentPosRelative == RelativePosition.AMBOS && (oldPosRelative == RelativePosition.DELANTE || oldPosRelative == RelativePosition.DETRAS)))){
+				
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
 	}
 	
-	private RelativePosition posicion_relativa_edible() {
+	
+	
+	//Metrica posicion relativa a un ghost setRelativePoGhost
+	private int metrica_pos_relative_ghost(MsPacManDescription description) {
+		RelativePosition oldPosRelative = (RelativePosition) description.getRelativePosEdibleGhost();
+		RelativePosition currentPosRelative =posicion_relativa(false);
+		
+		if(oldPosRelative == currentPosRelative) {
+			return 1;
+		}
+		else {
+			if((oldPosRelative == RelativePosition.AMBOS && (currentPosRelative == RelativePosition.DELANTE || currentPosRelative == RelativePosition.DETRAS) 
+					|| (currentPosRelative == RelativePosition.AMBOS && (oldPosRelative == RelativePosition.DELANTE || oldPosRelative == RelativePosition.DETRAS)))){
+				
+				return 1;
+			}
+			else {
+				return 0;
+			}
+		}
+	}
+	
+	private RelativePosition posicion_relativa(boolean edible) {
 		int pacmanIndex = game.getPacmanCurrentNodeIndex();
 		MOVE lastMove = game.getPacmanLastMoveMade();
 		MOVE lastMoveOpposite = lastMove.opposite();
+		boolean delante = false, detras = false;
 		
-		//Funcion para calcular la funcion delante y detras
+		for(GHOST ghost: GHOST.values()) {
+			if(game.isGhostEdible(ghost)) {
+				if(game.isGhostEdible(ghost) && edible) {
+				//Funcion para calcular la funcion delante y detras
+					int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
+			
+					int[] pathToGhostDelante = game.getShortestPath(pacmanIndex, ghostIndex, lastMove);
+					int[] pathToGhostDetras = game.getShortestPath(pacmanIndex, ghostIndex, lastMoveOpposite);
+					if (pathToGhostDelante.length > 0 && pathToGhostDelante.length <= MAX_DISTANCE) {
+						delante = true;
+					}
+					else if(pathToGhostDetras.length > 0 && pathToGhostDetras.length<=MAX_DISTANCE) {
+						detras = true;
+					}
+				}
+			}
+		}
 		
-		//Si esta delante, Indicar delante
-		//Si esta detras, indicar detras
-		//Si esta en a,bas, indicar ambas
-		//Si no hay ninguno, indicar ninguno
-		
-		return RelativePosition.AMBOS;
+		if(delante && detras) {
+			return RelativePosition.AMBOS;
+		}
+		else if(delante || detras) {
+			if(delante) {
+				return RelativePosition.DELANTE;
+			}
+			else {
+				return RelativePosition.DETRAS;
+			}
+		}
+		return RelativePosition.NINGUNO;
 	}
+
+	
+	//Metrica para el tiempo de los fantasmas comestibles
+	private int metrica_time_edible_ghost(MsPacManDescription description) {
+		int oldTime = description.getTimeEdibleGhost();
+		int currentTime= timeEdibleGhost();
+		return currentTime - oldTime;
+	}
+	
+	private int timeEdibleGhost() {
+		return 0;
+	}
+		
 }
+
