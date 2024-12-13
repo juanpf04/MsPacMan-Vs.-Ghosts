@@ -8,6 +8,7 @@ public class ExecutorTest {
     public static void main(String[] args) {
         Executor executor = new Executor.Builder()
                 .setTickLimit(1000)
+                .setTimeLimit(400)
                 .setVisual(true)
                 .setScaleFactor(2.5)
                 .build();
