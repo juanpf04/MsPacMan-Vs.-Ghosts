@@ -6,18 +6,18 @@ import es.ucm.fdi.gaia.jcolibri.cbrcore.CaseComponent;
 @SuppressWarnings("rawtypes")
 public class MsPacManDescription implements CaseComponent {
 
-	Integer id;
+	private Integer id;
 
-	private Integer score;
-	private Integer timeEdibleGhost;
-	private Integer nearestPPillDistance;
-	private Integer nearestPillDistance;
-	private Integer nearestGhostDistance;
-	private Integer nearestEdibleGhostDistance;
-	private Integer edibleGhosts;
-	private Integer numberJailGhosts;
-	private Enum relativePosGhost;
-	private Enum relativePosEdibleGhost;
+	private Integer score; // obtained score
+	private Integer edibleTime; // time of edible ghost
+	private Integer ppillDistance; // nearest power pill distance
+	private Integer pillDistance; // nearest pill distance
+	private Integer ghostDistance; // nearest ghost distance
+	private Integer edibleGhostDistance; // nearest edible ghost distance
+	private Integer edibleGhosts; // number of edible ghosts
+	private Integer jailGhosts; // number of ghosts in jail
+	private Enum relativePosGhost; // relative position of nearest ghost
+	private Enum relativePosEdibleGhost; // relative position of nearest edible ghost
 
 	public Integer getId() {
 		return id;
@@ -35,60 +35,60 @@ public class MsPacManDescription implements CaseComponent {
 		this.score = score;
 	}
 
-	public Integer getTimeEdibleGhost() {
-		return timeEdibleGhost;
+	public Integer getEdibleTime() {
+		return edibleTime;
 	}
 
-	public void setTimeEdibleGhost(Integer time) {
-		this.timeEdibleGhost = time;
+	public void setEdibleTime(Integer edibleTime) {
+		this.edibleTime = edibleTime;
 	}
 
-	public Integer getNearestPPillDistance() {
-		return nearestPPillDistance;
+	public Integer getPpillDistance() {
+		return ppillDistance;
 	}
 
-	public void setNearestPPillDistance(Integer nearestPPill) {
-		this.nearestPPillDistance = nearestPPill;
+	public void setPpillDistance(Integer ppillDistance) {
+		this.ppillDistance = ppillDistance;
 	}
 
-	public Integer getNearestPillDistance() {
-		return nearestPillDistance;
+	public Integer getPillDistance() {
+		return pillDistance;
 	}
 
-	public void setNearestPillDistance(Integer nearestPill) {
-		this.nearestPillDistance = nearestPill;
+	public void setPillDistance(Integer pillDistance) {
+		this.pillDistance = pillDistance;
 	}
 
-	public Integer getNearestGhostDistance() {
-		return nearestGhostDistance;
+	public Integer getGhostDistance() {
+		return ghostDistance;
 	}
 
-	public void setNearestGhostDistance(Integer nearestGhost) {
-		this.nearestGhostDistance = nearestGhost;
+	public void setGhostDistance(Integer ghostDistance) {
+		this.ghostDistance = ghostDistance;
 	}
 
-	public Integer getNearestEdibleGhostDistance() {
-		return nearestEdibleGhostDistance;
+	public Integer getEdibleGhostDistance() {
+		return edibleGhostDistance;
 	}
 
-	public void setNearestEdibleGhostDistance(Integer nearestEdibleGhost) {
-		this.nearestGhostDistance = nearestEdibleGhost;
+	public void setEdibleGhostDistance(Integer edibleGhostDistance) {
+		this.edibleGhostDistance = edibleGhostDistance;
 	}
 
 	public Integer getEdibleGhosts() {
 		return edibleGhosts;
 	}
 
-	public void setEdibleGhosts(Integer edibleGhost) {
-		this.edibleGhosts = edibleGhost;
+	public void setEdibleGhosts(Integer edibleGhosts) {
+		this.edibleGhosts = edibleGhosts;
 	}
 
-	public Integer getNumberJailGhosts() {
-		return numberJailGhosts;
+	public Integer getJailGhosts() {
+		return jailGhosts;
 	}
 
-	public void setNumberJailGhosts(Integer numberJailGhosts) {
-		this.numberJailGhosts = numberJailGhosts;
+	public void setJailGhosts(Integer jailGhosts) {
+		this.jailGhosts = jailGhosts;
 	}
 
 	public Enum getRelativePosGhost() {
@@ -103,8 +103,8 @@ public class MsPacManDescription implements CaseComponent {
 		return relativePosEdibleGhost;
 	}
 
-	public void setRelativePosEdibleGhost(Enum relativeEdibleGhost) {
-		this.relativePosEdibleGhost = relativeEdibleGhost;
+	public void setRelativePosEdibleGhost(Enum relativePosEdibleGhost) {
+		this.relativePosEdibleGhost = relativePosEdibleGhost;
 	}
 
 	@Override
@@ -114,11 +114,11 @@ public class MsPacManDescription implements CaseComponent {
 
 	@Override
 	public String toString() {
-		return "MsPacManDescription [id=" + id + ", score=" + score + ", time=" + timeEdibleGhost + ", nearestPPill="
-				+ nearestPPillDistance + "nearestPill=" + this.nearestPillDistance + "nearestGhost="
-				+ nearestGhostDistance + ", " + ", nearestEdibleGhost=" + nearestEdibleGhostDistance + " edibleGhost="
-				+ edibleGhosts + ", ghostsJail=" + numberJailGhosts + " relativePosGhost=" + relativePosGhost
-				+ ", relativePosEdibleGhost=" + relativePosEdibleGhost + "]";
+		return "MsPacManDescription [id=" + id + ", score=" + score + ", edibleTime=" + edibleTime + ", nearestPPill="
+				+ ppillDistance + "nearestPill=" + this.pillDistance + "nearestGhost=" + ghostDistance + ", "
+				+ ", nearestEdibleGhost=" + edibleGhostDistance + " numbreOfEdibleGhosts=" + edibleGhosts
+				+ ", ghostsInJail=" + jailGhosts + " relativePosGhost=" + relativePosGhost + ", relativePosEdibleGhost="
+				+ relativePosEdibleGhost + "]";
 	}
 
 }

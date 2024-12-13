@@ -1,4 +1,4 @@
-package es.ucm.fdi.ici.c2425.practica5.grupo02.similitud;
+package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.similitud;
 
 import es.ucm.fdi.gaia.jcolibri.exception.NoApplicableSimilarityFunctionException;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.similarity.LocalSimilarityFunction;

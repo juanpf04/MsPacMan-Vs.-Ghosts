@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import constantes.Weithgs;
 import es.ucm.fdi.gaia.jcolibri.cbraplications.StandardCBRApplication;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.Attribute;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCase;
@@ -20,17 +19,18 @@ import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.NNScoringMethod;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.selection.SelectCases;
 import es.ucm.fdi.gaia.jcolibri.util.FileIO;
+import es.ucm.fdi.ici.c2425.practica5.grupo02.Weithgs;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.Average;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.CachedLinearCaseBase;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.CustomPlainTextConnector;
-import es.ucm.fdi.ici.c2425.practica5.grupo02.similitud.Enumerado;
+import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.similitud.Enumerado;
 import pacman.game.Constants.MOVE;
 
 public class MsPacManCBRengine implements StandardCBRApplication {
-	
-	private final static String TEAM = "grupo02"; 
-	private final static String CONNECTOR_FILE_PATH = "es/ucm/fdi/ici/c2425/practica5/"+TEAM+"/mspacman/plaintextconfig.xml";
-	private final static String CASE_BASE_PATH = "cbrdata"+File.separator+TEAM+File.separator+"mspacman"+File.separator;
+
+	private final static String TEAM = "grupo02";
+	private final static String CONNECTOR_FILE_PATH = "es/ucm/fdi/ici/c2425/practica5/" + TEAM + "/mspacman/plaintextconfig.xml";
+	private final static String CASE_BASE_PATH = "cbrdata" + File.separator + TEAM + File.separator + "mspacman" + File.separator;
 
 	private String opponent;
 	private MOVE action;
@@ -50,84 +50,85 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	@Override
 	public void configure() throws ExecutionException {
-		connector = new CustomPlainTextConnector();
-		caseBase = new CachedLinearCaseBase();
+		this.connector = new CustomPlainTextConnector();
+		this.caseBase = new CachedLinearCaseBase();
 
-		connector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
+		this.connector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
 
 		// Do not use default case base path in the xml file. Instead use custom file
 		// path for each opponent.
 		// Note that you can create any subfolder of files to store the case base inside
 		// your "cbrdata/grupoXX" folder.
-		connector.setCaseBaseFile(CASE_BASE_PATH, opponent + ".csv");
-		
-		//TODO cargar base de datos especifica y generica
+		this.connector.setCaseBaseFile(CASE_BASE_PATH, this.opponent + ".csv");
 
-		this.storageManager.setCaseBase(caseBase);
+		// TODO cargar base de datos especifica y generica
 
-		simConfig = new NNConfig();
-		Attribute[] atributos = { new Attribute("score", MsPacManDescription.class),
-				new Attribute("timeEdibleGhost", MsPacManDescription.class),
-				new Attribute("nearestPPillDistance", MsPacManDescription.class),
-				new Attribute("nearestPillDistance", MsPacManDescription.class),
-				new Attribute("nearestGhostDistance", MsPacManDescription.class),
-				new Attribute("nearestEdibleGhostDistance", MsPacManDescription.class),
-				new Attribute("edibleGhosts", MsPacManDescription.class),
-				new Attribute("numberJailGhosts", MsPacManDescription.class),
-				new Attribute("relativePosGhost", MsPacManDescription.class),
-				new Attribute("relativePosEdibleGhost", MsPacManDescription.class) };
-		
-		// setWeight
-		simConfig.setDescriptionSimFunction(new Average());
-		simConfig.addMapping(atributos[0], new Interval(15000));
-		simConfig.setWeight(atributos[0], Weithgs.SCORE);
+		this.storageManager.setCaseBase(this.caseBase);
 
-		simConfig.addMapping(atributos[1], new Interval(200));
-		simConfig.setWeight(atributos[1], Weithgs.TIME_EDIBLE);
+		// Similarity configuration
 
-		simConfig.addMapping(atributos[2], new Interval(240));
-		simConfig.setWeight(atributos[2], Weithgs.DISTANCE_POWERPILL);
+		this.simConfig = new NNConfig();
+		this.simConfig.setDescriptionSimFunction(new Average());
+		Attribute attribute;
 
-		simConfig.addMapping(atributos[3], new Interval(240));
-		simConfig.setWeight(atributos[3], Weithgs.DISTANCE_PILL);
+		attribute = new Attribute("score", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(15000));
+		this.simConfig.setWeight(attribute, Weithgs.SCORE);
 
-		simConfig.addMapping(atributos[4], new Interval(240));
-		simConfig.setWeight(atributos[4], Weithgs.DISTANCE_NOT_EDIBLE);
+		attribute = new Attribute("edibleTime", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(200));
+		this.simConfig.setWeight(attribute, Weithgs.TIME_EDIBLE);
 
-		simConfig.addMapping(atributos[5], new Interval(240));
-		simConfig.setWeight(atributos[5], Weithgs.DISTANCE_EDIBLE);
+		attribute = new Attribute("ppillDistance", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(240));
+		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_POWERPILL);
 
-		simConfig.addMapping(atributos[6], new Interval(4));
-		simConfig.setWeight(atributos[6], Weithgs.NUMBER_EDIBLES);
+		attribute = new Attribute("pillDistance", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(240));
+		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_PILL);
 
-		simConfig.addMapping(atributos[7], new Interval(4));
-		simConfig.setWeight(atributos[7], Weithgs.NUMBER_JAIL);
+		attribute = new Attribute("ghostDistance", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(240));
+		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_NOT_EDIBLE);
 
-		simConfig.addMapping(atributos[8], new Enumerado());
-		simConfig.setWeight(atributos[8], Weithgs.DISTANCE_EDIBLE);
+		attribute = new Attribute("edibleGhostDistance", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(240));
+		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
 
-		simConfig.addMapping(atributos[9], new Enumerado());
-		simConfig.setWeight(atributos[9], Weithgs.DISTANCE_EDIBLE);
+		attribute = new Attribute("edibleGhosts", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(4));
+		this.simConfig.setWeight(attribute, Weithgs.NUMBER_EDIBLES);
 
+		attribute = new Attribute("jailGhosts", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(4));
+		this.simConfig.setWeight(attribute, Weithgs.NUMBER_JAIL);
+
+		attribute = new Attribute("relativePosGhost", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Enumerado());
+		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
+
+		attribute = new Attribute("relativePosEdibleGhost", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Enumerado());
+		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
 	}
 
 	@Override
 	public CBRCaseBase preCycle() throws ExecutionException {
-		caseBase.init(connector);
-		return caseBase;
+		this.caseBase.init(this.connector);
+		return this.caseBase;
 	}
 
 	@Override
 	public void cycle(CBRQuery query) throws ExecutionException {
-		//TODO si esta vacia voy a la generica
-		//  si la similitud es baja, voy a la generica
+		// TODO si esta vacia voy a la generica
+		// si la similitud es baja, voy a la generica
 		// si en la generica es baja o vacia, hago random.
-		if (caseBase.getCases().isEmpty()) { 
+		if (caseBase.getCases().isEmpty()) {
 			this.action = MOVE.NEUTRAL;
 		} else {
 			// Compute retrieve
 			Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(caseBase.getCases(), query,
-					simConfig); 
+					this.simConfig);
 
 			// Compute reuse
 			this.action = reuse(eval);
@@ -174,17 +175,17 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 			votacion_mayoritaria.put(action, votacion_mayoritaria.getOrDefault(action, 1) + 1);
 
 		}
-		
+
 		Integer max = -1;
 		for (Map.Entry<MOVE, Integer> entrada : votacion_mayoritaria.entrySet()) {
 			Integer value = entrada.getValue();
 			if (value > max) {
 				max = value;
-				action = entrada.getKey();
+				this.action = entrada.getKey();
 			}
 		}
 
-		return action;
+		return this.action;
 	}
 
 	/**
@@ -197,7 +198,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		MsPacManResult newResult = new MsPacManResult();
 		MsPacManSolution newSolution = new MsPacManSolution();
 		int newId = this.caseBase.getNextId();
-		newId += storageManager.getPendingCases();
+		newId += this.storageManager.getPendingCases();
 		newDescription.setId(newId);
 		newResult.setId(newId);
 		newSolution.setId(newId);

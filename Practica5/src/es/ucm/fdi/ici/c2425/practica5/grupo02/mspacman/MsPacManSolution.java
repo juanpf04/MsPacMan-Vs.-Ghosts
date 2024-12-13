@@ -6,7 +6,8 @@ import pacman.game.Constants.MOVE;
 
 public class MsPacManSolution implements CaseComponent {
 
-	Integer id;
+	private Integer id;
+
 	private MOVE action;
 
 	public Integer getId() {
