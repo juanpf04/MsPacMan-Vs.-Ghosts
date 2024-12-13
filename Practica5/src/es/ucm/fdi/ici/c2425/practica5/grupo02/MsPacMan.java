@@ -14,6 +14,9 @@ public class MsPacMan extends PacmanController {
 	private MsPacManStorageManager storageManager;
 
 	public MsPacMan() {
+		this.setName("JPacman");
+		this.setTeam("Team 02");
+		
 		this.storageManager = new MsPacManStorageManager();
 		this.cbrEngine = new MsPacManCBRengine(this.storageManager);
 	}
