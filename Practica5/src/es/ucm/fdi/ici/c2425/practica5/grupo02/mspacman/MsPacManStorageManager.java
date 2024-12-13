@@ -84,16 +84,16 @@ public class MsPacManStorageManager {
 	}
 	
 	private boolean similar(MsPacManResult result) { // TODO 
-		boolean similar = true;
+		boolean similar = result.getEdibleGhosts() == 0;
 		
-		similar &= true;
-		similar &= true;
-		similar &= true;
-		similar &= true;
-		similar &= true;
-		similar &= true;
-		similar &= true;
-		similar &= true;
+		similar &= result.getNearestEdibleGhostDistance() < 20;
+		similar &= result.getNearestGhostDistance() < 20;
+		similar &= result.getNearestPillDistance() < 20;
+		similar &= result.getNearestPPillDistance() < 20;
+		similar &= result.getNumberJailGhosts() == 0;
+		similar &= result.getRelativePosEdibleGhost() == 1;
+		similar &= result.getRelativePosGhost() == 1;
+		similar &= Math.abs(result.getTimeEdibleGhost()) < 20;
 		
 		return similar;
 	}
@@ -319,7 +319,12 @@ public class MsPacManStorageManager {
 	}
 	
 	private int timeEdibleGhost() {
-		return 0;
+		int result = 0;
+
+		for (GHOST g : GHOST.values()) {
+			result = Math.max(game.getGhostEdibleTime(g),result);
+		}
+		return result;
 	}
 		
 }
