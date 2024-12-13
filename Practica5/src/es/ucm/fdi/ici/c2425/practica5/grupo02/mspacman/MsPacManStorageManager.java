@@ -61,7 +61,7 @@ public class MsPacManStorageManager {
 		result.setNumberJailGhosts(metrica_number_jail_ghosts(description));
 		result.setRelativePosEdibleGhost(metrica_pos_relative_edible_ghost(description));
 		result.setRelativePosGhost(metrica_pos_relative_ghost(description));
-		result.setTimeEdibleGhost(null);
+		result.setTimeEdibleGhost(metrica_time_edible_ghost(description));
 	}
 
 	private void retainCase(CBRCase bCase) {
