@@ -2,9 +2,7 @@ package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import es.ucm.fdi.gaia.jcolibri.cbraplications.StandardCBRApplication;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.Attribute;
@@ -19,6 +17,7 @@ import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.similarity.local.Equ
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.selection.SelectCases;
 import es.ucm.fdi.gaia.jcolibri.util.FileIO;
+import es.ucm.fdi.ici.c2425.practica5.grupo02.VariablePQ;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.Weithgs;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.Average;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.CachedLinearCaseBase;
@@ -27,7 +26,7 @@ import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.similitud.Enumerado;
 import pacman.game.Constants.MOVE;
 
 public class MsPacManCBRengine implements StandardCBRApplication {
-	
+
 	private final static String TEAM = "grupo02";
 	private final static String CONNECTOR_FILE_PATH = "es/ucm/fdi/ici/c2425/practica5/" + TEAM + "/mspacman/plaintextconfig.xml";
 	private final static String CASE_BASE_PATH = "cbrdata" + File.separator + TEAM + File.separator + "mspacman" + File.separator;
@@ -60,7 +59,8 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		this.caseBase = new CachedLinearCaseBase();
 
 		this.genericConnector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
-		
+		this.genericConnector.setCaseBaseFile(CASE_BASE_PATH, "GenericGhosts.csv");
+
 		this.connector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
 		this.connector.setCaseBaseFile(CASE_BASE_PATH, this.opponent + ".csv");
 
@@ -124,23 +124,34 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	@Override
 	public void cycle(CBRQuery query) throws ExecutionException {
-		// TODO si esta vacia voy a la generica
-		// si la similitud es baja, voy a la generica
-		// si en la generica es baja o vacia, hago random.
-		if (this.caseBase.getCases().isEmpty()) {
-			if (this.genericCaseBase.getCases().isEmpty()) {
-				this.action = MOVE.NEUTRAL;
-			}
-			else {
-				
-			}
-		} else {
+		this.action = MOVE.NEUTRAL;
+
+		// Compute specific retrieve
+		if (!this.caseBase.getCases().isEmpty()) {
+
 			// Compute retrieve
-			Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(caseBase.getCases(), query,
+			Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(this.caseBase.getCases(), query,
 					this.simConfig);
 
 			// Compute reuse
 			this.action = reuse(eval);
+		}
+
+		// Compute general retrieve if no solution
+		if (!this.genericCaseBase.getCases().isEmpty() && this.action == MOVE.NEUTRAL) {
+
+			// Compute retrieve
+			Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(this.genericCaseBase.getCases(),
+					query, this.simConfig);
+
+			// Compute reuse
+			this.action = reuse(eval);
+		}
+
+		// Compute random action if no solution
+		if (this.action == MOVE.NEUTRAL) {
+			int index = (int) Math.floor(Math.random() * 4);
+			this.action = MOVE.values()[index];
 		}
 
 		// Compute revise & retain
@@ -149,47 +160,25 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	}
 
-	private MOVE reuse(Collection<RetrievalResult> eval) { // TODO MODIFICAR PARA EFICIENCIA DE FUNION cycle
-		Map<MOVE, Integer> votacion_mayoritaria = new HashMap<MOVE, Integer>();
-		Iterator<RetrievalResult> iterator = SelectCases.selectTopKRR(eval, 13).iterator();
+	private MOVE reuse(Collection<RetrievalResult> eval) {
+		VariablePQ<MOVE> majority_voting = new VariablePQ<>();
+		Iterator<RetrievalResult> topCases = SelectCases.selectTopKRR(eval, 13).iterator();
 
-		while (iterator.hasNext()) {
-			RetrievalResult first = iterator.next();
-			CBRCase mostSimilarCase = first.get_case();
-			double similarity = first.getEval();
+		while (topCases.hasNext()) {
+			RetrievalResult retrieval = topCases.next();
+			CBRCase similarCase = retrieval.get_case();
+			double similarity = retrieval.getEval();
 
-			// TODO aqui eliminar ?
+			// MsPacManResult result = (MsPacManResult) similarCase.getResult();
+			MsPacManSolution solution = (MsPacManSolution) similarCase.getSolution();
 
-			MsPacManResult result = (MsPacManResult) mostSimilarCase.getResult();
-			MsPacManSolution solution = (MsPacManSolution) mostSimilarCase.getSolution();
-
-			// Now compute a solution for the query
-
-			// Here, it simply takes the action of the 1NN
-			MOVE action = solution.getAction();
-
-			// But if not enough similarity or bad case, choose another move randomly
-			if ((similarity < 0.7) || (result.getScore() < 100)) {
-				int index = (int) Math.floor(Math.random() * 4);
-				if (MOVE.values()[index] == action)
-					index = (index + 1) % 4;
-				action = MOVE.values()[index];
-			}
-
-			votacion_mayoritaria.put(action, votacion_mayoritaria.getOrDefault(action, 1) + 1);
-
+			// If enough similarity
+			if (similarity >= 0.7)
+				majority_voting.increase(solution.getAction(), 1);
 		}
 
-		Integer max = -1;
-		for (Map.Entry<MOVE, Integer> entrada : votacion_mayoritaria.entrySet()) {
-			Integer value = entrada.getValue();
-			if (value > max) {
-				max = value;
-				this.action = entrada.getKey();
-			}
-		}
-
-		return this.action;
+		// Takes the action of the KNNs with majority voting
+		return majority_voting.isEmpty() ? MOVE.NEUTRAL : majority_voting.top();
 	}
 
 	/**

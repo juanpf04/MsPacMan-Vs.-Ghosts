@@ -19,7 +19,7 @@ public class ExecutorTest {
         int i = executor.runGame(pacMan, ghosts, 0); //last parameter defines speed
         int j = 0;
         int k=0;
-		while(k++<100) 
+		while(k++<1) 
 			j =executor.runGame(pacMan, ghosts, 0); //last parameter defines speed
     
 		System.out.println(j + " - " + i + " = " + (j - i));
