@@ -1,7 +1,7 @@
 package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRQuery;
-import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.similitud.RelativePosition;
+import es.ucm.fdi.ici.c2425.practica5.grupo02.RelativePosition;
 import es.ucm.fdi.ici.cbr.CBRInput;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;

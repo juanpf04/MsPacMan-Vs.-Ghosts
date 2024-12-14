@@ -22,7 +22,6 @@ import es.ucm.fdi.ici.c2425.practica5.grupo02.Weithgs;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.Average;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.CachedLinearCaseBase;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.CBRengine.CustomPlainTextConnector;
-import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.similitud.Enumerado;
 import pacman.game.Constants.MOVE;
 
 public class MsPacManCBRengine implements StandardCBRApplication {
@@ -64,9 +63,9 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		this.connector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
 		this.connector.setCaseBaseFile(CASE_BASE_PATH, this.opponent + ".csv");
 
-		this.storageManager.setCaseBase(this.caseBase);
+		this.storageManager.setCaseBase(this.caseBase); // cambiar a generic si se mejorar los casos base genéricos
 
-		// Similarity configuration
+		// Similarity and weights configuration
 
 		this.simConfig = new NNConfig();
 		this.simConfig.setDescriptionSimFunction(new Average());
@@ -105,14 +104,13 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		this.simConfig.setWeight(attribute, Weithgs.NUMBER_JAIL);
 
 		attribute = new Attribute("relativePosGhost", MsPacManDescription.class);
-		this.simConfig.addMapping(attribute, new Enumerado());
+		this.simConfig.addMapping(attribute, new Equal());
 		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
 
 		attribute = new Attribute("relativePosEdibleGhost", MsPacManDescription.class);
-		this.simConfig.addMapping(attribute, new Enumerado());
+		this.simConfig.addMapping(attribute, new Equal());
 		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
-
-		new Equal(); // FIXME prueba
+		
 	}
 
 	@Override
