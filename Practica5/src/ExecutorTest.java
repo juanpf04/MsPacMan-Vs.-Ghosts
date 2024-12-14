@@ -9,16 +9,20 @@ public class ExecutorTest {
         Executor executor = new Executor.Builder()
                 .setTickLimit(1000)
                 .setTimeLimit(400)
-                .setVisual(true)
+                .setVisual(false)
                 .setScaleFactor(2.5)
                 .build();
 
         PacmanController pacMan = new MsPacMan();
         GhostController ghosts = new AggressiveGhosts();
         
-        System.out.println( 
-            executor.runGame(pacMan, ghosts, 2) //last parameter defines speed
-        );     
+        int i = executor.runGame(pacMan, ghosts, 0); //last parameter defines speed
+        int j = 0;
+        int k=0;
+		while(k++<100) 
+			j =executor.runGame(pacMan, ghosts, 0); //last parameter defines speed
+    
+		System.out.println(j + " - " + i + " = " + (j - i));
     }
 	
 }

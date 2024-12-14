@@ -53,15 +53,15 @@ public class MsPacManStorageManager {
 
 		// Resultados de las metricas
 		result.setScore(metrica_score(description));
-		result.setEdibleTime(metrica_time_edible_ghost(description));
-		result.setPpillDistance(metrica_powerpills_distance(description));
-		result.setPillDistance(metrica_pills_distance(description));
-		result.setEdibleGhostDistance(metrica_nearest_edible_ghost_distance(description));
-		result.setGhostDistance(metrica_nearest_ghost_distance(description));
-		result.setEdibleGhosts(metrica_number_edible_ghosts(description));
-		result.setJailGhosts(metrica_number_jail_ghosts(description));
-		result.setRelativePosGhost(metrica_pos_relative_ghost(description));
-		result.setRelativePosEdibleGhost(metrica_pos_relative_edible_ghost(description));
+//		result.setEdibleTime(metrica_time_edible_ghost(description));
+//		result.setPpillDistance(metrica_powerpills_distance(description));
+//		result.setPillDistance(metrica_pills_distance(description));
+//		result.setEdibleGhostDistance(metrica_nearest_edible_ghost_distance(description));
+//		result.setGhostDistance(metrica_nearest_ghost_distance(description));
+//		result.setEdibleGhosts(metrica_number_edible_ghosts(description));
+//		result.setJailGhosts(metrica_number_jail_ghosts(description));
+//		result.setRelativePosGhost(metrica_pos_relative_ghost(description));
+//		result.setRelativePosEdibleGhost(metrica_pos_relative_edible_ghost(description));
 	}
 
 	private void retainCase(CBRCase bCase) {
@@ -71,34 +71,34 @@ public class MsPacManStorageManager {
 		// here you should also check if the case must be stored into persistence (too
 		// similar to existing ones, etc.)
 
-		MsPacManResult result = (MsPacManResult) bCase.getResult();
-		
-		boolean isSimilar = similar(result);
-
-		// si es un caso similar y obtiene mas puntos borramos el anterior caso
-		if (result.getScore() > 0 && isSimilar) { 
-			List<CBRCase> cases = new ArrayList<CBRCase>();
-			cases.add(bCase);
-			this.caseBase.forgetCases(cases);
-		}
-
-		// si lo devemos almacenar
-		if ((result.getScore() > 0 && isSimilar) || (game.getScore() > 0 && !isSimilar)) 
+//		MsPacManResult result = (MsPacManResult) bCase.getResult();
+//		
+//		boolean isSimilar = similar(result);
+//
+//		// si es un caso similar y obtiene mas puntos borramos el anterior caso
+//		if (result.getScore() > 0 && isSimilar) { 
+//			List<CBRCase> cases = new ArrayList<CBRCase>();
+//			cases.add(bCase);
+//			this.caseBase.forgetCases(cases);
+//		}
+//
+//		// si lo devemos almacenar
+//		if ((result.getScore() > 0 && isSimilar) || (game.getScore() > 0 && !isSimilar)) 
 			StoreCasesMethod.storeCase(this.caseBase, bCase);
 	}
 
 	private boolean similar(MsPacManResult result) { // TODO
 		boolean similar = true;
 
-		similar &= result.getEdibleGhostDistance() < 20;
-		similar &= result.getGhostDistance() < 20;
-		similar &= result.getPillDistance() < 20;
-		similar &= result.getPpillDistance() < 20;
-		similar &= result.getEdibleGhosts() == 0;
-		similar &= result.getJailGhosts() == 0;
-		similar &= result.getRelativePosEdibleGhost() == 1;
-		similar &= result.getRelativePosGhost() == 1;
-		similar &= Math.abs(result.getEdibleTime()) < 20;
+//		similar &= result.getEdibleGhostDistance() < 20;
+//		similar &= result.getGhostDistance() < 20;
+//		similar &= result.getPillDistance() < 20;
+//		similar &= result.getPpillDistance() < 20;
+//		similar &= result.getEdibleGhosts() == 0;
+//		similar &= result.getJailGhosts() == 0;
+//		similar &= result.getRelativePosEdibleGhost() == 1;
+//		similar &= result.getRelativePosGhost() == 1;
+//		similar &= Math.abs(result.getEdibleTime()) < 20;
 
 		return similar;
 	}

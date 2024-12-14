@@ -9,15 +9,15 @@ public class MsPacManResult implements CaseComponent {
 	
 	// difference between new case and stored case
 	private Integer score; // obtained score
-	private Integer edibleTime; // time of edible ghost
-	private Integer ppillDistance; // nearest power pill distance
-	private Integer pillDistance; // nearest pill distance
-	private Integer ghostDistance; // nearest ghost distance
-	private Integer edibleGhostDistance; // nearest edible ghost distance
-	private Integer edibleGhosts; // number of edible ghosts
-	private Integer jailGhosts; // number of ghosts in jail
-	private Integer relativePosGhost; // relative position of nearest ghost
-	private Integer relativePosEdibleGhost; // relative position of nearest edible ghost
+//	private Integer edibleTime; // time of edible ghost
+//	private Integer ppillDistance; // nearest power pill distance
+//	private Integer pillDistance; // nearest pill distance
+//	private Integer ghostDistance; // nearest ghost distance
+//	private Integer edibleGhostDistance; // nearest edible ghost distance
+//	private Integer edibleGhosts; // number of edible ghosts
+//	private Integer jailGhosts; // number of ghosts in jail
+//	private Integer relativePosGhost; // relative position of nearest ghost
+//	private Integer relativePosEdibleGhost; // relative position of nearest edible ghost
 	
 	public Integer getId() {
 		return id;
@@ -35,77 +35,77 @@ public class MsPacManResult implements CaseComponent {
 		this.score = score;
 	}
 
-	public Integer getEdibleTime() {
-		return edibleTime;
-	}
-
-	public void setEdibleTime(Integer edibleTime) {
-		this.edibleTime = edibleTime;
-	}
-
-	public Integer getPpillDistance() {
-		return ppillDistance;
-	}
-
-	public void setPpillDistance(Integer ppillDistance) {
-		this.ppillDistance = ppillDistance;
-	}
-
-	public Integer getPillDistance() {
-		return pillDistance;
-	}
-
-	public void setPillDistance(Integer pillDistance) {
-		this.pillDistance = pillDistance;
-	}
-
-	public Integer getGhostDistance() {
-		return ghostDistance;
-	}
-
-	public void setGhostDistance(Integer ghostDistance) {
-		this.ghostDistance = ghostDistance;
-	}
-
-	public Integer getEdibleGhostDistance() {
-		return edibleGhostDistance;
-	}
-
-	public void setEdibleGhostDistance(Integer edibleGhostDistance) {
-		this.edibleGhostDistance = edibleGhostDistance;
-	}
-
-	public Integer getEdibleGhosts() {
-		return edibleGhosts;
-	}
-
-	public void setEdibleGhosts(Integer edibleGhosts) {
-		this.edibleGhosts = edibleGhosts;
-	}
-
-	public Integer getJailGhosts() {
-		return jailGhosts;
-	}
-
-	public void setJailGhosts(Integer jailGhosts) {
-		this.jailGhosts = jailGhosts;
-	}
-
-	public Integer getRelativePosGhost() {
-		return relativePosGhost;
-	}
-
-	public void setRelativePosGhost(Integer relativePosGhost) {
-		this.relativePosGhost = relativePosGhost;
-	}
-
-	public Integer getRelativePosEdibleGhost() {
-		return relativePosEdibleGhost;
-	}
-
-	public void setRelativePosEdibleGhost(Integer relativePosEdibleGhost) {
-		this.relativePosEdibleGhost = relativePosEdibleGhost;
-	}
+//	public Integer getEdibleTime() {
+//		return edibleTime;
+//	}
+//
+//	public void setEdibleTime(Integer edibleTime) {
+//		this.edibleTime = edibleTime;
+//	}
+//
+//	public Integer getPpillDistance() {
+//		return ppillDistance;
+//	}
+//
+//	public void setPpillDistance(Integer ppillDistance) {
+//		this.ppillDistance = ppillDistance;
+//	}
+//
+//	public Integer getPillDistance() {
+//		return pillDistance;
+//	}
+//
+//	public void setPillDistance(Integer pillDistance) {
+//		this.pillDistance = pillDistance;
+//	}
+//
+//	public Integer getGhostDistance() {
+//		return ghostDistance;
+//	}
+//
+//	public void setGhostDistance(Integer ghostDistance) {
+//		this.ghostDistance = ghostDistance;
+//	}
+//
+//	public Integer getEdibleGhostDistance() {
+//		return edibleGhostDistance;
+//	}
+//
+//	public void setEdibleGhostDistance(Integer edibleGhostDistance) {
+//		this.edibleGhostDistance = edibleGhostDistance;
+//	}
+//
+//	public Integer getEdibleGhosts() {
+//		return edibleGhosts;
+//	}
+//
+//	public void setEdibleGhosts(Integer edibleGhosts) {
+//		this.edibleGhosts = edibleGhosts;
+//	}
+//
+//	public Integer getJailGhosts() {
+//		return jailGhosts;
+//	}
+//
+//	public void setJailGhosts(Integer jailGhosts) {
+//		this.jailGhosts = jailGhosts;
+//	}
+//
+//	public Integer getRelativePosGhost() {
+//		return relativePosGhost;
+//	}
+//
+//	public void setRelativePosGhost(Integer relativePosGhost) {
+//		this.relativePosGhost = relativePosGhost;
+//	}
+//
+//	public Integer getRelativePosEdibleGhost() {
+//		return relativePosEdibleGhost;
+//	}
+//
+//	public void setRelativePosEdibleGhost(Integer relativePosEdibleGhost) {
+//		this.relativePosEdibleGhost = relativePosEdibleGhost;
+//	}
 
 	@Override
 	public Attribute getIdAttribute() {
@@ -114,11 +114,11 @@ public class MsPacManResult implements CaseComponent {
 
 	@Override
 	public String toString() {
-		return "MsPacManResult [id=" + id + ", score=" + score + ", edibleTime=" + edibleTime + ", nearestPPill="
-				+ ppillDistance + "nearestPill=" + this.pillDistance + "nearestGhost=" + ghostDistance + ", "
-				+ ", nearestEdibleGhost=" + edibleGhostDistance + " numbreOfEdibleGhosts=" + edibleGhosts
-				+ ", ghostsInJail=" + jailGhosts + " relativePosGhost=" + relativePosGhost + ", relativePosEdibleGhost="
-				+ relativePosEdibleGhost + "]";
+		return "MsPacManResult [id=" + id + ", score=" + score + "]";// + ", edibleTime=" + edibleTime + ", nearestPPill="
+//				+ ppillDistance + "nearestPill=" + this.pillDistance + "nearestGhost=" + ghostDistance + ", "
+//				+ ", nearestEdibleGhost=" + edibleGhostDistance + " numbreOfEdibleGhosts=" + edibleGhosts
+//				+ ", ghostsInJail=" + jailGhosts + " relativePosGhost=" + relativePosGhost + ", relativePosEdibleGhost="
+//				+ relativePosEdibleGhost + "]";
 	}
 
 }

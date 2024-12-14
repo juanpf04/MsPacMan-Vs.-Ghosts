@@ -24,14 +24,5 @@
 	<ResultMappings>
 		<Map>id</Map>
 		<Map>score</Map>
-		<Map>edibleTime</Map>
-		<Map>ppillDistance</Map>		
-		<Map>pillDistance</Map>		
-		<Map>ghostDistance</Map>	
-		<Map>edibleGhostDistance</Map>		
-		<Map>edibleGhosts</Map>		
-		<Map>jailGhosts</Map>	
-		<Map>relativePosGhost</Map>
-		<Map>relativePosEdibleGhost</Map>
 	</ResultMappings>
 </TextFileConfiguration>

@@ -16,6 +16,7 @@ import es.ucm.fdi.gaia.jcolibri.exception.ExecutionException;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.RetrievalResult;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.NNConfig;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.NNScoringMethod;
+import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.similarity.local.Equal;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.similarity.local.Interval;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.selection.SelectCases;
 import es.ucm.fdi.gaia.jcolibri.util.FileIO;
@@ -110,6 +111,8 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		attribute = new Attribute("relativePosEdibleGhost", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Enumerado());
 		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
+		
+		new Equal(); // FIXME prueba 
 	}
 
 	@Override
@@ -148,13 +151,6 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 			RetrievalResult first = iterator.next();
 			CBRCase mostSimilarCase = first.get_case();
 			double similarity = first.getEval();
-
-			if (Math.random() < .2) {
-				ArrayList<CBRCase> toforget = new ArrayList<CBRCase>();
-				toforget.add(mostSimilarCase);
-				this.caseBase.forgetCases(toforget);
-				System.out.println(mostSimilarCase.getID());
-			}
 
 			MsPacManResult result = (MsPacManResult) mostSimilarCase.getResult();
 			MsPacManSolution solution = (MsPacManSolution) mostSimilarCase.getSolution();
