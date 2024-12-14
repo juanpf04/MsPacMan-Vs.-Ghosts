@@ -220,6 +220,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 	@Override
 	public void postCycle() throws ExecutionException {
 		this.storageManager.close();
+		this.genericCaseBase.close();
 		this.caseBase.close();
 	}
 
