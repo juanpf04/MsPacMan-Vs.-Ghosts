@@ -1,7 +1,6 @@
 package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,7 +27,7 @@ import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.similitud.Enumerado;
 import pacman.game.Constants.MOVE;
 
 public class MsPacManCBRengine implements StandardCBRApplication {
-
+	
 	private final static String TEAM = "grupo02";
 	private final static String CONNECTOR_FILE_PATH = "es/ucm/fdi/ici/c2425/practica5/" + TEAM + "/mspacman/plaintextconfig.xml";
 	private final static String CASE_BASE_PATH = "cbrdata" + File.separator + TEAM + File.separator + "mspacman" + File.separator;
@@ -36,6 +35,9 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 	private String opponent;
 	private MOVE action;
 	private MsPacManStorageManager storageManager;
+
+	private CustomPlainTextConnector genericConnector;
+	private CachedLinearCaseBase genericCaseBase;
 
 	private CustomPlainTextConnector connector;
 	private CachedLinearCaseBase caseBase;
@@ -51,18 +53,16 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	@Override
 	public void configure() throws ExecutionException {
+		this.genericConnector = new CustomPlainTextConnector();
+		this.genericCaseBase = new CachedLinearCaseBase();
+
 		this.connector = new CustomPlainTextConnector();
 		this.caseBase = new CachedLinearCaseBase();
 
+		this.genericConnector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
+		
 		this.connector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
-
-		// Do not use default case base path in the xml file. Instead use custom file
-		// path for each opponent.
-		// Note that you can create any subfolder of files to store the case base inside
-		// your "cbrdata/grupoXX" folder.
 		this.connector.setCaseBaseFile(CASE_BASE_PATH, this.opponent + ".csv");
-
-		// TODO cargar base de datos especifica y generica
 
 		this.storageManager.setCaseBase(this.caseBase);
 
@@ -70,7 +70,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 		this.simConfig = new NNConfig();
 		this.simConfig.setDescriptionSimFunction(new Average());
-		Attribute attribute;
+		Attribute attribute; // TODO revisar similitud y pesos
 
 		attribute = new Attribute("score", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Interval(15000));
@@ -111,13 +111,14 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		attribute = new Attribute("relativePosEdibleGhost", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Enumerado());
 		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
-		
-		new Equal(); // FIXME prueba 
+
+		new Equal(); // FIXME prueba
 	}
 
 	@Override
 	public CBRCaseBase preCycle() throws ExecutionException {
 		this.caseBase.init(this.connector);
+		this.genericCaseBase.init(this.genericConnector);
 		return this.caseBase;
 	}
 
@@ -126,8 +127,13 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		// TODO si esta vacia voy a la generica
 		// si la similitud es baja, voy a la generica
 		// si en la generica es baja o vacia, hago random.
-		if (caseBase.getCases().isEmpty()) {
-			this.action = MOVE.NEUTRAL;
+		if (this.caseBase.getCases().isEmpty()) {
+			if (this.genericCaseBase.getCases().isEmpty()) {
+				this.action = MOVE.NEUTRAL;
+			}
+			else {
+				
+			}
 		} else {
 			// Compute retrieve
 			Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(caseBase.getCases(), query,
@@ -143,7 +149,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	}
 
-	private MOVE reuse(Collection<RetrievalResult> eval) {
+	private MOVE reuse(Collection<RetrievalResult> eval) { // TODO MODIFICAR PARA EFICIENCIA DE FUNION cycle
 		Map<MOVE, Integer> votacion_mayoritaria = new HashMap<MOVE, Integer>();
 		Iterator<RetrievalResult> iterator = SelectCases.selectTopKRR(eval, 13).iterator();
 
@@ -151,6 +157,8 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 			RetrievalResult first = iterator.next();
 			CBRCase mostSimilarCase = first.get_case();
 			double similarity = first.getEval();
+
+			// TODO aqui eliminar ?
 
 			MsPacManResult result = (MsPacManResult) mostSimilarCase.getResult();
 			MsPacManSolution solution = (MsPacManSolution) mostSimilarCase.getSolution();

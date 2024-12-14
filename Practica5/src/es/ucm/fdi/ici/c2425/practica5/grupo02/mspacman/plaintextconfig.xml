@@ -1,5 +1,5 @@
 <TextFileConfiguration>
-	<FilePath>not used</FilePath>
+	<FilePath>cbrdata/grupo02/mspacman/GenericGhosts.csv</FilePath>
 	<Delimiters>,</Delimiters>
 	<DescriptionClassName>es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManDescription</DescriptionClassName>
 	<DescriptionMappings>
