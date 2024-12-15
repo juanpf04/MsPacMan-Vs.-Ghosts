@@ -5,13 +5,16 @@
 	<DescriptionMappings>
 		<Map>id</Map>
 		<Map>score</Map>
+		<Map>level</Map>
+		<Map>index</Map>
+		<Map>move</Map>
 		<Map>edibleTime</Map>
-		<Map>ppillDistance</Map>		
-		<Map>pillDistance</Map>		
-		<Map>ghostDistance</Map>	
-		<Map>edibleGhostDistance</Map>		
 		<Map>edibleGhosts</Map>		
 		<Map>jailGhosts</Map>	
+		<Map>pillDistance</Map>		
+		<Map>ppillDistance</Map>		
+		<Map>ghostDistance</Map>	
+		<Map>edibleGhostDistance</Map>		
 		<Map>relativePosGhost</Map>
 		<Map>relativePosEdibleGhost</Map>
 	</DescriptionMappings>

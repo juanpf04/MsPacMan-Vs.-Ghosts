@@ -7,21 +7,29 @@ import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
-@SuppressWarnings("rawtypes")
 public class MsPacManInput extends CBRInput {
 
 	private static final int RANGO_DISTANCIA = 40;
 
-	private Integer score; // obtained score
+	private Integer score; // current score
+	private Integer level; // current level
+
+	private Integer index; // current index
+	private MOVE move; // last move made
+
 	private Integer edibleTime; // time of edible ghost
-	private Integer ppillDistance; // nearest power pill distance
-	private Integer pillDistance; // nearest pill distance
-	private Integer ghostDistance; // nearest ghost distance
-	private Integer edibleGhostDistance; // nearest edible ghost distance
+
 	private Integer edibleGhosts; // number of edible ghosts
 	private Integer jailGhosts; // number of ghosts in jail
-	private Enum relativePosGhost; // relative position of nearest ghost
-	private Enum relativePosEdibleGhost; // relative position of nearest edible ghost
+
+	private Integer pillDistance; // nearest pill distance
+	private Integer ppillDistance; // nearest power pill distance
+
+	private Integer ghostDistance; // nearest ghost distance
+	private Integer edibleGhostDistance; // nearest edible ghost distance
+
+	private POS relativePosGhost; // relative position of nearest ghosts
+	private POS relativePosEdibleGhost; // relative position of nearest edible ghosts
 
 	private int mspacman; // pacman index
 
@@ -33,11 +41,13 @@ public class MsPacManInput extends CBRInput {
 	public void parseInput() {
 		this.mspacman = game.getPacmanCurrentNodeIndex();
 		computeScore();
+		computeLevel();
+		computeMsPacMan();
 		computeGhosts();
 		computePowerPills();
 		computePills();
-		computeRelativePosGhost(relativePosGhost);
-		computeRelativePosGhost(relativePosEdibleGhost);
+		computeRelativePosGhost();
+		computeRelativePosGhost();
 	}
 
 	@Override
@@ -45,13 +55,16 @@ public class MsPacManInput extends CBRInput {
 		MsPacManDescription description = new MsPacManDescription();
 
 		description.setScore(this.score);
+		description.setLevel(this.level);
+		description.setIndex(this.index);
+		description.setMove(this.move);
 		description.setEdibleTime(this.edibleTime);
-		description.setPpillDistance(this.ppillDistance);
-		description.setPillDistance(this.pillDistance);
-		description.setGhostDistance(this.ghostDistance);
-		description.setEdibleGhostDistance(this.edibleGhostDistance);
 		description.setEdibleGhosts(this.edibleGhosts);
 		description.setJailGhosts(this.jailGhosts);
+		description.setPillDistance(this.pillDistance);
+		description.setPpillDistance(this.ppillDistance);
+		description.setGhostDistance(this.ghostDistance);
+		description.setEdibleGhostDistance(this.edibleGhostDistance);
 		description.setRelativePosGhost(this.relativePosGhost);
 		description.setRelativePosEdibleGhost(this.relativePosEdibleGhost);
 
@@ -62,6 +75,15 @@ public class MsPacManInput extends CBRInput {
 
 	private void computeScore() {
 		this.score = this.game.getScore();
+	}
+
+	private void computeLevel() {
+		this.level = this.game.getCurrentLevel();
+	}
+	
+	private void computeMsPacMan() {
+		this.index = this.game.getPacmanCurrentNodeIndex();
+		this.move = this.game.getPacmanLastMoveMade();
 	}
 
 	private void computeGhosts() {
@@ -111,16 +133,35 @@ public class MsPacManInput extends CBRInput {
 		}
 	}
 
-	private void computeRelativePosGhost(Enum relative) {
+	private void computeRelativePosGhost() {
+		this.relativePosGhost = POS.NONE;
+		this.relativePosEdibleGhost = POS.NONE;
 		for (GHOST g : GHOST.values()) {
-			if (fantasmaDelante(g, RANGO_DISTANCIA) && fantasmaDetras(g, RANGO_DISTANCIA)) {
-				relative = POS.BOTH;
-			} else if (fantasmaDelante(g, RANGO_DISTANCIA)) {
-				relative = POS.FRONT;
-			} else if (fantasmaDetras(g, RANGO_DISTANCIA)) {
-				relative = POS.BACK;
-			} else {
-				relative = POS.NONE;
+			if (game.getGhostLairTime(g) > 0)
+				this.relativePosGhost = POS.NONE;
+			else {
+				if(game.isGhostEdible(g)) {
+					if (fantasmaDelante(g, RANGO_DISTANCIA) && fantasmaDetras(g, RANGO_DISTANCIA)) {
+						this.relativePosEdibleGhost = POS.BOTH;
+					} else if (fantasmaDelante(g, RANGO_DISTANCIA)) {
+						this.relativePosEdibleGhost = POS.FRONT;
+					} else if (fantasmaDetras(g, RANGO_DISTANCIA)) {
+						this.relativePosEdibleGhost = POS.BACK;
+					} else {
+						this.relativePosEdibleGhost = POS.NONE;
+					}
+				}
+				else {
+					if (fantasmaDelante(g, RANGO_DISTANCIA) && fantasmaDetras(g, RANGO_DISTANCIA)) {
+						this.relativePosGhost = POS.BOTH;
+					} else if (fantasmaDelante(g, RANGO_DISTANCIA)) {
+						this.relativePosGhost = POS.FRONT;
+					} else if (fantasmaDetras(g, RANGO_DISTANCIA)) {
+						this.relativePosGhost = POS.BACK;
+					} else {
+						this.relativePosGhost= POS.NONE;
+					}
+				}
 			}
 		}
 	}

@@ -69,32 +69,28 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 		this.simConfig = new NNConfig();
 		this.simConfig.setDescriptionSimFunction(new Average());
-		Attribute attribute; // TODO revisar similitud y pesos
+		Attribute attribute;
 
 		attribute = new Attribute("score", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Interval(15000));
 		this.simConfig.setWeight(attribute, Weithgs.SCORE);
+		
+		attribute = new Attribute("level", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Equal());
+		this.simConfig.setWeight(attribute, Weithgs.LEVEL);
+		
+		attribute = new Attribute("index", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Equal());
+		this.simConfig.setWeight(attribute, Weithgs.INDEX);
+
+		attribute = new Attribute("move", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Equal());
+		this.simConfig.setWeight(attribute, Weithgs.MOVE);
 
 		attribute = new Attribute("edibleTime", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Interval(200));
-		this.simConfig.setWeight(attribute, Weithgs.TIME_EDIBLE);
-
-		attribute = new Attribute("ppillDistance", MsPacManDescription.class);
-		this.simConfig.addMapping(attribute, new Interval(240));
-		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_POWERPILL);
-
-		attribute = new Attribute("pillDistance", MsPacManDescription.class);
-		this.simConfig.addMapping(attribute, new Interval(240));
-		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_PILL);
-
-		attribute = new Attribute("ghostDistance", MsPacManDescription.class);
-		this.simConfig.addMapping(attribute, new Interval(240));
-		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_NOT_EDIBLE);
-
-		attribute = new Attribute("edibleGhostDistance", MsPacManDescription.class);
-		this.simConfig.addMapping(attribute, new Interval(240));
-		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
-
+		this.simConfig.setWeight(attribute, Weithgs.EDIBLE_TIME);
+		
 		attribute = new Attribute("edibleGhosts", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Interval(4));
 		this.simConfig.setWeight(attribute, Weithgs.NUMBER_EDIBLES);
@@ -103,13 +99,29 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		this.simConfig.addMapping(attribute, new Interval(4));
 		this.simConfig.setWeight(attribute, Weithgs.NUMBER_JAIL);
 
+		attribute = new Attribute("pillDistance", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(240));
+		this.simConfig.setWeight(attribute, Weithgs.PILL_DISTANCE);
+
+		attribute = new Attribute("ppillDistance", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(240));
+		this.simConfig.setWeight(attribute, Weithgs.POWERPILL_DISTANCE);
+
+		attribute = new Attribute("ghostDistance", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(240));
+		this.simConfig.setWeight(attribute, Weithgs.GHOST_DISTANCE);
+
+		attribute = new Attribute("edibleGhostDistance", MsPacManDescription.class);
+		this.simConfig.addMapping(attribute, new Interval(240));
+		this.simConfig.setWeight(attribute, Weithgs.EDIBLE_GHOST_DISTANCE);
+
 		attribute = new Attribute("relativePosGhost", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Equal());
-		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
+		this.simConfig.setWeight(attribute, Weithgs.EDIBLE_GHOST_DISTANCE);
 
 		attribute = new Attribute("relativePosEdibleGhost", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Equal());
-		this.simConfig.setWeight(attribute, Weithgs.DISTANCE_EDIBLE);
+		this.simConfig.setWeight(attribute, Weithgs.EDIBLE_GHOST_DISTANCE);
 		
 	}
 
