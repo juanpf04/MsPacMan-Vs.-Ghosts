@@ -4,6 +4,7 @@ import es.ucm.fdi.gaia.jcolibri.exception.ExecutionException;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManCBRengine;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManInput;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManStorageManager;
+import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManInput.MsPacManInfo;
 import pacman.controllers.PacmanController;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
@@ -12,12 +13,16 @@ public class MsPacMan extends PacmanController {
 
 	private MsPacManCBRengine cbrEngine;
 	private MsPacManStorageManager storageManager;
+	
+	private MsPacManInfo info;
 
 	public MsPacMan() {
 		this.setName("JPacman");
 		this.setTeam("Team 02");
 		
-		this.storageManager = new MsPacManStorageManager();
+		this.info = new MsPacManInfo();
+		
+		this.storageManager = new MsPacManStorageManager(this.info);
 		this.cbrEngine = new MsPacManCBRengine(this.storageManager);
 	}
 
@@ -49,8 +54,7 @@ public class MsPacMan extends PacmanController {
 			// junction.
 			// This is relevant for the case storage policy
 			if (game.isJunction(game.getPacmanCurrentNodeIndex())) {
-				MsPacManInput input = new MsPacManInput(game);
-				this.storageManager.setGame(game);
+				MsPacManInput input = new MsPacManInput(game, this.info);
 				this.cbrEngine.cycle(input.getQuery());
 
 				move = this.cbrEngine.getSolution();

@@ -10,43 +10,54 @@ import pacman.game.Game;
 public class MsPacManInput extends CBRInput {
 
 	private static final int RANGO_DISTANCIA = 40;
+	
+	/*
+	 * Data structure to hold all information relative to the pacman. Works as a
+	 * Struct.
+	 */
+	public static class MsPacManInfo {
 
-	private Integer score; // current score
-	private Integer level; // current level
+		public Integer score; // current score
+		public Integer level; // current level
+		
+		public Integer index; // current index
+		public MOVE move; // last move made
+		
+		public Integer edibleTime; // time of edible ghost
+		
+		public Integer edibleGhosts; // number of edible ghosts
+		public Integer jailGhosts; // number of ghosts in jail
+		
+		public Integer pillDistance; // nearest pill distance
+		public Integer ppillDistance; // nearest power pill distance
+		
+		public Integer ghostDistance; // nearest ghost distance
+		public Integer edibleGhostDistance; // nearest edible ghost distance
+		
+		public POS relativePosGhost; // relative position of nearest ghosts
+		public POS relativePosEdibleGhost; // relative position of nearest edible ghosts
+		
+	}
 
-	private Integer index; // current index
-	private MOVE move; // last move made
+	private MsPacManInfo info;
 
-	private Integer edibleTime; // time of edible ghost
-
-	private Integer edibleGhosts; // number of edible ghosts
-	private Integer jailGhosts; // number of ghosts in jail
-
-	private Integer pillDistance; // nearest pill distance
-	private Integer ppillDistance; // nearest power pill distance
-
-	private Integer ghostDistance; // nearest ghost distance
-	private Integer edibleGhostDistance; // nearest edible ghost distance
-
-	private POS relativePosGhost; // relative position of nearest ghosts
-	private POS relativePosEdibleGhost; // relative position of nearest edible ghosts
-
-	private int mspacman; // pacman index
-
-	public MsPacManInput(Game game) {
+	public MsPacManInput(Game game, MsPacManInfo info) {
 		super(game);
+		this.info = info;
+		parseInput();
 	}
 
 	@Override
 	public void parseInput() {
-		this.mspacman = game.getPacmanCurrentNodeIndex();
+		if(this.info == null)
+            return;
+		
 		computeScore();
 		computeLevel();
 		computeMsPacMan();
 		computeGhosts();
-		computePowerPills();
 		computePills();
-		computeRelativePosGhost();
+		computePowerPills();
 		computeRelativePosGhost();
 	}
 
@@ -54,19 +65,19 @@ public class MsPacManInput extends CBRInput {
 	public CBRQuery getQuery() {
 		MsPacManDescription description = new MsPacManDescription();
 
-		description.setScore(this.score);
-		description.setLevel(this.level);
-		description.setIndex(this.index);
-		description.setMove(this.move);
-		description.setEdibleTime(this.edibleTime);
-		description.setEdibleGhosts(this.edibleGhosts);
-		description.setJailGhosts(this.jailGhosts);
-		description.setPillDistance(this.pillDistance);
-		description.setPpillDistance(this.ppillDistance);
-		description.setGhostDistance(this.ghostDistance);
-		description.setEdibleGhostDistance(this.edibleGhostDistance);
-		description.setRelativePosGhost(this.relativePosGhost);
-		description.setRelativePosEdibleGhost(this.relativePosEdibleGhost);
+		description.setScore(this.info.score);
+		description.setLevel(this.info.level);
+		description.setIndex(this.info.index);
+		description.setMove(this.info.move);
+		description.setEdibleTime(this.info.edibleTime);
+		description.setEdibleGhosts(this.info.edibleGhosts);
+		description.setJailGhosts(this.info.jailGhosts);
+		description.setPillDistance(this.info.pillDistance);
+		description.setPpillDistance(this.info.ppillDistance);
+		description.setGhostDistance(this.info.ghostDistance);
+		description.setEdibleGhostDistance(this.info.edibleGhostDistance);
+		description.setRelativePosGhost(this.info.relativePosGhost);
+		description.setRelativePosEdibleGhost(this.info.relativePosEdibleGhost);
 
 		CBRQuery query = new CBRQuery();
 		query.setDescription(description);
@@ -74,92 +85,92 @@ public class MsPacManInput extends CBRInput {
 	}
 
 	private void computeScore() {
-		this.score = this.game.getScore();
+		this.info.score = this.game.getScore();
 	}
 
 	private void computeLevel() {
-		this.level = this.game.getCurrentLevel();
+		this.info.level = this.game.getCurrentLevel();
 	}
 	
 	private void computeMsPacMan() {
-		this.index = this.game.getPacmanCurrentNodeIndex();
-		this.move = this.game.getPacmanLastMoveMade();
+		this.info.index = this.game.getPacmanCurrentNodeIndex();
+		this.info.move = this.game.getPacmanLastMoveMade();
 	}
 
 	private void computeGhosts() {
-		this.ghostDistance = Integer.MAX_VALUE;
-		this.edibleGhostDistance = Integer.MAX_VALUE;
-		this.edibleTime = 0;
-		this.edibleGhosts = 0;
-		this.jailGhosts = 0;
+		this.info.ghostDistance = Integer.MAX_VALUE;
+		this.info.edibleGhostDistance = Integer.MAX_VALUE;
+		this.info.edibleTime = 0;
+		this.info.edibleGhosts = 0;
+		this.info.jailGhosts = 0;
 
 		for (GHOST g : GHOST.values()) {
 			if (this.game.getGhostLairTime(g) > 0)
-				this.jailGhosts++;
+				this.info.jailGhosts++;
 			else {
 				int ghost = this.game.getGhostCurrentNodeIndex(g);
-				int distance = this.game.getShortestPathDistance(this.mspacman, ghost);
+				int distance = this.game.getShortestPathDistance(this.info.index, ghost);
 
 				if (this.game.isGhostEdible(g)) {
-					this.edibleGhosts++;
+					this.info.edibleGhosts++;
 
-					this.edibleTime = this.game.getGhostEdibleTime(g);
+					this.info.edibleTime = this.game.getGhostEdibleTime(g);
 
-					if (distance < this.edibleGhostDistance)
-						this.edibleGhostDistance = distance;
+					if (distance < this.info.edibleGhostDistance)
+						this.info.edibleGhostDistance = distance;
 				} else {
-					if (distance < this.ghostDistance)
-						this.ghostDistance = distance;
+					if (distance < this.info.ghostDistance)
+						this.info.ghostDistance = distance;
 				}
 			}
 		}
 	}
 
 	private void computePowerPills() {
-		this.ppillDistance = Integer.MAX_VALUE;
+		this.info.ppillDistance = Integer.MAX_VALUE;
 		for (int ppill : this.game.getActivePowerPillsIndices()) {
-			int distance = this.game.getShortestPathDistance(this.mspacman, ppill);
-			if (distance < this.ppillDistance)
-				this.ppillDistance = distance;
+			int distance = this.game.getShortestPathDistance(this.info.index, ppill);
+			if (distance < this.info.ppillDistance)
+				this.info.ppillDistance = distance;
 		}
 	}
 
 	private void computePills() {
-		this.pillDistance = Integer.MAX_VALUE;
+		this.info.pillDistance = Integer.MAX_VALUE;
 		for (int pill : this.game.getActivePillsIndices()) {
-			int distance = this.game.getShortestPathDistance(this.mspacman, pill);
-			if (distance < this.pillDistance)
-				this.pillDistance = distance;
+			int distance = this.game.getShortestPathDistance(this.info.index, pill);
+			if (distance < this.info.pillDistance)
+				this.info.pillDistance = distance;
 		}
 	}
 
 	private void computeRelativePosGhost() {
-		this.relativePosGhost = POS.NONE;
-		this.relativePosEdibleGhost = POS.NONE;
+		this.info.relativePosGhost = POS.NONE;
+		this.info.relativePosEdibleGhost = POS.NONE;
 		for (GHOST g : GHOST.values()) {
-			if (game.getGhostLairTime(g) > 0)
-				this.relativePosGhost = POS.NONE;
+			if (this.game.getGhostLairTime(g) > 0)
+				this.info.relativePosGhost = POS.NONE;
 			else {
-				if(game.isGhostEdible(g)) {
+				if(this.game.isGhostEdible(g)) {
 					if (fantasmaDelante(g, RANGO_DISTANCIA) && fantasmaDetras(g, RANGO_DISTANCIA)) {
-						this.relativePosEdibleGhost = POS.BOTH;
+						this.info.relativePosEdibleGhost = POS.BOTH;
 					} else if (fantasmaDelante(g, RANGO_DISTANCIA)) {
-						this.relativePosEdibleGhost = POS.FRONT;
+						this.info.relativePosEdibleGhost = POS.FRONT;
 					} else if (fantasmaDetras(g, RANGO_DISTANCIA)) {
-						this.relativePosEdibleGhost = POS.BACK;
+						this.info.relativePosEdibleGhost = POS.BACK;
 					} else {
-						this.relativePosEdibleGhost = POS.NONE;
+						this.info.relativePosEdibleGhost = POS.NONE;
 					}
 				}
 				else {
 					if (fantasmaDelante(g, RANGO_DISTANCIA) && fantasmaDetras(g, RANGO_DISTANCIA)) {
-						this.relativePosGhost = POS.BOTH;
+						this.info.relativePosGhost = POS.BOTH;
 					} else if (fantasmaDelante(g, RANGO_DISTANCIA)) {
-						this.relativePosGhost = POS.FRONT;
+						this.info.relativePosGhost = POS.FRONT;
 					} else if (fantasmaDetras(g, RANGO_DISTANCIA)) {
-						this.relativePosGhost = POS.BACK;
+						this.info.relativePosGhost = POS.BACK;
 					} else {
-						this.relativePosGhost= POS.NONE;
+						this.info.relativePosGhost= POS.NONE;
 					}
 				}
 			}
@@ -167,14 +178,12 @@ public class MsPacManInput extends CBRInput {
 	}
 
 	public boolean fantasmaDelante(GHOST ghost, int maxDistance) {
-		if (game.getGhostLairTime(ghost) > 0)
+		if (this.game.getGhostLairTime(ghost) > 0)
 			return false;
 
-		int pacmanIndex = game.getPacmanCurrentNodeIndex();
-		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
-		MOVE pacmanMove = game.getPacmanLastMoveMade();
+		int ghostIndex = this.game.getGhostCurrentNodeIndex(ghost);
 
-		int[] pathToGhost = game.getShortestPath(pacmanIndex, ghostIndex, pacmanMove);
+		int[] pathToGhost = this.game.getShortestPath(this.info.index, ghostIndex, this.info.move);
 		if (pathToGhost.length > 0 && pathToGhost.length <= maxDistance) {
 			return true;
 		}
@@ -182,14 +191,12 @@ public class MsPacManInput extends CBRInput {
 	}
 
 	public boolean fantasmaDetras(GHOST ghost, int maxDistance) {
-		if (game.getGhostLairTime(ghost) > 0)
+		if (this.game.getGhostLairTime(ghost) > 0)
 			return false;
 
-		int pacmanIndex = game.getPacmanCurrentNodeIndex();
-		int ghostIndex = game.getGhostCurrentNodeIndex(ghost);
-		MOVE pacmanMove = game.getPacmanLastMoveMade();
+		int ghostIndex = this.game.getGhostCurrentNodeIndex(ghost);
 
-		int[] pathToGhost = game.getShortestPath(ghostIndex, pacmanIndex, pacmanMove.opposite());
+		int[] pathToGhost = this.game.getShortestPath(ghostIndex, this.info.index, this.info.move.opposite());
 		if (pathToGhost.length > 0 && pathToGhost.length <= maxDistance) {
 			return true;
 		}
