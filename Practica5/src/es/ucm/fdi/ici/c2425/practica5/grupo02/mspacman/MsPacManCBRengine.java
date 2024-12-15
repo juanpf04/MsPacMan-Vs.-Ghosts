@@ -39,6 +39,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	private CustomPlainTextConnector connector;
 	private CachedLinearCaseBase caseBase;
+
 	private NNConfig simConfig;
 
 	public MsPacManCBRengine(MsPacManStorageManager storageManager) {
@@ -63,7 +64,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		this.connector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
 		this.connector.setCaseBaseFile(CASE_BASE_PATH, this.opponent + ".csv");
 
-		this.storageManager.setCaseBase(this.caseBase); // cambiar a generic si se mejorar los casos base genéricos
+		this.storageManager.setCaseBase(this.caseBase); // TODO cambiar a generic si se mejorar los casos base genéricos
 
 		// Similarity and weights configuration
 
@@ -74,11 +75,11 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		attribute = new Attribute("score", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Interval(15000));
 		this.simConfig.setWeight(attribute, Weithgs.SCORE);
-		
+
 		attribute = new Attribute("level", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Equal());
 		this.simConfig.setWeight(attribute, Weithgs.LEVEL);
-		
+
 		attribute = new Attribute("index", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Equal());
 		this.simConfig.setWeight(attribute, Weithgs.INDEX);
@@ -90,7 +91,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		attribute = new Attribute("edibleTime", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Interval(200));
 		this.simConfig.setWeight(attribute, Weithgs.EDIBLE_TIME);
-		
+
 		attribute = new Attribute("edibleGhosts", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Interval(4));
 		this.simConfig.setWeight(attribute, Weithgs.NUMBER_EDIBLES);
@@ -122,7 +123,8 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		attribute = new Attribute("relativePosEdibleGhost", MsPacManDescription.class);
 		this.simConfig.addMapping(attribute, new Equal());
 		this.simConfig.setWeight(attribute, Weithgs.EDIBLE_GHOST_DISTANCE);
-		
+
+		this.storageManager.setSimConfig(this.simConfig);
 	}
 
 	@Override
@@ -167,13 +169,12 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		// Compute revise & retain
 		CBRCase newCase = createNewCase(query);
 		this.storageManager.reviseAndRetain(newCase);
-
 	}
 
 	private MOVE reuse(Collection<RetrievalResult> eval) {
 		VariablePQ<MOVE> majority_voting = new VariablePQ<>();
-		Iterator<RetrievalResult> topCases = SelectCases.selectTopKRR(eval, 13).iterator();
-
+		Iterator<RetrievalResult> topCases = SelectCases.selectTopKRR(eval, 10).iterator();
+		
 		while (topCases.hasNext()) {
 			RetrievalResult retrieval = topCases.next();
 			CBRCase similarCase = retrieval.get_case();

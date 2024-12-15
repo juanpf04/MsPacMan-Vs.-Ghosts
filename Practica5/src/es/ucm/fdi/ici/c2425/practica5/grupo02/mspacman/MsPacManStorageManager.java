@@ -7,6 +7,7 @@ import java.util.Vector;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCase;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCaseBase;
 import es.ucm.fdi.gaia.jcolibri.method.retain.StoreCasesMethod;
+import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.NNConfig;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.POS;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -15,7 +16,10 @@ import pacman.game.Game;
 public class MsPacManStorageManager {
 
 	private Game game;
+
 	private CBRCaseBase caseBase;
+	private NNConfig simConfig;
+
 	private Vector<CBRCase> buffer;
 
 	private final static int TIME_WINDOW = 3;
@@ -33,7 +37,11 @@ public class MsPacManStorageManager {
 		this.caseBase = caseBase;
 	}
 
-	public void reviseAndRetain(CBRCase newCase) { // TODO revisar que lo haga bien
+	public void setSimConfig(NNConfig simConfig) {
+		this.simConfig = simConfig;
+	}
+
+	public void reviseAndRetain(CBRCase newCase) {
 		this.buffer.add(newCase);
 
 		// Buffer not full yet.
@@ -43,14 +51,14 @@ public class MsPacManStorageManager {
 		CBRCase bCase = this.buffer.remove(0);
 		reviseCase(bCase);
 		retainCase(bCase);
-
 	}
 
-	private void reviseCase(CBRCase bCase) {
+	private void reviseCase(CBRCase bCase) { 
 		MsPacManDescription description = (MsPacManDescription) bCase.getDescription();
 
 		MsPacManResult result = (MsPacManResult) bCase.getResult();
 
+		//TODO puntuar el cambiuo de cada atributo para darle un valor a la revision
 		// Resultados de las metricas
 		result.setScore(metrica_score(description));
 //		result.setEdibleTime(metrica_time_edible_ghost(description));
@@ -71,37 +79,21 @@ public class MsPacManStorageManager {
 		// here you should also check if the case must be stored into persistence (too
 		// similar to existing ones, etc.)
 
-//		MsPacManResult result = (MsPacManResult) bCase.getResult();
-//		
-//		boolean isSimilar = similar(result);
-//
-//		// si es un caso similar y obtiene mas puntos borramos el anterior caso
-//		if (result.getScore() > 0 && isSimilar) { 
-//			List<CBRCase> cases = new ArrayList<CBRCase>();
-//			cases.add(bCase);
-//			this.caseBase.forgetCases(cases);
-//		}
-//
-//		// si lo devemos almacenar
-//		if ((result.getScore() > 0 && isSimilar) || (game.getScore() > 0 && !isSimilar)) 
+		MsPacManResult result = (MsPacManResult) bCase.getResult();
+		
+		
+		double similary = 0.0;
+		// Check if the case is similar to another one
+		if(similary >= 0.95)
+		// si existen casos similares
+		// si conseguimos un mayor resultado, eliminar el caso antiguo
+		//si no, no lo almacenamos el nuevo
+
+		// si lo debemos almacenar
+		if (result.getScore() >= 100 || true) // comprobar si se ha alejao de los ghost, o acercado a ppill y todo eso 
 			StoreCasesMethod.storeCase(this.caseBase, bCase);
 	}
 
-	private boolean similar(MsPacManResult result) { // TODO
-		boolean similar = true;
-
-//		similar &= result.getEdibleGhostDistance() < 20;
-//		similar &= result.getGhostDistance() < 20;
-//		similar &= result.getPillDistance() < 20;
-//		similar &= result.getPpillDistance() < 20;
-//		similar &= result.getEdibleGhosts() == 0;
-//		similar &= result.getJailGhosts() == 0;
-//		similar &= result.getRelativePosEdibleGhost() == 1;
-//		similar &= result.getRelativePosGhost() == 1;
-//		similar &= Math.abs(result.getEdibleTime()) < 20;
-
-		return similar;
-	}
 
 	public void close() {
 		for (CBRCase oldCase : this.buffer) {
@@ -119,6 +111,9 @@ public class MsPacManStorageManager {
 	private int metrica_score(MsPacManDescription description) {
 		int oldScore = description.getScore();
 		int currentScore = game.getScore();
+		
+		System.out.println("Score: " + (currentScore - oldScore));
+		
 		return currentScore - oldScore;
 
 	}
