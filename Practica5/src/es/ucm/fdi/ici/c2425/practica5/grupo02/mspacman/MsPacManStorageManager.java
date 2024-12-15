@@ -1,18 +1,20 @@
 package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCase;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCaseBase;
 import es.ucm.fdi.gaia.jcolibri.method.retain.StoreCasesMethod;
+import es.ucm.fdi.gaia.jcolibri.method.retrieve.RetrievalResult;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.NNConfig;
+import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.NNScoringMethod;
+import es.ucm.fdi.gaia.jcolibri.method.retrieve.selection.SelectCases;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.POS;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManInput.MsPacManInfo;
-import pacman.game.Constants.GHOST;
-import pacman.game.Constants.MOVE;
-import pacman.game.Game;
 
 public class MsPacManStorageManager {
 
@@ -24,11 +26,10 @@ public class MsPacManStorageManager {
 	private Vector<CBRCase> buffer;
 
 	private final static int TIME_WINDOW = 3;
-	private final static int MAX_DISTANCE = 75;
 
 	public MsPacManStorageManager(MsPacManInfo info) {
 		this.buffer = new Vector<CBRCase>();
-		
+
 		this.info = info;
 	}
 
@@ -52,41 +53,61 @@ public class MsPacManStorageManager {
 		retainCase(bCase);
 	}
 
-	private void reviseCase(CBRCase bCase) { 
+	private void reviseCase(CBRCase bCase) {
 		MsPacManDescription description = (MsPacManDescription) bCase.getDescription();
 
 		MsPacManResult result = (MsPacManResult) bCase.getResult();
 
-		
-		int score = 0;
-		
-		//TODO puntuar el cambio de cada atributo para darle un valor a la revision	
+		int score = metrica_score(description); // por ahora solo se mira el score
+
+		// TODO puntuar el cambio de cada atributo para darle un valor a la revision
 		// y valorar si el cambio es positivo o negativo
+
+		// El score se basara en la mejra de puntos, mayor distancia a los fantasmas,
+		// menor distancia a las pastillas, etc.
 		
-		// El score se basara en la mejra de puntos, mayor distancia a los fantasmas, menor distancia a las pastillas, etc.
+		// por ejemplo score = score + X*si se ha alejado de los fantasmas + Y*si se ha acercado a las pills
+		// + Z*si se ha alejado de las powerpills - W*si se ha alejado de los fantasmas comestibles
 		
+		// algo asi 
+
 		result.setScore(score);
 	}
 
 	private void retainCase(CBRCase bCase) {
-		MsPacManResult result = (MsPacManResult) bCase.getResult();
-		
-		// TODO
-		// Calcular la similaridad con los casos de la base de casos
-		// si no hay casos similares, almacenar el caso si el resultado es bueno
-		// si hay casos similares, comparar el resultado con los resultados de los casos similares
-		// si el resultado es mejor, almacenar el caso y eliminar los casos anteriores
-		// si no, no almacenar el caso
-		
-		
-		double similary = 0.0;
+		MsPacManResult newResult = (MsPacManResult) bCase.getResult();
+		List<CBRCase> toForget = new ArrayList<CBRCase>();
+		boolean better = false, similar = false;
 
-		if(similary >= 0.95)
+		// Retrieve similarity scores for the new case against the case base
+		Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(this.caseBase.getCases(), bCase,
+				this.simConfig);
 
-		if (result.getScore() > 0) 
+		Iterator<RetrievalResult> topCases = SelectCases.selectTopKRR(eval, 5).iterator();
+
+		while (topCases.hasNext()) {
+			RetrievalResult retrieval = topCases.next();
+			CBRCase similarCase = retrieval.get_case();
+			double similarity = retrieval.getEval();
+
+			if (similarity >= 0.95) {
+				MsPacManResult oldResult = (MsPacManResult) similarCase.getResult();
+				if (oldResult.getScore() < newResult.getScore()) {
+					toForget.add(similarCase);
+					better = true;
+				}
+				similar = true;
+			}
+		}
+
+		// If there are no similar cases or the new case is better than the similar
+		// cases, store the new case
+		if (!similar || better)
 			StoreCasesMethod.storeCase(this.caseBase, bCase);
-	}
 
+		// Forget the similar cases
+		this.caseBase.forgetCases(toForget);
+	}
 
 	public void close() {
 		for (CBRCase oldCase : this.buffer) {
@@ -104,7 +125,7 @@ public class MsPacManStorageManager {
 	private int metrica_score(MsPacManDescription description) {
 		int oldScore = description.getScore();
 		int currentScore = this.info.score;
-		
+
 		return currentScore - oldScore;
 
 	}
@@ -130,14 +151,12 @@ public class MsPacManStorageManager {
 		return currentDistance - oldDistance;
 	}
 
-
 	// Metrica sobre pills mas cercanas
 	private int metrica_pills_distance(MsPacManDescription description) {
 		int oldPillDistance = description.getPillDistance();
 		int currentPillDistance = this.info.pillDistance;
 		return currentPillDistance - oldPillDistance;
 	}
-
 
 	// Metrica sobre la distancia de la powerpill mas cercana
 	private int metrica_powerpills_distance(MsPacManDescription description) {
@@ -153,7 +172,6 @@ public class MsPacManStorageManager {
 		return currentEdibleGhostsNumber - oldEdibleGhostsNumber;
 	}
 
-
 	// Metrica posicion relativa a un edible ghost setRelativePosEdibleGhost
 	private int metrica_pos_relative_edible_ghost(MsPacManDescription description) {
 		POS oldPosRelative = (POS) description.getRelativePosEdibleGhost();
@@ -162,10 +180,9 @@ public class MsPacManStorageManager {
 		if (oldPosRelative == currentPosRelative) {
 			return 1;
 		} else {
-			if ((oldPosRelative == POS.BOTH
-					&& (currentPosRelative == POS.FRONT || currentPosRelative == POS.BACK)
-					|| (currentPosRelative == POS.BOTH && (oldPosRelative == POS.FRONT
-							|| oldPosRelative == POS.BACK)))) {
+			if ((oldPosRelative == POS.BOTH && (currentPosRelative == POS.FRONT || currentPosRelative == POS.BACK)
+					|| (currentPosRelative == POS.BOTH
+							&& (oldPosRelative == POS.FRONT || oldPosRelative == POS.BACK)))) {
 
 				return 1;
 			} else {
@@ -182,10 +199,9 @@ public class MsPacManStorageManager {
 		if (oldPosRelative == currentPosRelative) {
 			return 1;
 		} else {
-			if ((oldPosRelative == POS.BOTH
-					&& (currentPosRelative == POS.FRONT || currentPosRelative == POS.BACK)
-					|| (currentPosRelative == POS.BOTH && (oldPosRelative == POS.FRONT
-							|| oldPosRelative == POS.BACK)))) {
+			if ((oldPosRelative == POS.BOTH && (currentPosRelative == POS.FRONT || currentPosRelative == POS.BACK)
+					|| (currentPosRelative == POS.BOTH
+							&& (oldPosRelative == POS.FRONT || oldPosRelative == POS.BACK)))) {
 
 				return 1;
 			} else {
@@ -193,7 +209,6 @@ public class MsPacManStorageManager {
 			}
 		}
 	}
-
 
 	// Metrica para el tiempo de los fantasmas comestibles
 	private int metrica_time_edible_ghost(MsPacManDescription description) {
