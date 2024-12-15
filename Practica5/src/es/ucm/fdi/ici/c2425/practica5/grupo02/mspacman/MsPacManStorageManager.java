@@ -7,7 +7,7 @@ import java.util.Vector;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCase;
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRCaseBase;
 import es.ucm.fdi.gaia.jcolibri.method.retain.StoreCasesMethod;
-import es.ucm.fdi.ici.c2425.practica5.grupo02.RelativePosition;
+import es.ucm.fdi.ici.c2425.practica5.grupo02.POS;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
@@ -246,16 +246,16 @@ public class MsPacManStorageManager {
 
 	// Metrica posicion relativa a un edible ghost setRelativePosEdibleGhost
 	private int metrica_pos_relative_edible_ghost(MsPacManDescription description) {
-		RelativePosition oldPosRelative = (RelativePosition) description.getRelativePosEdibleGhost();
-		RelativePosition currentPosRelative = posicion_relativa(true);
+		POS oldPosRelative = (POS) description.getRelativePosEdibleGhost();
+		POS currentPosRelative = posicion_relativa(true);
 
 		if (oldPosRelative == currentPosRelative) {
 			return 1;
 		} else {
-			if ((oldPosRelative == RelativePosition.AMBOS
-					&& (currentPosRelative == RelativePosition.DELANTE || currentPosRelative == RelativePosition.DETRAS)
-					|| (currentPosRelative == RelativePosition.AMBOS && (oldPosRelative == RelativePosition.DELANTE
-							|| oldPosRelative == RelativePosition.DETRAS)))) {
+			if ((oldPosRelative == POS.BOTH
+					&& (currentPosRelative == POS.FRONT || currentPosRelative == POS.BACK)
+					|| (currentPosRelative == POS.BOTH && (oldPosRelative == POS.FRONT
+							|| oldPosRelative == POS.BACK)))) {
 
 				return 1;
 			} else {
@@ -266,16 +266,16 @@ public class MsPacManStorageManager {
 
 	// Metrica posicion relativa a un ghost setRelativePoGhost
 	private int metrica_pos_relative_ghost(MsPacManDescription description) {
-		RelativePosition oldPosRelative = (RelativePosition) description.getRelativePosEdibleGhost();
-		RelativePosition currentPosRelative = posicion_relativa(false);
+		POS oldPosRelative = (POS) description.getRelativePosEdibleGhost();
+		POS currentPosRelative = posicion_relativa(false);
 
 		if (oldPosRelative == currentPosRelative) {
 			return 1;
 		} else {
-			if ((oldPosRelative == RelativePosition.AMBOS
-					&& (currentPosRelative == RelativePosition.DELANTE || currentPosRelative == RelativePosition.DETRAS)
-					|| (currentPosRelative == RelativePosition.AMBOS && (oldPosRelative == RelativePosition.DELANTE
-							|| oldPosRelative == RelativePosition.DETRAS)))) {
+			if ((oldPosRelative == POS.BOTH
+					&& (currentPosRelative == POS.FRONT || currentPosRelative == POS.BACK)
+					|| (currentPosRelative == POS.BOTH && (oldPosRelative == POS.FRONT
+							|| oldPosRelative == POS.BACK)))) {
 
 				return 1;
 			} else {
@@ -284,7 +284,7 @@ public class MsPacManStorageManager {
 		}
 	}
 
-	private RelativePosition posicion_relativa(boolean edible) {
+	private POS posicion_relativa(boolean edible) {
 		int pacmanIndex = game.getPacmanCurrentNodeIndex();
 		MOVE lastMove = game.getPacmanLastMoveMade();
 		MOVE lastMoveOpposite = lastMove.opposite();
@@ -308,15 +308,15 @@ public class MsPacManStorageManager {
 		}
 
 		if (delante && detras) {
-			return RelativePosition.AMBOS;
+			return POS.BOTH;
 		} else if (delante || detras) {
 			if (delante) {
-				return RelativePosition.DELANTE;
+				return POS.FRONT;
 			} else {
-				return RelativePosition.DETRAS;
+				return POS.BACK;
 			}
 		}
-		return RelativePosition.NINGUNO;
+		return POS.NONE;
 	}
 
 	// Metrica para el tiempo de los fantasmas comestibles

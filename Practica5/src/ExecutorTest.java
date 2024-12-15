@@ -16,13 +16,13 @@ public class ExecutorTest {
         PacmanController pacMan = new MsPacMan();
         GhostController ghosts = new AggressiveGhosts();
         
-        int i = executor.runGame(pacMan, ghosts, 0); //last parameter defines speed
-        int j = 0;
-        int k=0;
-		while(k++<1) 
-			j =executor.runGame(pacMan, ghosts, 0); //last parameter defines speed
-    
-		System.out.println(j + " - " + i + " = " + (j - i));
+        int k = 1;
+		while (k-- > 0) {
+			int i = executor.runGame(pacMan, ghosts, 0); // last parameter defines speed
+			int j = executor.runGame(pacMan, ghosts, 0); // last parameter defines speed
+
+			System.out.println(j + " - " + i + " = " + (j - i));
+		}
     }
 	
 }

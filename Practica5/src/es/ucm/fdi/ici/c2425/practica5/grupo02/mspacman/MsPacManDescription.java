@@ -16,8 +16,8 @@ public class MsPacManDescription implements CaseComponent {
 	private Integer edibleGhostDistance; // nearest edible ghost distance
 	private Integer edibleGhosts; // number of edible ghosts
 	private Integer jailGhosts; // number of ghosts in jail
-	private Enum relativePosGhost; // relative position of nearest ghost
-	private Enum relativePosEdibleGhost; // relative position of nearest edible ghost
+	private Enum relativePosGhost; // relative position of nearest ghosts
+	private Enum relativePosEdibleGhost; // relative position of nearest edible ghosts
 
 	public Integer getId() {
 		return id;

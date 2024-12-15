@@ -1,7 +1,7 @@
 package es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman;
 
 import es.ucm.fdi.gaia.jcolibri.cbrcore.CBRQuery;
-import es.ucm.fdi.ici.c2425.practica5.grupo02.RelativePosition;
+import es.ucm.fdi.ici.c2425.practica5.grupo02.POS;
 import es.ucm.fdi.ici.cbr.CBRInput;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -67,6 +67,7 @@ public class MsPacManInput extends CBRInput {
 	private void computeGhosts() {
 		this.ghostDistance = Integer.MAX_VALUE;
 		this.edibleGhostDistance = Integer.MAX_VALUE;
+		this.edibleTime = 0;
 		this.edibleGhosts = 0;
 		this.jailGhosts = 0;
 
@@ -113,13 +114,13 @@ public class MsPacManInput extends CBRInput {
 	private void computeRelativePosGhost(Enum relative) {
 		for (GHOST g : GHOST.values()) {
 			if (fantasmaDelante(g, RANGO_DISTANCIA) && fantasmaDetras(g, RANGO_DISTANCIA)) {
-				relative = RelativePosition.AMBOS;
+				relative = POS.BOTH;
 			} else if (fantasmaDelante(g, RANGO_DISTANCIA)) {
-				relative = RelativePosition.DELANTE;
+				relative = POS.FRONT;
 			} else if (fantasmaDetras(g, RANGO_DISTANCIA)) {
-				relative = RelativePosition.DETRAS;
+				relative = POS.BACK;
 			} else {
-				relative = RelativePosition.NINGUNO;
+				relative = POS.NONE;
 			}
 		}
 	}
