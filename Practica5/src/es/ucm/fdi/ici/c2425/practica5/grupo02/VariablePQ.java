@@ -8,7 +8,7 @@ import java.util.*;
  */
 public class VariablePQ<T> {
 
-    private final Map<T, Integer> priorityMap; // Map to store priorities
+    private final Map<T, Double> priorityMap; // Map to store priorities
     private final TreeSet<T> priorityQueue;   // Priority queue sorted by priority
 
     /**
@@ -17,7 +17,7 @@ public class VariablePQ<T> {
     public VariablePQ() {
         this.priorityMap = new HashMap<>();
         this.priorityQueue = new TreeSet<>((a, b) -> {
-            int priorityComparison = Integer.compare(this.priorityMap.get(a), this.priorityMap.get(b));
+            int priorityComparison = Double.compare(this.priorityMap.get(a), this.priorityMap.get(b));
             if (priorityComparison == 0) {
                 return a.hashCode() - b.hashCode(); // Tie-breaking using hashCode
             }
@@ -32,7 +32,7 @@ public class VariablePQ<T> {
      * @param element  The element to add.
      * @param priority The priority of the element.
      */
-    public void add(T element, int priority) {
+    public void add(T element, double priority) {
         if (this.priorityMap.containsKey(element)) {
             update(element, priority); // Update priority if element exists
             return;
@@ -67,7 +67,7 @@ public class VariablePQ<T> {
      * @param element     The element to update.
      * @param newPriority The new priority value.
      */
-    public void update(T element, int newPriority) {
+    public void update(T element, double newPriority) {
         if (!this.priorityMap.containsKey(element)) {
             add(element, newPriority); // Add element if it does not exist
             return;
@@ -83,12 +83,12 @@ public class VariablePQ<T> {
      * @param element         The element whose priority needs to be increased.
      * @param increaseByValue The value to add to the current priority.
      */
-    public void increase(T element, int increaseByValue) {
+    public void increase(T element, double increaseByValue) {
         if (!this.priorityMap.containsKey(element)) {
             add(element, increaseByValue); // Add element if it does not exist
             return;
         }
-        int currentPriority = this.priorityMap.get(element);
+        double currentPriority = this.priorityMap.get(element);
         update(element, currentPriority + increaseByValue); // Use the update method to set the new priority
     }
 

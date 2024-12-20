@@ -13,7 +13,6 @@ import es.ucm.fdi.gaia.jcolibri.method.retrieve.RetrievalResult;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.NNConfig;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.NNretrieval.NNScoringMethod;
 import es.ucm.fdi.gaia.jcolibri.method.retrieve.selection.SelectCases;
-import es.ucm.fdi.ici.c2425.practica5.grupo02.POS;
 import es.ucm.fdi.ici.c2425.practica5.grupo02.mspacman.MsPacManInput.MsPacManInfo;
 
 public class MsPacManStorageManager {
@@ -25,7 +24,7 @@ public class MsPacManStorageManager {
 
 	private Vector<CBRCase> buffer;
 
-	private final static int TIME_WINDOW = 3;
+	private final static int TIME_WINDOW = 5;
 
 	public MsPacManStorageManager(MsPacManInfo info) {
 		this.buffer = new Vector<CBRCase>();
@@ -55,23 +54,23 @@ public class MsPacManStorageManager {
 
 	private void reviseCase(CBRCase bCase) {
 		MsPacManDescription description = (MsPacManDescription) bCase.getDescription();
-
 		MsPacManResult result = (MsPacManResult) bCase.getResult();
 
-		int score = metrica_score(description); // por ahora solo se mira el score
+		int initialScore = description.getScore();
+		int currentScore = this.info.score;
 
-		// TODO puntuar el cambio de cada atributo para darle un valor a la revision
-		// y valorar si el cambio es positivo o negativo
+		// Calculating the overall revised score
+		int revisedScore = (currentScore - initialScore) * 3;
 
-		// El score se basara en la mejra de puntos, mayor distancia a los fantasmas,
-		// menor distancia a las pastillas, etc.
-		
-		// por ejemplo score = score + X*si se ha alejado de los fantasmas + Y*si se ha acercado a las pills
-		// + Z*si se ha alejado de las powerpills - W*si se ha alejado de los fantasmas comestibles
-		
-		// algo asi 
+		revisedScore += computePillsChange(description.getPillDistance(), this.info.pillDistance);
+		revisedScore += computePPillsChange(description.getPpillDistance(), this.info.ppillDistance);
+		revisedScore += computeGhostChange(description.getGhostDistance(), this.info.ghostDistance);
+		revisedScore += computeEdibleGhostChange(description.getEdibleGhostDistance(), this.info.edibleGhostDistance);
+		revisedScore += computeEdibleGhostCountChange(description.getEdibleGhosts(), this.info.edibleGhosts);
+		revisedScore += computeJailGhostCountChange(description.getJailGhosts(), this.info.jailGhosts);
 
-		result.setScore(score);
+		// Update the case result with the revised score
+		result.setScore(revisedScore);
 	}
 
 	private void retainCase(CBRCase bCase) {
@@ -83,14 +82,14 @@ public class MsPacManStorageManager {
 		Collection<RetrievalResult> eval = NNScoringMethod.evaluateSimilarity(this.caseBase.getCases(), bCase,
 				this.simConfig);
 
-		Iterator<RetrievalResult> topCases = SelectCases.selectTopKRR(eval, 5).iterator();
+		Iterator<RetrievalResult> topCases = SelectCases.selectTopKRR(eval, 10).iterator();
 
 		while (topCases.hasNext()) {
 			RetrievalResult retrieval = topCases.next();
 			CBRCase similarCase = retrieval.get_case();
 			double similarity = retrieval.getEval();
 
-			if (similarity >= 0.95) {
+			if (similarity >= 0.9) {
 				MsPacManResult oldResult = (MsPacManResult) similarCase.getResult();
 				if (oldResult.getScore() < newResult.getScore()) {
 					toForget.add(similarCase);
@@ -101,8 +100,8 @@ public class MsPacManStorageManager {
 		}
 
 		// If there are no similar cases or the new case is better than the similar
-		// cases, store the new case
-		if (!similar || better)
+		// cases and is positive score, store the new case
+		if ((!similar || better) && newResult.getScore() > 0)
 			StoreCasesMethod.storeCase(this.caseBase, bCase);
 
 		// Forget the similar cases
@@ -121,100 +120,66 @@ public class MsPacManStorageManager {
 		return this.buffer.size();
 	}
 
-	// FUNCOINES QUE MIDEN LA EFECTIVIDAD DE CADA TRIBUTO DECLARADO
-	private int metrica_score(MsPacManDescription description) {
-		int oldScore = description.getScore();
-		int currentScore = this.info.score;
-
-		return currentScore - oldScore;
-
+	/**
+	 * Computes the score change based on pill distance improvement.
+	 */
+	private int computePillsChange(int initialPillDistance, int currentPillDistance) {
+		if (initialPillDistance == Integer.MAX_VALUE || currentPillDistance == Integer.MAX_VALUE)
+            return 0;
+		int pillWeight = 5;
+		int distanceChange = initialPillDistance - currentPillDistance; // Positive if closer
+		return pillWeight * distanceChange;
 	}
 
-	// Metrica para comparar el numero de fantasmas comestibles
-	private int metrica_number_edible_ghosts(MsPacManDescription description) {
-		int oldEdibleGhostsNumber = description.getEdibleGhosts();
-		int currentEdibleGhostsNumber = this.info.edibleGhosts;
-		return currentEdibleGhostsNumber - oldEdibleGhostsNumber;
+	/**
+	 * Computes the score change based on power pill distance improvement.
+	 */
+	private int computePPillsChange(int initialPPillDistance, int currentPPillDistance) {
+		if (initialPPillDistance == Integer.MAX_VALUE || currentPPillDistance == Integer.MAX_VALUE)
+            return 0;
+		int powerPillWeight = 10;
+		int distanceChange = initialPPillDistance - currentPPillDistance; // Positive if closer
+		return powerPillWeight * distanceChange;
 	}
 
-	// Metrica sobre la distancia del fantasma comestible mas cercano
-	private int metrica_nearest_edible_ghost_distance(MsPacManDescription description) {
-		int oldDistance = description.getEdibleGhostDistance();
-		int currentDistance = this.info.edibleGhostDistance;
-		return currentDistance - oldDistance;
+	/**
+	 * Computes the score change based on ghost distance improvement (moving away
+	 * from ghosts).
+	 */
+	private int computeGhostChange(int initialGhostDistance, int currentGhostDistance) {
+		if (initialGhostDistance == Integer.MAX_VALUE || currentGhostDistance == Integer.MAX_VALUE)
+            return 0;
+		int ghostWeight = 15;
+		int distanceChange = currentGhostDistance - initialGhostDistance; // Positive if further away
+		return ghostWeight * distanceChange;
 	}
 
-	// Metrica sobre la distancia del fantasma no comestible mas cercano
-	private int metrica_nearest_ghost_distance(MsPacManDescription description) {
-		int oldDistance = description.getGhostDistance();
-		int currentDistance = this.info.ghostDistance;
-		return currentDistance - oldDistance;
+	/**
+	 * Computes the score change based on edible ghost distance improvement.
+	 */
+	private int computeEdibleGhostChange(int initialEdibleGhostDistance, int currentEdibleGhostDistance) {
+		if (initialEdibleGhostDistance == Integer.MAX_VALUE || currentEdibleGhostDistance == Integer.MAX_VALUE)
+			return 0;		
+		int edibleGhostWeight = 20;
+		int distanceChange = initialEdibleGhostDistance - currentEdibleGhostDistance; // Positive if closer
+		return edibleGhostWeight * distanceChange;
 	}
 
-	// Metrica sobre pills mas cercanas
-	private int metrica_pills_distance(MsPacManDescription description) {
-		int oldPillDistance = description.getPillDistance();
-		int currentPillDistance = this.info.pillDistance;
-		return currentPillDistance - oldPillDistance;
+	/**
+	 * Computes the score change based on edible ghost count reduction.
+	 */
+	private int computeEdibleGhostCountChange(int initialEdibleGhosts, int currentEdibleGhosts) {
+		int edibleGhostCountWeight = 20; // Negative weight for reducing edible ghosts
+		int countChange = currentEdibleGhosts - initialEdibleGhosts;
+		return edibleGhostCountWeight * (countChange > 0 ? countChange : 0);
 	}
 
-	// Metrica sobre la distancia de la powerpill mas cercana
-	private int metrica_powerpills_distance(MsPacManDescription description) {
-		int oldDistance = description.getPpillDistance();
-		int currentDistance = this.info.ppillDistance;
-		return currentDistance - oldDistance;
+	/**
+	 * Computes the score change based on jail ghost count increase.
+	 */
+	private int computeJailGhostCountChange(int initialJailGhosts, int currentJailGhosts) {
+		int jailGhostWeight = 10;
+		int countChange = currentJailGhosts - initialJailGhosts;
+		return jailGhostWeight * (countChange > 0 ? countChange : 0);
 	}
-
-	// Metrica para comparar el numero de fantasmas en la jaula
-	private int metrica_number_jail_ghosts(MsPacManDescription description) {
-		int oldEdibleGhostsNumber = description.getJailGhosts();
-		int currentEdibleGhostsNumber = this.info.jailGhosts;
-		return currentEdibleGhostsNumber - oldEdibleGhostsNumber;
-	}
-
-	// Metrica posicion relativa a un edible ghost setRelativePosEdibleGhost
-	private int metrica_pos_relative_edible_ghost(MsPacManDescription description) {
-		POS oldPosRelative = (POS) description.getRelativePosEdibleGhost();
-		POS currentPosRelative = this.info.relativePosEdibleGhost;
-
-		if (oldPosRelative == currentPosRelative) {
-			return 1;
-		} else {
-			if ((oldPosRelative == POS.BOTH && (currentPosRelative == POS.FRONT || currentPosRelative == POS.BACK)
-					|| (currentPosRelative == POS.BOTH
-							&& (oldPosRelative == POS.FRONT || oldPosRelative == POS.BACK)))) {
-
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-	}
-
-	// Metrica posicion relativa a un ghost setRelativePoGhost
-	private int metrica_pos_relative_ghost(MsPacManDescription description) {
-		POS oldPosRelative = (POS) description.getRelativePosEdibleGhost();
-		POS currentPosRelative = this.info.relativePosGhost;
-
-		if (oldPosRelative == currentPosRelative) {
-			return 1;
-		} else {
-			if ((oldPosRelative == POS.BOTH && (currentPosRelative == POS.FRONT || currentPosRelative == POS.BACK)
-					|| (currentPosRelative == POS.BOTH
-							&& (oldPosRelative == POS.FRONT || oldPosRelative == POS.BACK)))) {
-
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-	}
-
-	// Metrica para el tiempo de los fantasmas comestibles
-	private int metrica_time_edible_ghost(MsPacManDescription description) {
-		int oldTime = description.getEdibleTime();
-		int currentTime = this.info.edibleTime;
-		return currentTime - oldTime;
-	}
-
 }

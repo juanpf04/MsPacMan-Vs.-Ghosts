@@ -33,6 +33,8 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 	private String opponent;
 	private MOVE action;
 	private MsPacManStorageManager storageManager;
+	
+	private final static boolean LEARN_GENERIC = false; // Change to true to improve the generic case base
 
 	private CustomPlainTextConnector genericConnector;
 	private CachedLinearCaseBase genericCaseBase;
@@ -64,7 +66,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		this.connector.initFromXMLfile(FileIO.findFile(CONNECTOR_FILE_PATH));
 		this.connector.setCaseBaseFile(CASE_BASE_PATH, this.opponent + ".csv");
 
-		this.storageManager.setCaseBase(this.caseBase); // TODO cambiar a generic si se mejorar los casos base genéricos
+		this.storageManager.setCaseBase(LEARN_GENERIC ? this.genericCaseBase : this.caseBase);
 
 		// Similarity and weights configuration
 
@@ -131,7 +133,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 	public CBRCaseBase preCycle() throws ExecutionException {
 		this.caseBase.init(this.connector);
 		this.genericCaseBase.init(this.genericConnector);
-		return this.caseBase;
+		return LEARN_GENERIC ? this.genericCaseBase : this.caseBase;
 	}
 
 	@Override
@@ -173,7 +175,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 	private MOVE reuse(Collection<RetrievalResult> eval) {
 		VariablePQ<MOVE> majority_voting = new VariablePQ<>();
-		Iterator<RetrievalResult> topCases = SelectCases.selectTopKRR(eval, 10).iterator();
+		Iterator<RetrievalResult> topCases = SelectCases.selectTopKRR(eval, 5).iterator();
 		
 		while (topCases.hasNext()) {
 			RetrievalResult retrieval = topCases.next();
@@ -185,7 +187,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 
 			// If enough similarity
 			if (similarity >= 0.7)
-				majority_voting.increase(solution.getAction(), 1);
+				majority_voting.increase(solution.getAction(), similarity);
 		}
 
 		// Takes the action of the KNNs with majority voting
@@ -201,7 +203,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 		MsPacManDescription newDescription = (MsPacManDescription) query.getDescription();
 		MsPacManResult newResult = new MsPacManResult();
 		MsPacManSolution newSolution = new MsPacManSolution();
-		int newId = this.caseBase.getNextId();
+		int newId = (LEARN_GENERIC ? this.genericCaseBase : this.caseBase).getNextId();
 		newId += this.storageManager.getPendingCases();
 		newDescription.setId(newId);
 		newResult.setId(newId);
