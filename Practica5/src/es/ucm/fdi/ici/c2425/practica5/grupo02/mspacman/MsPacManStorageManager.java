@@ -69,7 +69,17 @@ public class MsPacManStorageManager {
 		// por ejemplo score = score + X*si se ha alejado de los fantasmas + Y*si se ha acercado a las pills
 		// + Z*si se ha alejado de las powerpills - W*si se ha alejado de los fantasmas comestibles
 		
-		// algo asi 
+		// Adjust score based on the situation
+		score += 5 * metrica_number_edible_ghosts(description);  // Encourages capturing edible ghosts
+		score -= 3 * metrica_nearest_edible_ghost_distance(description);  // Prefers proximity to edible ghosts
+		score += 3 * metrica_nearest_ghost_distance(description);  // Prefers distance from non-edible ghosts
+		score -= 2 * metrica_pills_distance(description);  // Prefers proximity to normal pills
+		score -= 4 * metrica_powerpills_distance(description);  // Prefers proximity to power pills
+		score += 2 * metrica_number_jail_ghosts(description);  // Rewards sending ghosts to the jail
+		score += 3 * metrica_pos_relative_edible_ghost(description);  // Positional advantage near edible ghosts
+		score -= 2 * metrica_pos_relative_ghost(description);  // Penalizes positional disadvantage near non-edible ghosts
+		score += 1 * metrica_time_edible_ghost(description);  // Rewards more time for edible ghosts
+		
 
 		result.setScore(score);
 	}
