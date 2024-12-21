@@ -186,7 +186,7 @@ public class MsPacManCBRengine implements StandardCBRApplication {
 			MsPacManSolution solution = (MsPacManSolution) similarCase.getSolution();
 
 			// If enough similarity
-			if (similarity >= 0.7)
+			if (similarity >= 0.8)
 				majority_voting.increase(solution.getAction(), similarity);
 		}
 
